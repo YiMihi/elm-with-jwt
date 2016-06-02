@@ -25,3 +25,9 @@
 - Foundation or Bootstrap?
 - Elm: How to make http requests? Management of promises?
 - Elm: How to handle routing?
+
+## Collected Resources
+
+- Install the Elm language binaries: [https://www.npmjs.com/package/elm](https://www.npmjs.com/package/elm) `npm install -g elm`
+- [Documentation](http://elm-lang.org/docs) / [The Guide](http://guide.elm-lang.org/)
+- [HTTP example](http://elm-lang.org/examples/http)
