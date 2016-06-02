@@ -4,7 +4,9 @@
     - About Elm
     - About JSON Web Tokens
 - Installing Elm
-    - How to install Elm globally
+    - How to install Elm globally: `npm install -g elm`
+    - How to create an Elm project: 
+        - `elm package install`
     - Dependencies / build config
 - Hello World Elm app 
     - Create a basic main view
@@ -29,5 +31,6 @@
 ## Collected Resources
 
 - Install the Elm language binaries: [https://www.npmjs.com/package/elm](https://www.npmjs.com/package/elm) `npm install -g elm`
+- Elm tools [Get Started](http://elm-lang.org/get-started)
 - [Documentation](http://elm-lang.org/docs) / [The Guide](http://guide.elm-lang.org/)
 - [HTTP example](http://elm-lang.org/examples/http)
