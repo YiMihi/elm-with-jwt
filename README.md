@@ -1,1 +1,2 @@
-# elm-with-jwt
+# Authentication in Elm with JWT
+
