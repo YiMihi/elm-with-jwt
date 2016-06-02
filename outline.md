@@ -16,8 +16,10 @@
     - How functions work
     - If expressions
     - Records (like objects in JS)
-- Hello World Elm app    
+- Hello World Elm app
     - Create a basic main view
+    - Intro to `elm-reactor`
+    - How to use `gulp-elm`
 - How to call an API with Elm
     - Call unauthenticated route from [nodejs-jwt-authentication-sample](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) GET `/api/random-quote`
 - How to authenticate with JWT
@@ -42,3 +44,4 @@
 - Elm tools [Get Started](http://elm-lang.org/get-started)
 - [Documentation](http://elm-lang.org/docs) / [The Guide](http://guide.elm-lang.org/)
 - [HTTP example](http://elm-lang.org/examples/http)
+- [gulp-elm](https://www.npmjs.com/package/gulp-elm)
