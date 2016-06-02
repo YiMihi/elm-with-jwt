@@ -1,0 +1,27 @@
+{
+  "name": "elm-with-jwt",
+  "version": "0.0.1",
+  "author": "Kim Maida",
+  "description": "Authenticating an Elm App with JWT",
+  "main": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YiMihi/elm-with-jwt.git"
+  },
+  "keywords": [
+    "elm"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/YiMihi/elm-with-jwt/issues"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "homepage": "https://github.com/YiMihi/elm-with-jwt",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-elm": "^0.4.4"
+  }
+}
