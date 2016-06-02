@@ -8,7 +8,15 @@
     - How to create an Elm project: 
         - `elm package install`
     - Dependencies / build config
-- Hello World Elm app 
+        - Update `elm-package.json`
+- Familiarizing with Elm language 
+    - *Note:* this needs to just be a quick crash course with links to the docs, or this section will get way too long very quickly!
+    - `elm-repl`
+    - Typing, syntax, lack of truthiness
+    - How functions work
+    - If expressions
+    - Records (like objects in JS)
+- Hello World Elm app    
     - Create a basic main view
 - How to call an API with Elm
     - Call unauthenticated route from [nodejs-jwt-authentication-sample](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) GET `/api/random-quote`
