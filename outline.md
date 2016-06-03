@@ -9,6 +9,7 @@
         - `elm package install`
     - Dependencies / build config
         - Update `elm-package.json`
+        - Set up `gulp`
 - Familiarizing with Elm language 
     - *Note:* this needs to just be a quick crash course with links to the docs, or this section will get way too long very quickly!
     - `elm-repl`
@@ -18,8 +19,8 @@
     - Records (like objects in JS)
 - Hello World Elm app
     - Create a basic main view
-    - Intro to `elm-reactor`
-    - How to use `gulp-elm`
+    - Brief intro to `elm-reactor`
+    - Viewing the app in browser (gulp server `localhost:3000`)
 - How to call an API with Elm
     - Call unauthenticated route from [nodejs-jwt-authentication-sample](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) GET `/api/random-quote`
 - How to authenticate with JWT
@@ -33,10 +34,10 @@
 
 ## Considerations / Research / TODOs
 
-- Gulp? Webpack?
-- Foundation or Bootstrap?
-- Elm: How to make http requests? Management of promises?
-- Elm: How to handle routing?
+[x] Gulp
+[x] Foundation or Bootstrap? - Elm does not support external stylesheets well at this time
+[ ] Elm: How to make http requests? Management of subscriptions/promises?
+[ ] Elm: How to handle routing?
 
 ## Collected Resources
 
