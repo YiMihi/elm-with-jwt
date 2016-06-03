@@ -41,7 +41,7 @@ type Msg
     | HttpError Http.Error
     | Username String
     | Password String
-    | RegisterUser
+    | ClickRegisterUser
     | RegisterUserSuccess
     
 api : String
@@ -74,38 +74,8 @@ registerUser model =
     in 
         Http.post (Json.maybe Json.string) registerUrl body
         --|> Task.map getToken
-        |> Task.perform HttpError RegisterUserSuccess registerUser
+        --|> Task.perform HttpError RegisterUserSuccess registerUser
                     
-               
--- View
-
-view : Model -> Html Msg
-view model =
-    div [ class "container row text-center" ] [
-        h2 [] [ text "Chuck Norris Quotes" ]
-        , button [ class "btn btn-primary", onClick GetQuote ] [ text "Grab a quote!" ]
-        , blockquote [ class "text-left" ] [ 
-            p [] [text model.quote] 
-        ]
-        , Html.form [ id "form", class "text-left" ] [
-            h3 [ class "text-center" ] [ text "Register or Log In" ]
-            , div [ class "form-group row" ] [
-                div [ class "col-md-offset-4 col-md-4" ] [
-                    label [ for "username" ] [ text "Username:" ]
-                    , input [ id "username", type' "text", class "form-control", onInput Username ] []
-                ]    
-            ]
-            , div [ class "form-group row" ] [
-                div [ class "col-md-offset-4 col-md-4" ] [
-                    label [ for "password" ] [ text "Password:" ]
-                    , input [ id "password", type' "password", class "form-control", onInput Password ] []
-                ]    
-            ]
-            , button [ class "btn btn-primary", onClick RegisterUser ] [ text "Register" ]
-            --, button [ class "btn btn-secondary", onClick LogIn ] [ text "Log In" ]
-        ]
-    ]
-    
 -- Update
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -121,13 +91,44 @@ update action model =
             ({ model | username = username }, Cmd.none)
         Password password ->
             ({ model | password = password }, Cmd.none)
-        RegisterUser ->
-            (model, registerUser model)
+        ClickRegisterUser ->
+            --(model, registerUser model) this is throwing an error about mismatched types
+            (model, Cmd.none)
         RegisterUserSuccess ->
             ({ model | token = "yay" }, Cmd.none)    
         --GetToken ->
+                       
+-- View
+
+view : Model -> Html Msg
+view model =
+    div [ class "container row text-center" ] [
+        h2 [] [ text "Chuck Norris Quotes" ]
+        , button [ class "btn btn-primary", onClick GetQuote ] [ text "Grab a quote!" ]
+        , blockquote [ class "text-left" ] [ 
+            p [] [text model.quote] 
+        ]
+        , Html.form [ id "form", class "text-left" ] [
+            h3 [ class "text-center" ] [ text "Log In or Register" ]
+            , div [ class "form-group row" ] [
+                div [ class "col-md-offset-4 col-md-4" ] [
+                    label [ for "username" ] [ text "Username:" ]
+                    , input [ id "username", type' "text", class "form-control", onInput Username ] []
+                ]    
+            ]
+            , div [ class "form-group row" ] [
+                div [ class "col-md-offset-4 col-md-4" ] [
+                    label [ for "password" ] [ text "Password:" ]
+                    , input [ id "password", type' "password", class "form-control", onInput Password ] []
+                ]    
+            ]
+            , div [ class "text-center" ] [
+                button [ class "btn btn-primary" ] [ text "Log In" ]
+                , button [ class "btn btn-link", onClick ClickRegisterUser, href "" ] [ text "Register" ]
+            ] 
+        ]
+    ]
                 
-    
 -- Subscriptions
 
 subscriptions : Model -> Sub Msg
