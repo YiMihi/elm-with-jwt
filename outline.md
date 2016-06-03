@@ -20,6 +20,7 @@
 - Hello World Elm app
     - Create a basic main view
     - Brief intro to `elm-reactor`
+    - `index.html` and styles
     - Viewing the app in browser (gulp server `localhost:3000`)
 - How to call an API with Elm
     - Call unauthenticated route from [nodejs-jwt-authentication-sample](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) GET `/api/random-quote`
@@ -35,7 +36,7 @@
 ## Considerations / Research / TODOs
 
 - [x] Gulp
-- [x] Foundation or Bootstrap? - Elm does not support external stylesheets well at this time
+- [x] Bootstrap
 - [ ] Elm: How to make http requests? Management of subscriptions/promises?
 - [ ] Elm: How to handle routing?
 

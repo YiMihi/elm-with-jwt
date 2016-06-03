@@ -59,4 +59,3 @@ subscriptions model =
 getRandomQuote : Platform.Task Http.Error String
 getRandomQuote = 
     Http.getString "http://localhost:3001/api/random-quote"
-            
