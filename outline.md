@@ -38,6 +38,7 @@
 - [x] Gulp
 - [x] Bootstrap
 - [ ] Elm: How to make http requests? Management of subscriptions/promises?
+- [ ] localStorage
 - [ ] Elm: How to handle routing?
 
 ## Collected Resources
@@ -45,5 +46,6 @@
 - Install the Elm language binaries: [https://www.npmjs.com/package/elm](https://www.npmjs.com/package/elm) `npm install -g elm`
 - Elm tools [Get Started](http://elm-lang.org/get-started)
 - [Documentation](http://elm-lang.org/docs) / [The Guide](http://guide.elm-lang.org/)
+- [Tutorial](http://www.elm-tutorial.org/en)
 - [HTTP example](http://elm-lang.org/examples/http)
 - [gulp-elm](https://www.npmjs.com/package/gulp-elm)
