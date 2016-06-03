@@ -34,10 +34,10 @@
 
 ## Considerations / Research / TODOs
 
-[x] Gulp
-[x] Foundation or Bootstrap? - Elm does not support external stylesheets well at this time
-[ ] Elm: How to make http requests? Management of subscriptions/promises?
-[ ] Elm: How to handle routing?
+- [x] Gulp
+- [x] Foundation or Bootstrap? - Elm does not support external stylesheets well at this time
+- [ ] Elm: How to make http requests? Management of subscriptions/promises?
+- [ ] Elm: How to handle routing?
 
 ## Collected Resources
 
