@@ -4,7 +4,7 @@
     "repository": "https://github.com/YiMihi/elm-with-jwt.git",
     "license": "MIT",
     "source-directories": [
-        "."
+        "src", "dist"
     ],
     "exposed-modules": [],
     "dependencies": {
