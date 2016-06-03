@@ -25,9 +25,9 @@
 - How to call an API with Elm
     - Call unauthenticated route from [nodejs-jwt-authentication-sample](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) GET `/api/random-quote`
 - How to authenticate with JWT
-    - Sign up form view and POST users `/users`
-    - Create login view and POST to create session token `/sessions/create`
-    - Save token to localStorage and verify authentication
+    - Register and POST users `/users`
+    - Log in and POST to create session token `/sessions/create`
+    - Verify authentication
     - Make authenticated API requests GET `/api/protected/random-quote`
     - Log out (remove token)
 - ...etc
@@ -37,9 +37,7 @@
 
 - [x] Gulp
 - [x] Bootstrap
-- [ ] Elm: How to make http requests? Management of subscriptions/promises?
-- [ ] localStorage
-- [ ] Elm: How to handle routing?
+- [ ] Elm: HTTP post requests / response handling
 
 ## Collected Resources
 
@@ -49,3 +47,4 @@
 - [Tutorial](http://www.elm-tutorial.org/en)
 - [HTTP example](http://elm-lang.org/examples/http)
 - [gulp-elm](https://www.npmjs.com/package/gulp-elm)
+- [elm-jwt](https://github.com/simonh1000/elm-jwt)
