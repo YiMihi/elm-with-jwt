@@ -62,8 +62,8 @@ view model =
 -- Update
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg model =
-    case msg of
+update action model =
+    case action of
         GetQuote ->
             (model, fetchRandomQuoteCmd)
         FetchQuoteSuccess quote ->
