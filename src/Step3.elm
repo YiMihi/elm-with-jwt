@@ -18,9 +18,9 @@ main =
     
 -- Model
 
-type alias Model = String
+type alias Quote = String
     
-init : (Model, Cmd Msg)
+init : (Quote, Cmd Msg)
 init =
     ("Waiting for a quote...", Cmd.none)
     
@@ -49,30 +49,30 @@ fetchRandomQuoteCmd =
                
 -- View
 
-view : Model -> Html Msg
-view model =
+view : Quote -> Html Msg
+view quote =
     div [ class "container row text-center" ] [
         h2 [] [ text "Chuck Norris Quotes" ]
         , button [ class "btn btn-primary", onClick GetQuote ] [ text "Grab a quote!" ]
         , blockquote [ class "text-left" ] [ 
-            p [] [text model] 
+            p [] [text quote] 
         ]
     ]
     
 -- Update
 
-update : Msg -> Model -> (Model, Cmd Msg)
-update action model =
+update : Msg -> Quote -> (Quote, Cmd Msg)
+update action quote =
     case action of
         GetQuote ->
-            (model, fetchRandomQuoteCmd)
+            (quote, fetchRandomQuoteCmd)
         FetchQuoteSuccess quote ->
             (quote, Cmd.none)
         FetchError _ ->
-            (model, Cmd.none)       
+            (quote, Cmd.none)       
     
 -- Subscriptions
 
-subscriptions : Model -> Sub Msg
+subscriptions : Quote -> Sub Msg
 subscriptions model = 
     Sub.none
