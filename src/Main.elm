@@ -6,7 +6,7 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import Http
 import Task exposing (Task)
-import Json.Decode as Json
+import Json.Decode as Json exposing ((:=))
 
 main : Program Never
 main = 
@@ -14,7 +14,7 @@ main =
         { init = init 
         , view = view
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         }
     
 -- Model
@@ -128,9 +128,3 @@ view model =
             ] 
         ]
     ]
-                
--- Subscriptions
-
-subscriptions : Model -> Sub Msg
-subscriptions model = 
-    Sub.none

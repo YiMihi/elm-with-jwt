@@ -37,7 +37,7 @@
 
 - [x] Gulp
 - [x] Bootstrap
-- [ ] Elm: HTTP post requests / response handling
+- [ ] Elm: HTTP POST requests / response handling
 
 ## Collected Resources
 
@@ -48,3 +48,6 @@
 - [HTTP example](http://elm-lang.org/examples/http)
 - [gulp-elm](https://www.npmjs.com/package/gulp-elm)
 - [elm-jwt](https://github.com/simonh1000/elm-jwt)
+- [elm-http-extra](http://package.elm-lang.org/packages/lukewestby/elm-http-extra/5.2.0/)
+- [Extracting results of HTTP requests in Elm](http://stackoverflow.com/questions/35028430/how-to-extract-the-results-of-http-requests-in-elm)
+- [How to decode data from JSON](http://stackoverflow.com/questions/32575003/elm-how-to-decode-data-from-json-api)
