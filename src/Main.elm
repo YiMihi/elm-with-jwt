@@ -6,7 +6,6 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 
 import Http
-import HttpBuilder exposing (..)
 import Task exposing (Task)
 import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode exposing (..)
@@ -77,12 +76,16 @@ userEncoder model =
         [("username", Encode.string model.username)
         , ("password", Encode.string model.password)]    
     
-registerUser : Model -> Task (HttpBuilder.Error String) (HttpBuilder.Response (List String))
+registerUser : Model -> Task Http.Error (List String)
 registerUser model =
-    HttpBuilder.post registerUrl
-    |> withJsonBody (userEncoder model)
-    |> withHeader "Content-Type" "application/json"
-    |> send (jsonReader tokenDecoder) stringReader
+    {
+        verb = "POST"
+        , headers = [ ("ContentType", "application/json") ]
+        , url = registerUrl
+        , body = Http.string <| Encode.encode 0 <| userEncoder model
+    }
+    |> Http.send Http.defaultSettings
+    |> Http.fromJson tokenDecoder
     
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
@@ -105,7 +108,6 @@ update action model =
             ({ model | password = password }, Cmd.none)
         ClickRegisterUser ->
             (model, registerUserCmd model)
-            --(model, Cmd.none)
         RegisterUserSuccess ->
             ({ model | token = "yay" }, Cmd.none)    
         --GetToken ->
@@ -136,7 +138,7 @@ view model =
             ]
             , div [ class "text-center" ] [
                 button [ class "btn btn-primary" ] [ text "Log In" ]
-                , button [ class "btn btn-link", onClick ClickRegisterUser, href "" ] [ text "Register" ]
+                , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
             ] 
         ]
     ]
