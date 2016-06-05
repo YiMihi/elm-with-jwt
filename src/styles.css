@@ -5,6 +5,10 @@
 blockquote {
     margin: 1em 0;
 }
-h3 {
-    margin-bottom: 20px;
+.jumbotron {
+    margin: 2em auto;
+    max-width: 400px;
+}
+.hide {
+    display: none;
 }
