@@ -44,7 +44,7 @@ type Msg
     | Username String
     | Password String
     | ClickRegisterUser
-    | RegisterUserSuccess
+    | RegisterUserSuccess String
     
 api : String
 api =
@@ -95,7 +95,7 @@ registerUser model =
     
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
-    Task.perform HttpError (\_ -> RegisterUserSuccess) <| registerUser model
+    Task.perform HttpError RegisterUserSuccess <| registerUser model
                     
 -- Update
 
@@ -114,9 +114,8 @@ update action model =
             ({ model | password = password }, Cmd.none)
         ClickRegisterUser ->
             (model, registerUserCmd model)
-        RegisterUserSuccess ->
-            ({ model | token = "yay" }, Cmd.none)    
-        --GetToken ->
+        RegisterUserSuccess newToken ->
+            ({ model | token = newToken }, Cmd.none)    
                        
 -- View
 
