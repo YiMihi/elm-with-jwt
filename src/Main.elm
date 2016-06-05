@@ -32,12 +32,13 @@ type alias Model =
     , password : String
     , token : String
     , quote : String
-    , protectedQuote : String
+    , protectedQuote : String 
+    , errorMsg : String
     }
     
 init : (Model, Cmd Msg)
 init =
-    (Model "" "" "" "" "", Cmd.none)
+    (Model "" "" "" "" "" "", Cmd.none)
     
 {-
     MESSAGES
@@ -48,6 +49,7 @@ type Msg
     = GetQuote
     | FetchQuoteSuccess String
     | HttpError Http.Error
+    | AuthError Http.Error
     | SetUsername String
     | SetPassword String
     | ClickRegisterUser
@@ -120,7 +122,7 @@ registerUser model =
     
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
-    Task.perform HttpError GetTokenSuccess <| registerUser model
+    Task.perform AuthError GetTokenSuccess <| registerUser model
 
 -- POST log in request and decode token response
     
@@ -136,7 +138,7 @@ login model =
     
 loginCmd : Model -> Cmd Msg
 loginCmd model =
-    Task.perform HttpError GetTokenSuccess <| login model 
+    Task.perform AuthError GetTokenSuccess <| login model 
     
 -- Decode POST response to get token
     
@@ -169,7 +171,7 @@ responseText response =
         Http.Text t ->
             t 
         _ ->
-            ""           
+            ""
 
 -- Greeting for a logged in user
     
@@ -187,7 +189,9 @@ update msg model =
         FetchQuoteSuccess newQuote ->
             ({ model | quote = newQuote }, Cmd.none)
         HttpError _ ->
-            (model, Cmd.none)   
+            (model, Cmd.none)  
+        AuthError error ->
+             ({ model | errorMsg = (toString error) }, Cmd.none)     
         SetUsername username ->
             ({ model | username = username }, Cmd.none)
         SetPassword password ->
@@ -197,13 +201,13 @@ update msg model =
         ClickLogIn ->
             (model, loginCmd model)    
         GetTokenSuccess newToken ->
-            ({ model | token = newToken } |> Debug.log "got new token", Cmd.none) 
+            ({ model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none) 
         GetProtectedQuote ->
-            (model, fetchProtectedQuoteCmd model)      
+            (model, fetchProtectedQuoteCmd model)
         FetchProtectedQuoteSuccess newPQuote ->
-            ({ model | protectedQuote = newPQuote } |> Debug.log "set protected quote", Cmd.none)  
+            ({ model | protectedQuote = newPQuote }, Cmd.none)  
         LogOut ->
-            ({ model | username = "", password = "", protectedQuote = "", token = "" } |> Debug.log "log out", Cmd.none)   
+            ({ model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, Cmd.none)   
                        
 {-
     VIEW
@@ -224,7 +228,9 @@ view model =
         hideIfNoQuote = 
             if String.isEmpty model.quote then "hidden" else ""     
         hideIfNoProtectedQuote = 
-            if String.isEmpty model.protectedQuote then "hidden" else ""     
+            if String.isEmpty model.protectedQuote then "hidden" else ""  
+        showError = 
+            if String.isEmpty model.errorMsg then "hidden" else ""       
     in
         div [ class "container" ] [
             h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
@@ -240,6 +246,9 @@ view model =
                 div [ id "form", class hideIfLoggedIn ] [
                     h2 [ class "text-center" ] [ text "Log In or Register" ]
                     , p [ class "help-block" ] [ text "If you already have an account, please Log In. Otherwise, enter your desired username and password and Register." ]
+                    , div [ class showError ] [
+                        div [ class "alert alert-danger" ] [ text model.errorMsg ]
+                    ]
                     , div [ class "form-group row" ] [
                         div [ class "col-md-offset-4 col-md-4" ] [
                             label [ for "username" ] [ text "Username:" ]
