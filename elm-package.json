@@ -4,7 +4,8 @@
     "repository": "https://github.com/YiMihi/elm-with-jwt.git",
     "license": "MIT",
     "source-directories": [
-        "src", "dist"
+        "src",
+        "dist"
     ],
     "exposed-modules": [],
     "dependencies": {
@@ -12,7 +13,8 @@
         "elm-lang/html": "1.0.0 <= v < 2.0.0",
         "elm-lang/navigation": "1.0.0 <= v < 2.0.0",
         "evancz/elm-http": "3.0.1 <= v < 4.0.0",
-        "evancz/url-parser": "1.0.0 <= v < 2.0.0"
+        "evancz/url-parser": "1.0.0 <= v < 2.0.0",
+        "lukewestby/elm-http-builder": "1.1.0 <= v < 2.0.0"
     },
     "elm-version": "0.17.0 <= v < 0.18.0"
 }
