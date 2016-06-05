@@ -25,13 +25,12 @@
 - How to call an API with Elm
     - Call unauthenticated route from [nodejs-jwt-authentication-sample](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) GET `/api/random-quote`
 - How to authenticate with JWT
-    - Register and POST users `/users`
-    - Log in and POST to create session token `/sessions/create`
+    - Register and POST to create new users `/users`
+    - Log in and POST with credentials to get session token `/sessions/create`
     - Make authenticated API requests GET `/api/protected/random-quote` (use `elm-http-decorators` package to reconcile types)
-    - Error handling (? is there time for this?)
-    - Log out (remove token)
-    - Union types (pattern match to show proper view)
-- ...etc
+    - Error handling (??)
+    - Log out (remove username, password, token)
+    - Show/Hide views
 - Conclusion
 
 ## Considerations / Research
@@ -39,7 +38,7 @@
 - [x] Gulp
 - [x] Bootstrap
 - [x] Elm: HTTP POST requests / response handling
-- [ ] How to show/hide different views (pattern matching)
+- [x] How to show/hide different views
 
 ## Collected Resources
 

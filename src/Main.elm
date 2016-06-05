@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
-import String exposing (length)
+import String
 
 import Http
 import Http.Decorators
@@ -181,13 +181,13 @@ view : Model -> Html Msg
 view model =
     let 
         hideIfLoggedIn = 
-            if String.length model.token > 0 then "hide" else ""
+            if String.length model.token > 0 then "hidden" else ""
         hideIfLoggedOut = 
-            if String.isEmpty model.token then "hide" else ""  
+            if String.isEmpty model.token then "hidden" else ""  
         hideIfNoQuote = 
-            if String.isEmpty model.quote then "hide" else ""     
+            if String.isEmpty model.quote then "hidden" else ""     
         hideIfNoProtectedQuote = 
-            if String.isEmpty model.protectedQuote then "hide" else ""     
+            if String.isEmpty model.protectedQuote then "hidden" else ""     
     in
     div [ class "container" ] [
         h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
@@ -200,7 +200,8 @@ view model =
         , div [ class "jumbotron text-left" ] [
             -- Login / Register form: only show if not logged in
             div [ class hideIfLoggedIn ] [
-                p [ class "text-center" ] [ text "Log In or Register" ]
+                h2 [ class "text-center" ] [ text "Log In or Register" ]
+                , p [ class "help-block" ] [ text "If you already have an account, please Log In. Otherwise, enter your desired username and password and Register." ]
                 , div [ class "form-group row" ] [
                     div [ class "col-md-offset-4 col-md-4" ] [
                         label [ for "username" ] [ text "Username:" ]
@@ -220,10 +221,11 @@ view model =
             ]
             -- Greeting and Log Out button: only show if logged in
             , div [ class hideIfLoggedOut ][
-                div [ class "text-center" ] [
-                    p [] [ text (greeting model) ]
-                    , button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
-                ]    
+                h3 [ class "text-center" ] [ text (greeting model) ]
+                , p [ class "text-center" ] [ text "Welcome back! You can now access protected quotes." ]
+                , p [ class "text-center" ] [
+                    button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
+                ]   
             ]  
         -- Protected Quotes: only show if logged in  
         ], div [ class hideIfLoggedOut ] [

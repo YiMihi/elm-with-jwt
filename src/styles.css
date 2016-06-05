@@ -9,6 +9,9 @@ blockquote {
     margin: 2em auto;
     max-width: 400px;
 }
-.hide {
-    display: none;
+.jumbotron h2 {
+    margin-top: 0;
+}
+.jumbotron .help-block {
+    font-size: 14px;
 }
