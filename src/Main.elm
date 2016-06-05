@@ -80,7 +80,7 @@ registerUser : Model -> Task Http.Error (List String)
 registerUser model =
     {
         verb = "POST"
-        , headers = [ ("ContentType", "application/json") ]
+        , headers = [ ("Content-Type", "application/json") ]
         , url = registerUrl
         , body = Http.string <| Encode.encode 0 <| userEncoder model
     }
@@ -122,7 +122,7 @@ view model =
         , blockquote [ class "text-left" ] [ 
             p [] [text model.quote] 
         ]
-        , Html.form [ id "form", class "text-left" ] [
+        , div [ id "form", class "text-left" ] [
             h3 [ class "text-center" ] [ text "Log In or Register" ]
             , div [ class "form-group row" ] [
                 div [ class "col-md-offset-4 col-md-4" ] [
