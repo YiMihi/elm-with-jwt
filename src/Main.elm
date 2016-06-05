@@ -65,10 +65,16 @@ fetchRandomQuoteCmd =
 registerUrl : String
 registerUrl =
     api ++ "users"
-    
+ 
+{-    
 resDecoder : Decode.Decoder (List String)
 resDecoder = 
-    Decode.list Decode.string    
+    Decode.list Decode.string
+-}     
+    
+tokenDecoder : Decoder String
+tokenDecoder =
+    "id_token" := Decode.string
     
 userEncoder : Model -> Encode.Value
 userEncoder model = 
@@ -76,7 +82,7 @@ userEncoder model =
         [("username", Encode.string model.username)
         , ("password", Encode.string model.password)]    
     
-registerUser : Model -> Task Http.Error (List String)
+registerUser : Model -> Task Http.Error (String)
 registerUser model =
     {
         verb = "POST"
@@ -85,7 +91,7 @@ registerUser model =
         , body = Http.string <| Encode.encode 0 <| userEncoder model
     }
     |> Http.send Http.defaultSettings
-    |> Http.fromJson resDecoder
+    |> Http.fromJson tokenDecoder
     
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
