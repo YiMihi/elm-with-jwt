@@ -27,17 +27,19 @@
 - How to authenticate with JWT
     - Register and POST users `/users`
     - Log in and POST to create session token `/sessions/create`
-    - Verify authentication
+    - Error handling
+    - Union types (pattern match to show proper view)
     - Make authenticated API requests GET `/api/protected/random-quote`
     - Log out (remove token)
 - ...etc
 - Conclusion
 
-## Considerations / Research / TODOs
+## Considerations / Research
 
 - [x] Gulp
 - [x] Bootstrap
-- [ ] Elm: HTTP POST requests / response handling
+- [x] Elm: HTTP POST requests / response handling
+- [ ] How to show/hide different views (pattern matching)
 
 ## Collected Resources
 

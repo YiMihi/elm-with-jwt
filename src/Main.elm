@@ -6,6 +6,7 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 
 import Http
+import Http.Decorators exposing (promoteError)
 import Task exposing (Task)
 import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode exposing (..)
@@ -34,6 +35,12 @@ type alias Model =
 init : (Model, Cmd Msg)
 init =
     (Model "" "" "" "Men are like steel. When they lose their temper, they lose their worth." "" "", Cmd.none)
+
+{-    
+type AuthArea
+    = Form { username: String, password: String }
+    | LoggedIn { username: String, token: String }
+-}  
     
 -- Messages
 
@@ -44,7 +51,10 @@ type Msg
     | Username String
     | Password String
     | ClickRegisterUser
-    | RegisterUserSuccess String
+    | ClickLogIn
+    | GetTokenSuccess String
+    | GetProtectedQuote
+    | FetchProtectedQuoteSuccess String
     
 api : String
 api =
@@ -64,17 +74,39 @@ fetchRandomQuoteCmd =
     
 registerUrl : String
 registerUrl =
-    api ++ "users"
- 
-{-    
-resDecoder : Decode.Decoder (List String)
-resDecoder = 
-    Decode.list Decode.string
--}     
+    api ++ "users"  
+    
+loginUrl : String
+loginUrl =
+    api ++ "sessions/create"   
+    
+protectedQuoteUrl : String
+protectedQuoteUrl = 
+    api ++ "api/protected/random-quote"    
+    
+fetchProtectedQuote : Model -> Task Http.Error String
+fetchProtectedQuote model = 
+    {
+        verb = "GET"
+        , headers = [ ("Authorization", "Bearer " ++ model.token) ]
+        , url = protectedQuoteUrl
+        , body = Http.empty
+    }
+    |> Http.send Http.defaultSettings  
+    |> Http.Decorators.promoteError 
+    |> Task.map quoteDecoder
+    
+fetchProtectedQuoteCmd : Model -> Cmd Msg
+fetchProtectedQuoteCmd model = 
+    Task.perform HttpError FetchProtectedQuoteSuccess <| fetchProtectedQuote model  
     
 tokenDecoder : Decoder String
 tokenDecoder =
     "id_token" := Decode.string
+    
+quoteDecoder : Decoder String
+quoteDecoder = 
+    Decode.string  
     
 userEncoder : Model -> Encode.Value
 userEncoder model = 
@@ -95,7 +127,22 @@ registerUser model =
     
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
-    Task.perform HttpError RegisterUserSuccess <| registerUser model
+    Task.perform HttpError GetTokenSuccess <| registerUser model
+    
+login : Model -> Task Http.Error (String)
+login model =
+    {
+        verb = "POST"
+        , headers = [ ("Content-Type", "application/json") ]
+        , url = loginUrl
+        , body = Http.string <| Encode.encode 0 <| userEncoder model
+    }
+    |> Http.send Http.defaultSettings
+    |> Http.fromJson tokenDecoder
+    
+loginCmd : Model -> Cmd Msg
+loginCmd model =
+    Task.perform HttpError GetTokenSuccess <| login model    
                     
 -- Update
 
@@ -114,8 +161,14 @@ update action model =
             ({ model | password = password }, Cmd.none)
         ClickRegisterUser ->
             (model, registerUserCmd model)
-        RegisterUserSuccess newToken ->
-            ({ model | token = newToken } |> Debug.log "got new token", Cmd.none)    
+        ClickLogIn ->
+            (model, loginCmd model)    
+        GetTokenSuccess newToken ->
+            ({ model | token = newToken } |> Debug.log "got new token", Cmd.none) 
+        GetProtectedQuote ->
+            (model, fetchProtectedQuoteCmd model)      
+        FetchProtectedQuoteSuccess newPQuote ->
+            ({ model | protectedQuote = newPQuote } |> Debug.log "set protected quote", Cmd.none)     
                        
 -- View
 
@@ -142,8 +195,14 @@ view model =
                 ]    
             ]
             , div [ class "text-center" ] [
-                button [ class "btn btn-primary" ] [ text "Log In" ]
+                button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
                 , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
             ] 
+        ], div [] [
+            h2 [] [ text "Protected Chuck Norris Quotes" ]
+            , button [ class "btn btn-primary", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
+            , blockquote [ class "text-left" ] [ 
+                p [] [text model.protectedQuote] 
+            ]
         ]
     ]
