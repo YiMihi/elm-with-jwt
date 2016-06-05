@@ -66,8 +66,8 @@ registerUrl : String
 registerUrl =
     api ++ "users"
     
-tokenDecoder : Decode.Decoder (List String)
-tokenDecoder = 
+resDecoder : Decode.Decoder (List String)
+resDecoder = 
     Decode.list Decode.string    
     
 userEncoder : Model -> Encode.Value
@@ -85,7 +85,7 @@ registerUser model =
         , body = Http.string <| Encode.encode 0 <| userEncoder model
     }
     |> Http.send Http.defaultSettings
-    |> Http.fromJson tokenDecoder
+    |> Http.fromJson resDecoder
     
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
