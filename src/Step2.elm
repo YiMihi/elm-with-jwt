@@ -1,6 +1,7 @@
 import Html exposing (..)
 import Html.App as Html
 import Html.Events exposing (..)
+import Html.Attributes exposing (..)
 
 main : Program Never
 main = 
@@ -8,10 +9,14 @@ main =
         { init = init 
         , view = view
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         }
     
--- Model
+{- 
+    MODEL
+    * Model type 
+    * initialize model with empty values
+-}
 
 type alias Model =
     { quote : String }
@@ -20,9 +25,17 @@ init : (Model, Cmd Msg)
 init =
     (Model "", Cmd.none)
     
--- Update
+{-
+    MESSAGES
+    * Msg type
+-}
 
 type Msg = GetQuote
+
+{-
+    UPDATE
+    * Update case
+-}
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -30,17 +43,19 @@ update msg model =
         GetQuote ->
             (model, Cmd.none)
             
--- View
+{-
+    VIEW
+-}
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ button [ onClick GetQuote ] [ text "Get a Quote" ]
-        , div [] [ text (model.quote) ]
+    div [ class "container" ] [
+        h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+        , p [ class "text-center" ] [
+            button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
         ]
-        
--- Subscriptions
-
-subscriptions : Model -> Sub Msg
-subscriptions model = 
-    Sub.none        
+        -- Blockquote with quote
+        , blockquote [] [ 
+            p [] [text model.quote] 
+        ]
+    ]            

@@ -34,6 +34,11 @@
     - Show/Hide views
 - Conclusion
 
+## Steps Outline
+
+1. Step 1 - `beginnerProgram` with Hello World + button
+2. Step 2 - `program` with model record, stylesheets, and CSS in view
+
 ## Considerations / Research
 
 - [x] Gulp

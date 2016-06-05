@@ -10,29 +10,35 @@ main =
         , update = update
         }
     
--- Model
+{-
+    MODEL
+-}    
 
 type alias Model = String
 
 model : Model
 model = 
-    "Some Quote"
+    "Hello world!"
     
--- Update
+{-
+    UPDATE
+-}    
 
-type Msg = GetQuote
+type Msg = SayHello
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        GetQuote ->
-            model
+        SayHello ->
+            model ++ " Hello Elm!"
             
--- View
+{-
+    VIEW
+-}    
 
 view : Model -> Html Msg
 view model =
     div []
-        [ button [ onClick GetQuote ] [ text "Get a Quote" ]
-        , div [] [ text (toString model) ]
+        [ button [ onClick SayHello ] [ text "Say Hello" ]
+        , p [] [ text (toString model) ]
         ]
