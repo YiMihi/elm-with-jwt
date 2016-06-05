@@ -83,6 +83,10 @@ registerUser model =
     |> withJsonBody (userEncoder model)
     |> withHeader "Content-Type" "application/json"
     |> send (jsonReader tokenDecoder) stringReader
+    
+registerUserCmd : Cmd Msg
+registerUserCmd =
+    Task.perform HttpError RegisterUserSuccess registerUser    
                     
 -- Update
 
@@ -100,8 +104,8 @@ update action model =
         Password password ->
             ({ model | password = password }, Cmd.none)
         ClickRegisterUser ->
-            --(model, registerUser model)
-            (model, Cmd.none)
+            (model, registerUserCmd)
+            --(model, Cmd.none)
         RegisterUserSuccess ->
             ({ model | token = "yay" }, Cmd.none)    
         --GetToken ->
