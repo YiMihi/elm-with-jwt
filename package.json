@@ -16,6 +16,7 @@
     "url": "https://github.com/YiMihi/elm-with-jwt/issues"
   },
   "scripts": {
+    "start": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "homepage": "https://github.com/YiMihi/elm-with-jwt",
