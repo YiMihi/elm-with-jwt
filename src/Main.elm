@@ -4,9 +4,12 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
+
 import Http
+import HttpBuilder exposing (..)
 import Task exposing (Task)
-import Json.Decode as Json exposing ((:=))
+import Json.Decode as Decode exposing (..)
+import Json.Encode as Encode exposing (..)
 
 main : Program Never
 main = 
@@ -46,11 +49,11 @@ type Msg
     
 api : String
 api =
-     "http://localhost:3001/api/"    
+     "http://localhost:3001/"    
     
 randomQuoteUrl : String
 randomQuoteUrl =    
-    api ++ "random-quote"
+    api ++ "api/random-quote"
     
 fetchRandomQuote : Platform.Task Http.Error String
 fetchRandomQuote =
@@ -62,19 +65,24 @@ fetchRandomQuoteCmd =
     
 registerUrl : String
 registerUrl =
-    api ++ "users" 
+    api ++ "users"
     
-registerUser : Model -> Platform.Task Http.Error (Maybe String)
+tokenDecoder : Decode.Decoder (List String)
+tokenDecoder = 
+    Decode.list Decode.string    
+    
+userEncoder : Model -> Encode.Value
+userEncoder model = 
+    Encode.object 
+        [("username", Encode.string model.username)
+        , ("password", Encode.string model.password)]    
+    
+registerUser : Model -> Task (HttpBuilder.Error String) (HttpBuilder.Response (List String))
 registerUser model =
-    let 
-        body = Http.multipart
-            [ Http.stringData "username" model.username
-            , Http.stringData "password" model.password
-            ]
-    in 
-        Http.post (Json.maybe Json.string) registerUrl body
-        --|> Task.map getToken
-        --|> Task.perform HttpError RegisterUserSuccess registerUser
+    HttpBuilder.post registerUrl
+    |> withJsonBody (userEncoder model)
+    |> withHeader "Content-Type" "application/json"
+    |> send (jsonReader tokenDecoder) stringReader
                     
 -- Update
 
@@ -92,7 +100,7 @@ update action model =
         Password password ->
             ({ model | password = password }, Cmd.none)
         ClickRegisterUser ->
-            --(model, registerUser model) this is throwing an error about mismatched types
+            --(model, registerUser model)
             (model, Cmd.none)
         RegisterUserSuccess ->
             ({ model | token = "yay" }, Cmd.none)    
