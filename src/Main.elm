@@ -210,13 +210,13 @@ view model =
                 , div [ class "form-group row" ] [
                     div [ class "col-md-offset-4 col-md-4" ] [
                         label [ for "username" ] [ text "Username:" ]
-                        , input [ id "username", type' "text", class "form-control", onInput Username ] []
+                        , input [ id "username", type' "text", class "form-control", Html.Attributes.value model.username, onInput Username ] []
                     ]    
                 ]
                 , div [ class "form-group row" ] [
                     div [ class "col-md-offset-4 col-md-4" ] [
                         label [ for "password" ] [ text "Password:" ]
-                        , input [ id "password", type' "password", class "form-control", onInput Password ] []
+                        , input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput Password ] []
                     ]    
                 ]
                 , div [ class "text-center" ] [
