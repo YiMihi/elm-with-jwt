@@ -27,10 +27,10 @@
 - How to authenticate with JWT
     - Register and POST users `/users`
     - Log in and POST to create session token `/sessions/create`
-    - Error handling
-    - Union types (pattern match to show proper view)
-    - Make authenticated API requests GET `/api/protected/random-quote`
+    - Make authenticated API requests GET `/api/protected/random-quote` (use `elm-http-decorators` package to reconcile types)
+    - Error handling (? is there time for this?)
     - Log out (remove token)
+    - Union types (pattern match to show proper view)
 - ...etc
 - Conclusion
 
@@ -49,7 +49,6 @@
 - [Tutorial](http://www.elm-tutorial.org/en)
 - [HTTP example](http://elm-lang.org/examples/http)
 - [gulp-elm](https://www.npmjs.com/package/gulp-elm)
-- [elm-jwt](https://github.com/simonh1000/elm-jwt)
-- [elm-http-extra](http://package.elm-lang.org/packages/lukewestby/elm-http-extra/5.2.0/)
 - [Extracting results of HTTP requests in Elm](http://stackoverflow.com/questions/35028430/how-to-extract-the-results-of-http-requests-in-elm)
 - [How to decode data from JSON](http://stackoverflow.com/questions/32575003/elm-how-to-decode-data-from-json-api)
+- [elm-http-decorators interpretStatus](http://package.elm-lang.org/packages/rgrempel/elm-http-decorators/1.0.2/Http-Decorators#interpretStatus)

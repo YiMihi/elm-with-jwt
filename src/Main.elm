@@ -6,7 +6,7 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 
 import Http
-import Http.Decorators exposing (promoteError)
+import Http.Decorators
 import Task exposing (Task)
 import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode exposing (..)
@@ -34,7 +34,7 @@ type alias Model =
     
 init : (Model, Cmd Msg)
 init =
-    (Model "" "" "" "Men are like steel. When they lose their temper, they lose their worth." "" "", Cmd.none)
+    (Model "" "" "" "Men are like steel. When they lose their temper, they lose their worth." "Log in or register to get a protected quote." "", Cmd.none)
 
 {-    
 type AuthArea
@@ -55,6 +55,7 @@ type Msg
     | GetTokenSuccess String
     | GetProtectedQuote
     | FetchProtectedQuoteSuccess String
+    | LogOut
     
 api : String
 api =
@@ -93,8 +94,8 @@ fetchProtectedQuote model =
         , body = Http.empty
     }
     |> Http.send Http.defaultSettings  
-    |> Http.Decorators.promoteError 
-    |> Task.map quoteDecoder
+    |> Http.Decorators.interpretStatus 
+    |> Task.map responseText
     
 fetchProtectedQuoteCmd : Model -> Cmd Msg
 fetchProtectedQuoteCmd model = 
@@ -104,9 +105,13 @@ tokenDecoder : Decoder String
 tokenDecoder =
     "id_token" := Decode.string
     
-quoteDecoder : Decoder String
-quoteDecoder = 
-    Decode.string  
+responseText : Http.Response -> String
+responseText response = 
+    case response.value of 
+        Http.Text t ->
+            t 
+        _ ->
+            ""
     
 userEncoder : Model -> Encode.Value
 userEncoder model = 
@@ -143,12 +148,16 @@ login model =
 loginCmd : Model -> Cmd Msg
 loginCmd model =
     Task.perform HttpError GetTokenSuccess <| login model    
+    
+greeting : Model -> String
+greeting model =
+    "Hi, " ++ model.username
                     
 -- Update
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update action model =
-    case action of
+update msg model =
+    case msg of
         GetQuote ->
             (model, fetchRandomQuoteCmd)
         FetchQuoteSuccess newQuote ->
@@ -168,7 +177,9 @@ update action model =
         GetProtectedQuote ->
             (model, fetchProtectedQuoteCmd model)      
         FetchProtectedQuoteSuccess newPQuote ->
-            ({ model | protectedQuote = newPQuote } |> Debug.log "set protected quote", Cmd.none)     
+            ({ model | protectedQuote = newPQuote } |> Debug.log "set protected quote", Cmd.none)  
+        LogOut ->
+            ({ model | username = "", password = "", protectedQuote = "Log in or register to get a protected quote.", token = "" } |> Debug.log "log out", Cmd.none)   
                        
 -- View
 
@@ -180,27 +191,37 @@ view model =
         , blockquote [ class "text-left" ] [ 
             p [] [text model.quote] 
         ]
-        , div [ id "form", class "text-left" ] [
-            h3 [ class "text-center" ] [ text "Log In or Register" ]
-            , div [ class "form-group row" ] [
-                div [ class "col-md-offset-4 col-md-4" ] [
-                    label [ for "username" ] [ text "Username:" ]
-                    , input [ id "username", type' "text", class "form-control", onInput Username ] []
-                ]    
+        , div [ class "jumbotron" ] [
+            -- TODO: only show this when there is no token present in the model
+            div [ class "logged-out text-left" ] [
+                p [ class "text-center" ] [ text "Log In or Register" ]
+                , div [ class "form-group row" ] [
+                    div [ class "col-md-offset-4 col-md-4" ] [
+                        label [ for "username" ] [ text "Username:" ]
+                        , input [ id "username", type' "text", class "form-control", onInput Username ] []
+                    ]    
+                ]
+                , div [ class "form-group row" ] [
+                    div [ class "col-md-offset-4 col-md-4" ] [
+                        label [ for "password" ] [ text "Password:" ]
+                        , input [ id "password", type' "password", class "form-control", onInput Password ] []
+                    ]    
+                ]
+                , div [ class "text-center" ] [
+                    button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
+                    , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
+                ] 
             ]
-            , div [ class "form-group row" ] [
-                div [ class "col-md-offset-4 col-md-4" ] [
-                    label [ for "password" ] [ text "Password:" ]
-                    , input [ id "password", type' "password", class "form-control", onInput Password ] []
-                ]    
-            ]
-            , div [ class "text-center" ] [
-                button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
-                , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
-            ] 
+            -- TODO: only show this view when there is a token present in the model
+            , div [ class "logged-in text-center" ][
+                p [] [ text (greeting model) ]
+                , button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
+            ]  
+        -- TODO: only show this view when there is a token present in the model
+        -- TODO: then there is no need to set a default protected quote     
         ], div [] [
             h2 [] [ text "Protected Chuck Norris Quotes" ]
-            , button [ class "btn btn-primary", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
+            , button [ class "btn btn-danger", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
             , blockquote [ class "text-left" ] [ 
                 p [] [text model.protectedQuote] 
             ]
