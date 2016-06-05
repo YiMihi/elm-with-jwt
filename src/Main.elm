@@ -35,12 +35,6 @@ type alias Model =
 init : (Model, Cmd Msg)
 init =
     (Model "" "" "" "" "", Cmd.none)
-
-{-    
-type AuthArea
-    = Form { username: String, password: String }
-    | LoggedIn { username: String, token: String }
--}  
     
 -- Messages
 
@@ -48,8 +42,8 @@ type Msg
     = GetQuote
     | FetchQuoteSuccess String
     | HttpError Http.Error
-    | Username String
-    | Password String
+    | SetUsername String
+    | SetPassword String
     | ClickRegisterUser
     | ClickLogIn
     | GetTokenSuccess String
@@ -164,9 +158,9 @@ update msg model =
             ({ model | quote = newQuote }, Cmd.none)
         HttpError _ ->
             (model, Cmd.none)   
-        Username username ->
+        SetUsername username ->
             ({ model | username = username }, Cmd.none)
-        Password password ->
+        SetPassword password ->
             ({ model | password = password }, Cmd.none)
         ClickRegisterUser ->
             (model, registerUserCmd model)
@@ -210,13 +204,13 @@ view model =
                 , div [ class "form-group row" ] [
                     div [ class "col-md-offset-4 col-md-4" ] [
                         label [ for "username" ] [ text "Username:" ]
-                        , input [ id "username", type' "text", class "form-control", Html.Attributes.value model.username, onInput Username ] []
+                        , input [ id "username", type' "text", class "form-control", Html.Attributes.value model.username, onInput SetUsername ] []
                     ]    
                 ]
                 , div [ class "form-group row" ] [
                     div [ class "col-md-offset-4 col-md-4" ] [
                         label [ for "password" ] [ text "Password:" ]
-                        , input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput Password ] []
+                        , input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput SetPassword ] []
                     ]    
                 ]
                 , div [ class "text-center" ] [
