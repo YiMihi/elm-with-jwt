@@ -28,8 +28,9 @@
     - Register and POST to create new users `/users`
     - Log in and POST with credentials to get session token `/sessions/create`
     - Make authenticated API requests GET `/api/protected/random-quote` (use `elm-http-decorators` package to reconcile types)
-    - Error handling (??)
-    - Log out (remove username, password, token)
+    - How to log to console: `Debug.log`
+    - Error handling
+    - Log out (remove username, password, token, error messages)
     - Show/Hide views
 - Conclusion
 
@@ -39,6 +40,7 @@
 - [x] Bootstrap
 - [x] Elm: HTTP POST requests / response handling
 - [x] How to show/hide different views
+- [x] Error handling
 
 ## Collected Resources
 
@@ -52,3 +54,4 @@
 - [How to decode data from JSON](http://stackoverflow.com/questions/32575003/elm-how-to-decode-data-from-json-api)
 - [elm-http-decorators interpretStatus](http://package.elm-lang.org/packages/rgrempel/elm-http-decorators/1.0.2/Http-Decorators#interpretStatus)
 - [elmlang Slack](http://elmlang.herokuapp.com)
+- [Error handling SO](http://stackoverflow.com/questions/37390998/how-can-i-get-the-error-message-out-of-http-error)
