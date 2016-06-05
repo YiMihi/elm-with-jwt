@@ -115,7 +115,7 @@ update action model =
         ClickRegisterUser ->
             (model, registerUserCmd model)
         RegisterUserSuccess newToken ->
-            ({ model | token = newToken }, Cmd.none)    
+            ({ model | token = newToken } |> Debug.log "got new token", Cmd.none)    
                        
 -- View
 
