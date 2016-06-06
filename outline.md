@@ -3,21 +3,15 @@
 - Introduction
     - About Elm
         - Created by Evan Czaplicki (a JS programmer)
-            - Gradual learning (the idea that you can be productive before diving deep) _this is a big one_
-            - Communication (this section should be brief)
-                - "Stateless function" (JS deals with state in functions, Elm doesn't) (???)
-                - Easy to refactor
-                - Reliable (no runtime errors)
-                - "Callbacks" (<- monad): `andThen : Maybe a -> (a -> Maybe b) -> Maybe b` chaining computations that may fail
-                - Obvious names (`elm-package`, `elm-make`, `elm-html`, `elm-markdown`)
-            - Culture "Make Stuff!"
-                - Slack  
-                - NoRedInk (SF) using Elm in production  
-                - Styleguide (layouting, whitespace, chunking, newlines) [Styleguide](http://elm-lang.org/docs/style-guide)
-            - Usage-Driven Design
-                - Start with Minimum Viable Solution (it's often enough; keep it simple)
-                - The Elm Architecture: start with simple setup: model, update, view wrapped in a module and importable 
-                - [Compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) with helpful hints and suggestions
+        - Gradual learning (the idea that you can be productive before diving deep) and usage-driven design
+            - Start with Minimum Viable Solution (it's often enough; keep it simple)
+            - The Elm Architecture: start with simple setup: model, update, view wrapped in a module and importable 
+            - [Compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) with helpful hints and suggestions
+        - Reliable (no RTEs) - errors at compile time prevent errors at runtime
+        - Culture
+            - Slack  
+            - NoRedInk (SF) using Elm in production  
+            - Styleguide (layouting, whitespace, chunking, newlines) [Styleguide](http://elm-lang.org/docs/style-guide)
     - About JSON Web Tokens
 - Installing Elm
     - How to install Elm globally: `npm install -g elm`
@@ -29,10 +23,13 @@
 - Familiarizing with Elm language 
     - *Note:* this needs to just be a quick crash course with links to the docs, or this section will get way too long very quickly!
     - `elm-repl`
-    - Typing, syntax, lack of truthiness
-    - How functions work
-    - If expressions
-    - Records (like objects in JS)
+    - Model represents the current application state
+        - Record - similar to objects in JS
+        - A record is just data - no inheritance, no methods
+    - View uses virtual DOM to render: view is a function and corresponds to DOM nodes, the nodes are actually functions that pass lists as parameters; view function is called every time screen needs to be rendered again 
+    - Instead of callbacks, messages respond to user interaction - these update the model
+    - Use persistent data structures to return a new model that is a copy of the old model with the updated data efficiently (only really copies the part that changed)
+    - `let` in Elm is like constants in JS, they cannot be reassigned like variables
 - Hello World Elm app
     - Create a basic main view
     - Brief intro to `elm-reactor`
@@ -64,7 +61,6 @@
 - [x] How to show/hide different views
 - [x] Error handling
 - [ ] Styleguide
-- [ ] Modularity and nesting - Split Quote out into a separate module and authenticated quotes into another???
 
 ## Collected Resources
 
@@ -79,7 +75,8 @@
 - [elm-http-decorators interpretStatus](http://package.elm-lang.org/packages/rgrempel/elm-http-decorators/1.0.2/Http-Decorators#interpretStatus)
 - [elmlang Slack](http://elmlang.herokuapp.com)
 - [Error handling SO](http://stackoverflow.com/questions/37390998/how-can-i-get-the-error-message-out-of-http-error)
-- [Let's be mainstream! Evan Czaplicki](https://www.youtube.com/watch?v=oYk8CKH7OhE)
+- Video: [Let's be mainstream! Evan Czaplicki](https://www.youtube.com/watch?v=oYk8CKH7OhE)
+- Video: [Introduction to Elm - Richard Fedlman](https://www.youtube.com/watch?v=zBHB9i8e3Kc)
 - [Styleguide](http://elm-lang.org/docs/style-guide)
 
 ### Notes

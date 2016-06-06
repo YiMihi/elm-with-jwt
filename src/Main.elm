@@ -176,12 +176,6 @@ responseText response =
         _ ->
             ""
 
--- Greeting for a logged in user
-    
-greeting : Model -> String
-greeting model =
-    "Hello, " ++ model.username ++ "!"
-
 -- Update
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -223,7 +217,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     let 
-        -- Logic to hide sections of view when authentication state changes
+        -- Logic to hide sections of view when model changes
         hideIfLoggedIn = 
             if String.length model.token > 0 then "hidden" else ""
         hideIfLoggedOut = 
@@ -231,7 +225,11 @@ view model =
         hideIfNoProtectedQuote = 
             if String.isEmpty model.protectedQuote then "hidden" else ""  
         showError = 
-            if String.isEmpty model.errorMsg then "hidden" else ""       
+            if String.isEmpty model.errorMsg then "hidden" else ""
+            
+        -- Greet a logged in user by username
+        greeting =
+            "Hello, " ++ model.username ++ "!"           
     in
         div [ class "container" ] [
             h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
@@ -269,7 +267,7 @@ view model =
                 ]
                 -- Greeting and Log Out button: only show if logged in
                 , div [ class hideIfLoggedOut ][
-                    h3 [ class "text-center" ] [ text (greeting model) ]
+                    h3 [ class "text-center" ] [ text greeting ]
                     , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]
                     , p [ class "text-center" ] [
                         button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
