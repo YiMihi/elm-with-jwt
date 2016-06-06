@@ -43,7 +43,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         GetQuote ->
-            (model, Cmd.none)
+            ({ model | quote = model.quote ++ "A quote! " }, Cmd.none)
             
 {-
     VIEW

@@ -37,7 +37,8 @@
 ## Steps Outline
 
 1. Step 1 - `beginnerProgram` with Hello World + button
-2. Step 2 - `program` with model record, stylesheets, and CSS in view
+2. Step 2 - `program` with model record that updates on button click, stylesheets, and CSS in view
+3. Step 3 - `HTTP` get unauthenticated quote and display in view with styles
 
 ## Considerations / Research
 
