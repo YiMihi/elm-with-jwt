@@ -29,13 +29,6 @@ gulp.task('static', function() {
         .pipe(gulp.dest(paths.dest));
 });
 
-// Bundle Elm into single file
-gulp.task('elm-bundle', ['elm-init'], function(){
-    return gulp.src(paths.elm)
-        .pipe(elm.bundle('bundle.js')).on('error', errorHandler)
-        .pipe(gulp.dest('dist/'));
-});
-
 // Watch for changes and compile
 gulp.task('watch', function() {
     gulp.watch(paths.elm, ['elm']);
@@ -58,5 +51,5 @@ function errorHandler(err){
 }
 
 // Main gulp tasks
-gulp.task('build', ['elm-bundle', 'static']);
+gulp.task('build', ['elm', 'static']);
 gulp.task('default', ['connect', 'build', 'watch']);
