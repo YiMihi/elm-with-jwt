@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
+
 import Http
 import Task exposing (Task)
 
@@ -13,34 +14,52 @@ main =
         { init = init 
         , view = view
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         }
     
--- Model
+{- 
+    MODEL
+    * Model type 
+    * initialize model with empty values
+-}
 
 type alias Model =
-    {
+    { 
         quote : String
     }
     
 init : (Model, Cmd Msg)
 init =
-    (Model "Men are like steel. When they lose their temper, they lose their worth.", Cmd.none)
+    (Model "", Cmd.none)
     
--- Messages
+{-
+    MESSAGES
+    * Msg type
+-}
 
 type Msg 
     = GetQuote
     | FetchQuoteSuccess String
-    | FetchError Http.Error
+    | HttpError Http.Error
+    
+{-
+    UPDATE
+    * API routes
+    * GET
+    * Update case
+-}
+
+-- API request URLs
     
 api : String
 api =
-     "http://localhost:3001/api/"    
+     "http://localhost:3001/"    
     
 randomQuoteUrl : String
 randomQuoteUrl =    
-    api ++ "random-quote"
+    api ++ "api/random-quote"   
+
+-- GET a random quote (unauthenticated)
     
 fetchRandomQuote : Platform.Task Http.Error String
 fetchRandomQuote =
@@ -48,34 +67,34 @@ fetchRandomQuote =
     
 fetchRandomQuoteCmd : Cmd Msg
 fetchRandomQuoteCmd =
-    Task.perform FetchError FetchQuoteSuccess fetchRandomQuote       
-               
--- View
+    Task.perform HttpError FetchQuoteSuccess fetchRandomQuote     
 
-view : Model -> Html Msg
-view model =
-    div [ class "container row text-center" ] [
-        h2 [] [ text "Chuck Norris Quotes" ]
-        , button [ class "btn btn-primary", onClick GetQuote ] [ text "Grab a quote!" ]
-        , blockquote [ class "text-left" ] [ 
-            p [] [text model.quote] 
-        ]
-    ]
-    
 -- Update
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update action model =
-    case action of
+update msg model =
+    case msg of
         GetQuote ->
             (model, fetchRandomQuoteCmd)
         FetchQuoteSuccess newQuote ->
             ({ model | quote = newQuote }, Cmd.none)
-        FetchError _ ->
-            (model, Cmd.none)       
-    
--- Subscriptions
+        HttpError _ ->
+            (model, Cmd.none)  
+                       
+{-
+    VIEW
+    * Get a quote
+-}
 
-subscriptions : Model -> Sub Msg
-subscriptions model = 
-    Sub.none
+view : Model -> Html Msg
+view model =
+    div [ class "container" ] [
+        h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+        , p [ class "text-center" ] [
+            button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
+        ]
+        -- Blockquote with quote
+        , blockquote [] [ 
+            p [] [text model.quote] 
+        ]
+    ]

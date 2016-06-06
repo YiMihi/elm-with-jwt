@@ -19,7 +19,9 @@ main =
 -}
 
 type alias Model =
-    { quote : String }
+    { 
+        quote : String 
+    }
     
 init : (Model, Cmd Msg)
 init =

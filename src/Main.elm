@@ -250,13 +250,13 @@ view model =
                         div [ class "alert alert-danger" ] [ text model.errorMsg ]
                     ]
                     , div [ class "form-group row" ] [
-                        div [ class "col-md-offset-4 col-md-4" ] [
+                        div [ class "col-md-offset-2 col-md-8" ] [
                             label [ for "username" ] [ text "Username:" ]
                             , input [ id "username", type' "text", class "form-control", Html.Attributes.value model.username, onInput SetUsername ] []
                         ]    
                     ]
                     , div [ class "form-group row" ] [
-                        div [ class "col-md-offset-4 col-md-4" ] [
+                        div [ class "col-md-offset-2 col-md-8" ] [
                             label [ for "password" ] [ text "Password:" ]
                             , input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput SetPassword ] []
                         ]    
@@ -269,7 +269,7 @@ view model =
                 -- Greeting and Log Out button: only show if logged in
                 , div [ class hideIfLoggedOut ][
                     h3 [ class "text-center" ] [ text (greeting model) ]
-                    , p [ class "text-center" ] [ text "Welcome back! You can now access protected quotes." ]
+                    , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]
                     , p [ class "text-center" ] [
                         button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
                     ]   
@@ -278,7 +278,7 @@ view model =
             ], div [ class hideIfLoggedOut ] [
                 h2 [ class "text-center" ] [ text "Protected Chuck Norris Quotes" ]
                 , p [ class "text-center" ] [
-                    button [ class "btn btn-danger", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
+                    button [ class "btn btn-info", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
                 ]
                 -- Blockquote with protected quote: only show if a protectedQuote is present in model
                 , blockquote [ class hideIfNoProtectedQuote ] [ 
