@@ -24,7 +24,8 @@ main =
 {- 
     MODEL
     * Model type 
-    * initialize model with empty values
+    * Initialize model with empty values
+    * Initialize with a random quote
 -}
 
 type alias Model =
@@ -38,7 +39,9 @@ type alias Model =
     
 init : (Model, Cmd Msg)
 init =
-    (Model "" "" "" "" "" "", Cmd.none)
+    ( Model "" "" "" "" "" ""
+    , fetchRandomQuoteCmd
+    )
     
 {-
     MESSAGES
@@ -224,9 +227,7 @@ view model =
         hideIfLoggedIn = 
             if String.length model.token > 0 then "hidden" else ""
         hideIfLoggedOut = 
-            if String.isEmpty model.token then "hidden" else ""  
-        hideIfNoQuote = 
-            if String.isEmpty model.quote then "hidden" else ""     
+            if String.isEmpty model.token then "hidden" else ""     
         hideIfNoProtectedQuote = 
             if String.isEmpty model.protectedQuote then "hidden" else ""  
         showError = 
@@ -237,8 +238,8 @@ view model =
             , p [ class "text-center" ] [
                 button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
             ]
-            -- Blockquote with quote: only show if a quote is present in model
-            , blockquote [ class hideIfNoQuote ] [ 
+            -- Blockquote with quote
+            , blockquote [] [ 
                 p [] [text model.quote] 
             ]
             , div [ class "jumbotron text-left" ] [

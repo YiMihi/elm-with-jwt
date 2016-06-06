@@ -2,6 +2,22 @@
 
 - Introduction
     - About Elm
+        - Created by Evan Czaplicki (a JS programmer)
+            - Gradual learning (the idea that you can be productive before diving deep) _this is a big one_
+            - Communication (this section should be brief)
+                - "Stateless function" (JS deals with state in functions, Elm doesn't) (???)
+                - Easy to refactor
+                - Reliable (no runtime errors)
+                - "Callbacks" (<- monad): `andThen : Maybe a -> (a -> Maybe b) -> Maybe b` chaining computations that may fail
+                - Obvious names (`elm-package`, `elm-make`, `elm-html`, `elm-markdown`)
+            - Culture "Make Stuff!"
+                - Slack  
+                - NoRedInk (SF) using Elm in production  
+                - Styleguide (layouting, whitespace, chunking, newlines) [Styleguide](http://elm-lang.org/docs/style-guide)
+            - Usage-Driven Design
+                - Start with Minimum Viable Solution (it's often enough; keep it simple)
+                - The Elm Architecture: start with simple setup: model, update, view wrapped in a module and importable 
+                - [Compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) with helpful hints and suggestions
     - About JSON Web Tokens
 - Installing Elm
     - How to install Elm globally: `npm install -g elm`
@@ -47,6 +63,8 @@
 - [x] Elm: HTTP POST requests / response handling
 - [x] How to show/hide different views
 - [x] Error handling
+- [ ] Styleguide
+- [ ] Modularity and nesting - Split Quote out into a separate module and authenticated quotes into another???
 
 ## Collected Resources
 
@@ -61,3 +79,18 @@
 - [elm-http-decorators interpretStatus](http://package.elm-lang.org/packages/rgrempel/elm-http-decorators/1.0.2/Http-Decorators#interpretStatus)
 - [elmlang Slack](http://elmlang.herokuapp.com)
 - [Error handling SO](http://stackoverflow.com/questions/37390998/how-can-i-get-the-error-message-out-of-http-error)
+- [Let's be mainstream! Evan Czaplicki](https://www.youtube.com/watch?v=oYk8CKH7OhE)
+- [Styleguide](http://elm-lang.org/docs/style-guide)
+
+### Notes
+
+Anonymous functions
+
+- `\x -> x * 3` is an anonymous function
+- `\_ -> 3` is an anonymous function that discards its argument
+
+`Http.string <| Encode.encode 0 <| userEncoder model` Breakdown:
+
+- `userEncoder model` produces a json `Value`
+- `Encode.encode` formats that as a string. The first argument is an int to indicate how much indentation to use for pretty printing the JSON.
+- With `0` it condenses the output as much as possible.

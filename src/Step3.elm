@@ -4,7 +4,6 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
-import String
 
 import Http
 import Task exposing (Task)
@@ -21,17 +20,19 @@ main =
 {- 
     MODEL
     * Model type 
-    * initialize model with empty values
+    * Initialize model with empty values
+    * Initialize with a random quote
 -}
 
 type alias Model =
-    { 
-        quote : String
+    { quote : String
     }
     
 init : (Model, Cmd Msg)
 init =
-    (Model "", Cmd.none)
+    ( Model ""
+    , fetchRandomQuoteCmd
+    )
     
 {-
     MESSAGES
@@ -89,17 +90,13 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    let
-        hideIfNoQuote = 
-            if String.isEmpty model.quote then "hidden" else ""
-    in         
-        div [ class "container" ] [
-            h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
-            , p [ class "text-center" ] [
-                button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
-            ]
-            -- Blockquote with quote: only show if a quote is present in model
-            , blockquote [ class hideIfNoQuote ] [ 
-                p [] [text model.quote] 
-            ]
+    div [ class "container" ] [
+        h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+        , p [ class "text-center" ] [
+            button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
         ]
+        -- Blockquote with quote
+        , blockquote [] [ 
+            p [] [text model.quote] 
+        ]
+    ]

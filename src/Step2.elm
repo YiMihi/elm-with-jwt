@@ -15,17 +15,18 @@ main =
 {- 
     MODEL
     * Model type 
-    * initialize model with empty values
+    * Initialize model with empty values
 -}
 
 type alias Model =
-    { 
-        quote : String 
+    { quote : String 
     }
     
 init : (Model, Cmd Msg)
 init =
-    (Model "", Cmd.none)
+    ( Model ""
+    , Cmd.none
+    )
     
 {-
     MESSAGES
