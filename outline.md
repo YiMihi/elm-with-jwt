@@ -5,34 +5,64 @@
         - Created by Evan Czaplicki (a JS programmer)
         - Gradual learning (the idea that you can be productive before diving deep) and usage-driven design
             - Start with Minimum Viable Solution (it's often enough; keep it simple)
-            - The Elm Architecture: start with simple setup: model, update, view wrapped in a module and importable 
+            - The Elm Architecture
+                - Start with simple setup: model, update, view wrapped in a module and importable 
+                - Redux drew inspiration from / was inspired by the Elm Architecture
             - [Compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) with helpful hints and suggestions
         - Reliable (no RTEs) - errors at compile time prevent errors at runtime
         - Culture
             - Slack  
-            - NoRedInk (SF) using Elm in production  
+            - NoRedInk (SF) using Elm in production for 8 months: 95% of front-end programming done in Elm with no runtime exceptions (Richard Feldman 3-22-16)
             - Styleguide (layouting, whitespace, chunking, newlines) [Styleguide](http://elm-lang.org/docs/style-guide)
     - About JSON Web Tokens
-- Installing Elm
+        - _TODO_
+- Installing Elm and tools
     - How to install Elm globally: `npm install -g elm`
     - How to create an Elm project: 
         - `elm package install`
     - Dependencies / build config
         - Update `elm-package.json`
         - Set up `gulp`
-- Familiarizing with Elm language 
-    - *Note:* this needs to just be a quick crash course with links to the docs, or this section will get way too long very quickly!
-    - `elm-repl`
-    - Model represents the current application state
+- Familiarizing with Elm 
+    - *Note:* where applicable, these points should go along with the steps they are applicable to; reassign to steps in article body
+    - `elm-repl` (maybe)
+    - MODEL 
+        - Represents the current application state
         - Record - similar to objects in JS
         - A record is just data - no inheritance, no methods
-    - View uses virtual DOM to render: view is a function and corresponds to DOM nodes, the nodes are actually functions that pass lists as parameters; view function is called every time screen needs to be rendered again 
+        - Use persistent data structures to return a new model that is a copy of the old model with the updated data efficiently (only really copies the part that changed)
+        - Record update syntax: `{ model | property = newValue }`
+    - UPDATE 
+        - Transitions between application states    
+    - VIEW 
+        - Describes the rendered view based on the application state 
+        - Uses virtual DOM to render: view is a function and corresponds to DOM nodes, the nodes are actually functions that pass lists as parameters 
+        - Every time model changes, view function runs again and diffs the previous virtual DOM with the next and runs the minimal set of updates necessary
     - Instead of callbacks, messages respond to user interaction - these update the model
-    - Use persistent data structures to return a new model that is a copy of the old model with the updated data efficiently (only really copies the part that changed)
     - `let` in Elm is like constants in JS, they cannot be reassigned like variables
+    - Type annotation syntax 
+        - `type alias Model`, `model : Model`
+        - `type alias` vs `type`
+            - `type alias`: interchangeable with a record of this type
+            - `type`: creating a new type
+            - _TODO: need elaboration on this_
+        - `String -> String -> Int -> String` "function takes two strings and a number and returns a string"
+            - Currying: if you don't pass all the arguments, it gives you back another function that accepts whatever arguments are still needed
+             
+            ```
+            function2 : Int -> String
+            function2 = function1 "string" "string"
+
+            function2 : String -> String -> Int -> String
+            function2 str1 str2 someInt =
+                if someInt > 1 then
+                    str1
+                else
+                    str2
+            ``` 
+       - `Model -> (Cmd Msg)` takes a model and returns a function that accepts a command with a message parameter            
 - Hello World Elm app
     - Create a basic main view
-    - Brief intro to `elm-reactor`
     - `index.html` and styles
     - Viewing the app in browser (gulp server `localhost:3000`)
 - How to call an API with Elm
@@ -41,7 +71,7 @@
     - Register and POST to create new users `/users`
     - Log in and POST with credentials to get session token `/sessions/create`
     - Make authenticated API requests GET `/api/protected/random-quote` (use `elm-http-decorators` package to reconcile types)
-    - How to log to console: `Debug.log`
+    - How to log to console: `|> Debug.log`
     - Error handling
     - Log out (remove username, password, token, error messages)
     - Show/Hide views
