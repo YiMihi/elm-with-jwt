@@ -100,9 +100,10 @@
 
 1. `beginnerProgram` with Hello World + button
 2. `program` with model record that updates on button click, stylesheets, and CSS in view
-3. `HTTP` get unauthenticated quote and display in view with styles
-4. `HTTP` POST to register, authbox view, decode token, error messaging
+3. `HTTP` GET unauthenticated quote and display in view with styles
+4. `HTTP` POST to register, authbox view, decode token, error messaging, debug log
 5. `HTTP` POST to log in, build on register code, add log out
+6. `HTTP` GET authenticated quote, add decorators package for type reconciliation, clean up logs _(Step6.elm == Main.elm)_
 
 ## Considerations / Research
 
