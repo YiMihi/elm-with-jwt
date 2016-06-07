@@ -98,9 +98,11 @@
 
 ## Steps Outline
 
-1. Step 1 - `beginnerProgram` with Hello World + button
-2. Step 2 - `program` with model record that updates on button click, stylesheets, and CSS in view
-3. Step 3 - `HTTP` get unauthenticated quote and display in view with styles
+1. `beginnerProgram` with Hello World + button
+2. `program` with model record that updates on button click, stylesheets, and CSS in view
+3. `HTTP` get unauthenticated quote and display in view with styles
+4. `HTTP` POST to register, authbox view, decode token, error messaging
+5. `HTTP` POST to log in, build on register code, add log out
 
 ## Considerations / Research
 

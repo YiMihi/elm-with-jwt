@@ -33,14 +33,7 @@ init =
     ( Model ""
     , fetchRandomQuoteCmd
     )
-    
-{-
-    MESSAGES
-    * Msg type
--}
-
-
-    
+       
 {-
     UPDATE
     * API routes

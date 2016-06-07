@@ -7,7 +7,6 @@ import Html.Attributes exposing (..)
 import String
 
 import Http
-import Http.Decorators
 import Task exposing (Task)
 import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode exposing (..)
@@ -33,13 +32,12 @@ type alias Model =
     , password : String
     , token : String
     , quote : String
-    , protectedQuote : String 
     , errorMsg : String
     }
     
 init : (Model, Cmd Msg)
 init =
-    ( Model "" "" "" "" "" ""
+    ( Model "" "" "" "" ""
     , fetchRandomQuoteCmd
     )
     
@@ -69,11 +67,7 @@ registerUrl =
     
 loginUrl : String
 loginUrl =
-    api ++ "sessions/create"   
-    
-protectedQuoteUrl : String
-protectedQuoteUrl = 
-    api ++ "api/protected/random-quote"      
+    api ++ "sessions/create"       
 
 -- GET a random quote (unauthenticated)
     
@@ -131,33 +125,6 @@ tokenDecoder : Decoder String
 tokenDecoder =
     "id_token" := Decode.string         
     
--- GET request for random protected quote (authenticated)
-    
-fetchProtectedQuote : Model -> Task Http.Error String
-fetchProtectedQuote model = 
-    { verb = "GET"
-    , headers = [ ("Authorization", "Bearer " ++ model.token) ]
-    , url = protectedQuoteUrl
-    , body = Http.empty
-    }
-    |> Http.send Http.defaultSettings  
-    |> Http.Decorators.interpretStatus -- decorates Http.send result so error type is Http.Error instead of RawError
-    |> Task.map responseText    
-    
-fetchProtectedQuoteCmd : Model -> Cmd Msg
-fetchProtectedQuoteCmd model = 
-    Task.perform HttpError FetchProtectedQuoteSuccess <| fetchProtectedQuote model 
-    
--- Extract GET plain text response to get protected quote    
-    
-responseText : Http.Response -> String
-responseText response = 
-    case response.value of 
-        Http.Text t ->
-            t 
-        _ ->
-            ""
-
 -- Messages
 
 type Msg 
@@ -170,8 +137,6 @@ type Msg
     | ClickRegisterUser
     | ClickLogIn
     | GetTokenSuccess String
-    | GetProtectedQuote
-    | FetchProtectedQuoteSuccess String
     | LogOut
 
 -- Update
@@ -204,16 +169,10 @@ update msg model =
             (model, loginCmd model) 
 
         GetTokenSuccess newToken ->
-            ({ model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none) 
-
-        GetProtectedQuote ->
-            (model, fetchProtectedQuoteCmd model)
-
-        FetchProtectedQuoteSuccess newPQuote ->
-            ({ model | protectedQuote = newPQuote }, Cmd.none)  
+            ({ model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none)  
             
         LogOut ->
-            ({ model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, Cmd.none)
+            ({ model | username = "", password = "", token = "", errorMsg = "" }, Cmd.none)
                        
 {-
     VIEW
@@ -229,10 +188,6 @@ view model =
         -- Is the user logged in?
         loggedIn =
             if String.length model.token > 0 then True else False
-
-        -- If no protected quote, apply a class of "hidden"
-        hideIfNoProtectedQuote = 
-            if String.isEmpty model.protectedQuote then "hidden" else "" 
 
         -- If there is an error on authentication, show the error alert
         showError = 
@@ -276,22 +231,7 @@ view model =
                         , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
                     ] 
                 ]
-
-        -- If user is logged in, show button and quote; if logged out, show a message instructing them to log in
-        protectedQuoteView = 
-            if loggedIn then
-                div [] [
-                    p [ class "text-center" ] [
-                        button [ class "btn btn-info", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
-                    ]
-                    -- Blockquote with protected quote: only show if a protectedQuote is present in model
-                    , blockquote [ class hideIfNoProtectedQuote ] [ 
-                        p [] [text model.protectedQuote] 
-                    ]
-                ]    
-            else
-                p [ class "text-center" ] [ text "Please log in or register to see protected quotes." ]  
-
+                           
     in
         div [ class "container" ] [
             h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
@@ -304,10 +244,6 @@ view model =
             ]
             , div [ class "jumbotron text-left" ] [
                 -- Login/Register form or user greeting
-                authBoxView 
-            ], div [] [
-                h2 [ class "text-center" ] [ text "Protected Chuck Norris Quotes" ]
-                -- Protected quotes
-                , protectedQuoteView
+                authBoxView
             ]
         ]
