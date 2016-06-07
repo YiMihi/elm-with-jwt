@@ -1,5 +1,6 @@
 # Outline
 
+- TL;DR
 - Introduction
     - About Elm
         - Created by Evan Czaplicki (a JS programmer)
@@ -13,15 +14,17 @@
                     - Lowercase values are type parameters `String -> a` (`a` is "anything could go here")
                         - `[1, 2, 3]` is type `List number` (parameterized list type only containing numbers)
                         - `[]` is type `List a` (Elm infers this is a list of anything)
+        - Functional, reactive                
         - Reliable (no RTEs) - errors at compile time prevent errors at runtime
         - Culture
             - Slack  
             - NoRedInk (SF) using Elm in production for 8 months: 95% of front-end programming done in Elm with no runtime exceptions (Richard Feldman 3-22-16)
             - Styleguide (layouting, whitespace, chunking, newlines) [Styleguide](http://elm-lang.org/docs/style-guide)
     - About JSON Web Tokens
-        - _TODO_
+        - _TODO: this section can likely be succinct and link to other articles for reference_
+        - _TODO: Focus more on how this can be used with Elm rather than what JWTs are_
 - Installing Elm and tools
-    - Prerequisites: Node, npm, Gulp
+    - Prerequisites: Node, npm, Gulp, assumed JavaScript experience
     - How to install Elm globally: `npm install -g elm` (we're going to assume Node / npm are installed already; you will need these to run the Node API and to build the project with Gulp) 
     - How to create an Elm project: 
         - `elm package install`
