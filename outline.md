@@ -21,12 +21,14 @@
     - About JSON Web Tokens
         - _TODO_
 - Installing Elm and tools
-    - How to install Elm globally: `npm install -g elm`
+    - Prerequisites: Node, npm, Gulp
+    - How to install Elm globally: `npm install -g elm` (we're going to assume Node / npm are installed already; you will need these to run the Node API and to build the project with Gulp) 
     - How to create an Elm project: 
         - `elm package install`
     - Dependencies / build config
         - Update `elm-package.json`
         - Set up `gulp`
+    - Editors / IDEs: get a plugin for syntax highlighting to avoid pain [Install](http://elm-lang.org/install)    
 - Familiarizing with Elm 
     - _TODO (important): where applicable, these points should go along with the steps they are applicable to; reassign to steps in article body_
     - Note about 0.16 -> 0.17(+) breaking changes, make note of this fact when referencing any resource material other than docs
@@ -64,11 +66,14 @@
                 else
                     str2
             ``` 
-    - `Model -> (Cmd Msg)` takes a model and returns a function that accepts a command with a message parameter  
-    - Union types: case expression - model user interactions and can have a guarantee of no RTE for all branches   
+        - Can also pass something like `foo -> foo -> String` and `foo` could be any type, but must be consistently the same type   
+    - `Model -> (Cmd Msg)` takes a model and returns a command that accepts a message parameter  
+    - Union types: case expression 
+        - Model the user interactions and can have a guarantee of no RTE for all branches
+        - Type parameters have to be consistent
     - Anonymous functions 
-        - Anonymous function with parameter: `\str -> "Hi " ++ str`  
-        - Anonymous function passing nothing: `\_ -> "Hi"`  
+        - Anonymous function with argument: `\str -> "Hi " ++ str`  
+        - Anonymous function that discards its argument: `\_ -> "Hi"`  
 - Hello World Elm app
     - Create a basic main view
     - `index.html` and styles
@@ -122,13 +127,7 @@
 
 ### Notes
 
-Anonymous functions
-
-- `\x -> x * 3` is an anonymous function
-- `\_ -> 3` is an anonymous function that discards its argument
-
 `Http.string <| Encode.encode 0 <| userEncoder model` Breakdown:
 
 - `userEncoder model` produces a json `Value`
-- `Encode.encode` formats that as a string. The first argument is an int to indicate how much indentation to use for pretty printing the JSON.
-- With `0` it condenses the output as much as possible.
+- `Encode.encode` formats that as a string. The first argument is an int to indicate how much indentation to use for pretty printing the JSON; with `0` it condenses the output as much as possible
