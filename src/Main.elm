@@ -44,30 +44,12 @@ init =
     )
     
 {-
-    MESSAGES
-    * Msg type
--}
-
-type Msg 
-    = GetQuote
-    | FetchQuoteSuccess String
-    | HttpError Http.Error
-    | AuthError Http.Error
-    | SetUsername String
-    | SetPassword String
-    | ClickRegisterUser
-    | ClickLogIn
-    | GetTokenSuccess String
-    | GetProtectedQuote
-    | FetchProtectedQuoteSuccess String
-    | LogOut
-    
-{-
     UPDATE
     * API routes
     * GET and POST
     * Encode request body 
     * Decode responses
+    * Messages
     * Update case
 -}
 
@@ -176,6 +158,22 @@ responseText response =
         _ ->
             ""
 
+-- Messages
+
+type Msg 
+    = GetQuote
+    | FetchQuoteSuccess String
+    | HttpError Http.Error
+    | AuthError Http.Error
+    | SetUsername String
+    | SetPassword String
+    | ClickRegisterUser
+    | ClickLogIn
+    | GetTokenSuccess String
+    | GetProtectedQuote
+    | FetchProtectedQuoteSuccess String
+    | LogOut
+
 -- Update
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -188,7 +186,7 @@ update msg model =
         HttpError _ ->
             (model, Cmd.none)  
         AuthError error ->
-             ({ model | errorMsg = (toString error) }, Cmd.none)     
+            ({ model | errorMsg = (toString error) }, Cmd.none)     
         SetUsername username ->
             ({ model | username = username }, Cmd.none)
         SetPassword password ->
@@ -220,13 +218,16 @@ view model =
         -- Logic to hide sections of view when model changes
         hideIfLoggedIn = 
             if String.length model.token > 0 then "hidden" else ""
+
         hideIfLoggedOut = 
-            if String.isEmpty model.token then "hidden" else ""     
+            if String.isEmpty model.token then "hidden" else ""    
+
         hideIfNoProtectedQuote = 
-            if String.isEmpty model.protectedQuote then "hidden" else ""  
+            if String.isEmpty model.protectedQuote then "hidden" else "" 
+
         showError = 
-            if String.isEmpty model.errorMsg then "hidden" else ""
-            
+            if String.isEmpty model.errorMsg then "hidden" else ""  
+
         -- Greet a logged in user by username
         greeting =
             "Hello, " ++ model.username ++ "!"           

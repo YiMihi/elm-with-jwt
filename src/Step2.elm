@@ -27,18 +27,14 @@ init =
     ( Model ""
     , Cmd.none
     )
-    
-{-
-    MESSAGES
-    * Msg type
--}
-
-type Msg = GetQuote
 
 {-
     UPDATE
+    * Messages
     * Update case
 -}
+
+type Msg = GetQuote
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =

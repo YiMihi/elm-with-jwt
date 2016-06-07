@@ -39,15 +39,13 @@ init =
     * Msg type
 -}
 
-type Msg 
-    = GetQuote
-    | FetchQuoteSuccess String
-    | HttpError Http.Error
+
     
 {-
     UPDATE
     * API routes
     * GET
+    * Messages
     * Update case
 -}
 
@@ -69,7 +67,14 @@ fetchRandomQuote =
     
 fetchRandomQuoteCmd : Cmd Msg
 fetchRandomQuoteCmd =
-    Task.perform HttpError FetchQuoteSuccess fetchRandomQuote     
+    Task.perform HttpError FetchQuoteSuccess fetchRandomQuote   
+
+-- Messages
+
+type Msg 
+    = GetQuote
+    | FetchQuoteSuccess String
+    | HttpError Http.Error      
 
 -- Update
 

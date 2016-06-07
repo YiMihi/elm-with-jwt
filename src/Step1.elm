@@ -22,6 +22,8 @@ model =
     
 {-
     UPDATE
+    * Message
+    * Update
 -}    
 
 type Msg = SayHello
