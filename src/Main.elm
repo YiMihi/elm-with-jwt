@@ -226,35 +226,34 @@ update msg model =
 view : Model -> Html Msg
 view model =
     let 
-        -- Logic to hide sections of view when model changes
-        hideIfLoggedIn = 
-            if String.length model.token > 0 then "hidden" else ""
+        -- Is the user logged in?
+        loggedIn =
+            if String.length model.token > 0 then True else False
 
-        hideIfLoggedOut = 
-            if String.isEmpty model.token then "hidden" else ""    
-
+        -- If no protected quote, apply a class of "hidden"
         hideIfNoProtectedQuote = 
             if String.isEmpty model.protectedQuote then "hidden" else "" 
 
+        -- If there is an error on authentication, show the error alert
         showError = 
             if String.isEmpty model.errorMsg then "hidden" else ""  
 
         -- Greet a logged in user by username
         greeting =
-            "Hello, " ++ model.username ++ "!"           
-    in
-        div [ class "container" ] [
-            h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
-            , p [ class "text-center" ] [
-                button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
-            ]
-            -- Blockquote with quote
-            , blockquote [] [ 
-                p [] [text model.quote] 
-            ]
-            , div [ class "jumbotron text-left" ] [
-                -- Login / Register form: only show if not logged in
-                div [ id "form", class hideIfLoggedIn ] [
+            "Hello, " ++ model.username ++ "!" 
+
+        -- If the user is logged in, show a greeting; if logged out, show the login/register form
+        authBoxView =
+            if loggedIn then
+                div [id "greeting" ][
+                    h3 [ class "text-center" ] [ text greeting ]
+                    , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]
+                    , p [ class "text-center" ] [
+                        button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
+                    ]   
+                ] 
+            else
+                div [ id "form" ] [
                     h2 [ class "text-center" ] [ text "Log In or Register" ]
                     , p [ class "help-block" ] [ text "If you already have an account, please Log In. Otherwise, enter your desired username and password and Register." ]
                     , div [ class showError ] [
@@ -277,23 +276,38 @@ view model =
                         , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
                     ] 
                 ]
-                -- Greeting and Log Out button: only show if logged in
-                , div [ class hideIfLoggedOut ][
-                    h3 [ class "text-center" ] [ text greeting ]
-                    , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]
-                    , p [ class "text-center" ] [
-                        button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
-                    ]   
-                ]  
+
+        -- If user is logged in, show button and quote; if logged out, show a message instructing them to log in
+        protectedQuoteView = 
+            if loggedIn then
+                div [] [
+                    p [ class "text-center" ] [
+                        button [ class "btn btn-info", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
+                    ]
+                    -- Blockquote with protected quote: only show if a protectedQuote is present in model
+                    , blockquote [ class hideIfNoProtectedQuote ] [ 
+                        p [] [text model.protectedQuote] 
+                    ]
+                ]    
+            else
+                p [ class "text-center" ] [ text "Please log in or register to see protected quotes." ]  
+                           
+    in
+        div [ class "container" ] [
+            h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+            , p [ class "text-center" ] [
+                button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
+            ]
+            -- Blockquote with quote
+            , blockquote [] [ 
+                p [] [text model.quote] 
+            ]
+            , div [ class "jumbotron text-left" ] [
+                -- Login/Register form or user greeting
+                authBoxView
             -- Protected Quotes: only show if logged in  
-            ], div [ class hideIfLoggedOut ] [
+            ], div [] [
                 h2 [ class "text-center" ] [ text "Protected Chuck Norris Quotes" ]
-                , p [ class "text-center" ] [
-                    button [ class "btn btn-info", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
-                ]
-                -- Blockquote with protected quote: only show if a protectedQuote is present in model
-                , blockquote [ class hideIfNoProtectedQuote ] [ 
-                    p [] [text model.protectedQuote] 
-                ]
+                , protectedQuoteView
             ]
         ]
