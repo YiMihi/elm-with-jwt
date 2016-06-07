@@ -181,28 +181,39 @@ update msg model =
     case msg of
         GetQuote ->
             (model, fetchRandomQuoteCmd)
+
         FetchQuoteSuccess newQuote ->
             ({ model | quote = newQuote }, Cmd.none)
+
         HttpError _ ->
             (model, Cmd.none)  
+
         AuthError error ->
-            ({ model | errorMsg = (toString error) }, Cmd.none)     
+            ({ model | errorMsg = (toString error) }, Cmd.none)  
+
         SetUsername username ->
             ({ model | username = username }, Cmd.none)
+
         SetPassword password ->
             ({ model | password = password }, Cmd.none)
+
         ClickRegisterUser ->
             (model, registerUserCmd model)
+
         ClickLogIn ->
-            (model, loginCmd model)    
+            (model, loginCmd model) 
+
         GetTokenSuccess newToken ->
             ({ model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none) 
+
         GetProtectedQuote ->
             (model, fetchProtectedQuoteCmd model)
+
         FetchProtectedQuoteSuccess newPQuote ->
             ({ model | protectedQuote = newPQuote }, Cmd.none)  
+            
         LogOut ->
-            ({ model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, Cmd.none)   
+            ({ model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, Cmd.none)
                        
 {-
     VIEW

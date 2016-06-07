@@ -83,8 +83,10 @@ update msg model =
     case msg of
         GetQuote ->
             (model, fetchRandomQuoteCmd)
+
         FetchQuoteSuccess newQuote ->
             ({ model | quote = newQuote }, Cmd.none)
+            
         HttpError _ ->
             (model, Cmd.none)  
                        

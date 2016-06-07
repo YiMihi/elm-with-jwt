@@ -9,6 +9,10 @@
                 - Start with simple setup: model, update, view wrapped in a module and importable 
                 - Redux drew inspiration from / was inspired by the Elm Architecture
             - [Compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) with helpful hints and suggestions
+                - Reading error messages
+                    - Lowercase values are type parameters `String -> a` (`a` is "anything could go here")
+                        - `[1, 2, 3]` is type `List number` (parameterized list type only containing numbers)
+                        - `[]` is type `List a` (Elm infers this is a list of anything)
         - Reliable (no RTEs) - errors at compile time prevent errors at runtime
         - Culture
             - Slack  
@@ -24,8 +28,9 @@
         - Update `elm-package.json`
         - Set up `gulp`
 - Familiarizing with Elm 
-    - *Note:* where applicable, these points should go along with the steps they are applicable to; reassign to steps in article body
-    - `elm-repl` (maybe)
+    - _TODO (important): where applicable, these points should go along with the steps they are applicable to; reassign to steps in article body_
+    - Note about 0.16 -> 0.17(+) breaking changes, make note of this fact when referencing any resource material other than docs
+    - `elm-repl` (Read Eval Print Loop) in command line
     - MODEL 
         - Represents the current application state
         - Record - similar to objects in JS
@@ -42,12 +47,11 @@
     - `let` in Elm is like constants in JS, they cannot be reassigned like variables
     - Type annotation syntax 
         - `type alias Model`, `model : Model`
-        - `type alias` vs `type`
-            - `type alias`: interchangeable with a record of this type
-            - `type`: creating a new type
-            - _TODO: need elaboration on this_
+        - `type` vs `type alias`
+            - `type`: creating a completely new type [Types](http://guide.elm-lang.org/types/)
+            - `type alias`: interchangeable with a record of this type (provides more detail in one place while being less verbose when referencing later) [Type Aliases](http://guide.elm-lang.org/types/type_aliases.html)
         - `String -> String -> Int -> String` "function takes two strings and a number and returns a string"
-            - Currying: if you don't pass all the arguments, it gives you back another function that accepts whatever arguments are still needed
+            - Currying: if you don't pass all the arguments, it gives you back another function that accepts whatever arguments are still needed _(more on currying elsewhere, don't go into too much detail here)_
              
             ```
             function2 : Int -> String
@@ -60,7 +64,11 @@
                 else
                     str2
             ``` 
-       - `Model -> (Cmd Msg)` takes a model and returns a function that accepts a command with a message parameter            
+    - `Model -> (Cmd Msg)` takes a model and returns a function that accepts a command with a message parameter  
+    - Union types: case expression - model user interactions and can have a guarantee of no RTE for all branches   
+    - Anonymous functions 
+        - Anonymous function with parameter: `\str -> "Hi " ++ str`  
+        - Anonymous function passing nothing: `\_ -> "Hi"`  
 - Hello World Elm app
     - Create a basic main view
     - `index.html` and styles
@@ -76,6 +84,9 @@
     - Log out (remove username, password, token, error messages)
     - Show/Hide views
 - Conclusion
+    - Compiler gives you a lot of test coverage "free of charge" with no RTE
+    - Elm is evolving rapidly
+    - Elm Architecture inspired Redux
 
 ## Steps Outline
 
