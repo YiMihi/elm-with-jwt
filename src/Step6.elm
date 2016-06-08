@@ -227,18 +227,22 @@ view : Model -> Html Msg
 view model =
     let 
         -- Is the user logged in?
+        loggedIn : Bool
         loggedIn =
             if String.length model.token > 0 then True else False
 
         -- If no protected quote, apply a class of "hidden"
+        hideIfNoProtectedQuote : String
         hideIfNoProtectedQuote = 
             if String.isEmpty model.protectedQuote then "hidden" else "" 
 
         -- If there is an error on authentication, show the error alert
+        showError : String
         showError = 
             if String.isEmpty model.errorMsg then "hidden" else ""  
 
         -- Greet a logged in user by username
+        greeting : String
         greeting =
             "Hello, " ++ model.username ++ "!" 
 

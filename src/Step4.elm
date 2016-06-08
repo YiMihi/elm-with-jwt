@@ -157,14 +157,17 @@ view : Model -> Html Msg
 view model =
     let 
         -- Is the user logged in?
+        loggedIn : Bool
         loggedIn =
             if String.length model.token > 0 then True else False
 
         -- If there is an error on authentication, show the error alert
+        showError : String
         showError = 
             if String.isEmpty model.errorMsg then "hidden" else ""  
 
         -- Greet a logged in user by username
+        greeting : String
         greeting =
             "Hello, " ++ model.username ++ "!" 
 

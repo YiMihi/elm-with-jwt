@@ -18,8 +18,11 @@
         - Reliable (no RTEs) - errors at compile time prevent errors at runtime
         - Culture
             - Slack  
-            - NoRedInk (SF) using Elm in production for 8 months: 95% of front-end programming done in Elm with no runtime exceptions (Richard Feldman 3-22-16)
-            - Styleguide (layouting, whitespace, chunking, newlines) [Styleguide](http://elm-lang.org/docs/style-guide)
+            - NoRedInk (SF) using Elm in production for 8 months
+                - 95% of front-end programming done in Elm with no runtime exceptions (Richard Feldman 3-22-16)
+                - Easy to maintain and refactor
+                - Compiler catches things that tests don't because maybe you didn't think to write a test for that
+            - Styleguide (layouting, whitespace, chunking, newlines) [Styleguide](http://elm-lang.org/docs/style-guide)   
     - About JSON Web Tokens
         - _TODO: this section can likely be succinct and link to other articles for reference_
         - _TODO: Focus more on how this can be used with Elm rather than what JWTs are_
@@ -76,7 +79,12 @@
         - Type parameters have to be consistent
     - Anonymous functions 
         - Anonymous function with argument: `\str -> "Hi " ++ str`  
-        - Anonymous function that discards its argument: `\_ -> "Hi"`  
+        - Anonymous function that discards its argument: `\_ -> "Hi"` 
+    - `http` are effects: descriptions of what you want done, but don't execute until handed off to Elm runtime
+    - `Debug.log` type annotation is `String -> a -> a`
+        - `Debug.log "the value of a is" a`
+        - `thing |> Debug.log "thing is"` or `(Debug.log "thing is" thing)`   
+    - `|>` is an alias for function application; `arg |> function` is the same as `function arg`     
 - Hello World Elm app
     - Create a basic main view
     - `index.html` and styles
@@ -87,7 +95,7 @@
     - Register and POST to create new users `/users`
     - Log in and POST with credentials to get session token `/sessions/create`
     - Make authenticated API requests GET `/api/protected/random-quote` (use `elm-http-decorators` package to reconcile types)
-    - How to log to console: `|> Debug.log`
+    - How to log to console with `Debug.log`
     - Error handling
     - Log out (remove username, password, token, error messages)
     - Show/Hide views
@@ -95,6 +103,7 @@
     - Compiler gives you a lot of test coverage "free of charge" with no RTE
     - Elm is evolving rapidly
     - Elm Architecture inspired Redux
+    - Disadvantages: ecosystem is young (ie., had to use JS datepicker because no Elm datepicker yet), core is changing rapidly and tools don't always keep up with the language development
 
 ## Steps Outline
 
