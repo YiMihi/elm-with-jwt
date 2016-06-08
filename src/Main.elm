@@ -186,42 +186,45 @@ port setStorage : Model -> Cmd msg
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-    case msg of
-        GetQuote ->
-            (model, fetchRandomQuoteCmd)
+    let
+        emptyModel = { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }
+    in 
+        case msg of
+            GetQuote ->
+                (model, fetchRandomQuoteCmd)
 
-        FetchQuoteSuccess newQuote ->
-            ({ model | quote = newQuote }, Cmd.none)
+            FetchQuoteSuccess newQuote ->
+                ({ model | quote = newQuote }, Cmd.none)
 
-        HttpError _ ->
-            (model, Cmd.none)  
+            HttpError _ ->
+                (model, Cmd.none)  
 
-        AuthError error ->
-            ({ model | errorMsg = (toString error) }, Cmd.none)  
+            AuthError error ->
+                ({ model | errorMsg = (toString error) }, Cmd.none)  
 
-        SetUsername username ->
-            ({ model | username = username }, Cmd.none)
+            SetUsername username ->
+                ({ model | username = username }, Cmd.none)
 
-        SetPassword password ->
-            ({ model | password = password }, Cmd.none)
+            SetPassword password ->
+                ({ model | password = password }, Cmd.none)
 
-        ClickRegisterUser ->
-            (model, registerUserCmd model)
+            ClickRegisterUser ->
+                (model, registerUserCmd model)
 
-        ClickLogIn ->
-            (model, loginCmd model) 
+            ClickLogIn ->
+                (model, loginCmd model) 
 
-        GetTokenSuccess newToken ->
-            ({ model | token = newToken, password = "", errorMsg = "" } |> Debug.log "got new token", setStorage { model | token = newToken, password = "" }) 
+            GetTokenSuccess newToken ->
+                ({ model | token = newToken, password = "", errorMsg = "" }, setStorage { model | token = newToken, password = "" } |> Debug.log "localstorage model") 
 
-        GetProtectedQuote ->
-            (model, fetchProtectedQuoteCmd model)
+            GetProtectedQuote ->
+                (model, fetchProtectedQuoteCmd model)
 
-        FetchProtectedQuoteSuccess newPQuote ->
-            ({ model | protectedQuote = newPQuote }, Cmd.none)  
-            
-        LogOut ->
-            ({ model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, setStorage { model | username = "", token = ""})
+            FetchProtectedQuoteSuccess newPQuote ->
+                ({ model | protectedQuote = newPQuote }, setStorage { model | protectedQuote = newPQuote })  
+                
+            LogOut ->
+                (emptyModel, setStorage emptyModel)
                        
 {-
     VIEW
