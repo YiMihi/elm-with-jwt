@@ -29,7 +29,8 @@
     - Dependencies / build config
         - Update `elm-package.json`
         - Set up `gulp`
-    - Editors / IDEs: get a plugin for syntax highlighting to avoid pain [Install](http://elm-lang.org/install)    
+    - Editors / IDEs: get a plugin for syntax highlighting to avoid pain [Install](http://elm-lang.org/install)  
+    - [Source repo](https://github.com/YiMihi/elm-app-jwt-api), [commits](https://github.com/YiMihi/elm-app-jwt-api/commits/master)  
 - Set up Elm app
     - Create a basic main view
     - `index.html` and styles
