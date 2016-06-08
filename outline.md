@@ -135,7 +135,7 @@ _TODO (important): where applicable, these points should go along with the steps
 - [x] Elm: HTTP POST requests / response handling
 - [x] How to show/hide different views
 - [x] Error handling
-- [ ] Port localStorage into Elm from JavaScript and utilize [#8](https://github.com/YiMihi/elm-with-jwt/issues/8)
+- [x] Port localStorage into Elm from JavaScript and utilize [#8](https://github.com/YiMihi/elm-with-jwt/issues/8)
 
 ## Collected Resources
 
@@ -155,6 +155,7 @@ _TODO (important): where applicable, these points should go along with the steps
 - Video: [Elm Basics](https://www.youtube.com/watch?v=g48K6ABfRzA)
 - [Styleguide](http://elm-lang.org/docs/style-guide)
 - [Elm Destructuring](https://gist.github.com/yang-wei/4f563fbf81ff843e8b1e)
+- [Elm articles by Dennis Reimann](https://dennisreimann.de/articles/elm.html)
 
 ### Notes
 
