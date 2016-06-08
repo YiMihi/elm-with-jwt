@@ -1,46 +1,60 @@
 import Html exposing (..)
 import Html.App as Html
 import Html.Events exposing (..)
+import Html.Attributes exposing (..)
 
 main : Program Never
 main = 
-    Html.beginnerProgram 
-        { model = model
+    Html.program 
+        { init = init 
         , view = view
         , update = update
+        , subscriptions = \_ -> Sub.none
         }
     
-{-
+{- 
     MODEL
--}    
+    * Model type 
+    * Initialize model with empty values
+-}
 
-type alias Model = String
-
-model : Model
-model = 
-    "Hello world!"
+type alias Model =
+    { quote : String 
+    }
     
+init : (Model, Cmd Msg)
+init =
+    ( Model ""
+    , Cmd.none
+    )
+
 {-
     UPDATE
-    * Message
-    * Update
--}    
+    * Messages
+    * Update case
+-}
 
-type Msg = SayHello
+type Msg = GetQuote
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        SayHello ->
-            model ++ " Hello Elm!"
+        GetQuote ->
+            ({ model | quote = model.quote ++ "A quote! " }, Cmd.none)
             
 {-
     VIEW
--}    
+-}
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ button [ onClick SayHello ] [ text "Say Hello" ]
-        , p [] [ text (toString model) ]
+    div [ class "container" ] [
+        h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+        , p [ class "text-center" ] [
+            button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
         ]
+        -- Blockquote with quote
+        , blockquote [] [ 
+            p [] [text model.quote] 
+        ]
+    ]            

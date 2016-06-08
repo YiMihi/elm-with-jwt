@@ -63,7 +63,11 @@ randomQuoteUrl =
     
 registerUrl : String
 registerUrl =
-    api ++ "users"       
+    api ++ "users"  
+    
+loginUrl : String
+loginUrl =
+    api ++ "sessions/create"       
 
 -- GET a random quote (unauthenticated)
     
@@ -81,7 +85,7 @@ userEncoder : Model -> Encode.Value
 userEncoder model = 
     Encode.object 
         [ ("username", Encode.string model.username)
-        , ("password", Encode.string model.password) 
+        , ("password", Encode.string model.password)
         ]          
 
 -- POST register request and decode token response
@@ -99,6 +103,22 @@ registerUser model =
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
     Task.perform AuthError GetTokenSuccess <| registerUser model
+
+-- POST log in request and decode token response
+    
+login : Model -> Task Http.Error (String)
+login model =
+    { verb = "POST"
+    , headers = [ ("Content-Type", "application/json") ]
+    , url = loginUrl
+    , body = Http.string <| Encode.encode 0 <| userEncoder model
+    }
+    |> Http.send Http.defaultSettings
+    |> Http.fromJson tokenDecoder
+    
+loginCmd : Model -> Cmd Msg
+loginCmd model =
+    Task.perform AuthError GetTokenSuccess <| login model 
     
 -- Decode POST response to get token
     
@@ -116,7 +136,9 @@ type Msg
     | SetUsername String
     | SetPassword String
     | ClickRegisterUser
+    | ClickLogIn
     | GetTokenSuccess String
+    | LogOut
 
 -- Update
 
@@ -144,14 +166,21 @@ update msg model =
         ClickRegisterUser ->
             (model, registerUserCmd model)
 
+        ClickLogIn ->
+            (model, loginCmd model) 
+
         GetTokenSuccess newToken ->
             ({ model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none)  
+            
+        LogOut ->
+            ({ model | username = "", password = "", token = "", errorMsg = "" }, Cmd.none)
                        
 {-
     VIEW
     * Hide sections of view depending on authenticaton state of model
     * Get a quote
-    * Register
+    * Log In or Register
+    * Get a protected quote
 -}
 
 view : Model -> Html Msg
@@ -177,7 +206,10 @@ view model =
             if loggedIn then
                 div [id "greeting" ][
                     h3 [ class "text-center" ] [ text greeting ]
-                    , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]  
+                    , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]
+                    , p [ class "text-center" ] [
+                        button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
+                    ]   
                 ] 
             else
                 div [ id "form" ] [
@@ -199,7 +231,8 @@ view model =
                         ]    
                     ]
                     , div [ class "text-center" ] [
-                        button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
+                        button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
+                        , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
                     ] 
                 ]
                            
