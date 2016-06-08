@@ -14,7 +14,10 @@
                     - Lowercase values are type parameters `String -> a` (`a` is "anything could go here")
                         - `[1, 2, 3]` is type `List number` (parameterized list type only containing numbers)
                         - `[]` is type `List a` (Elm infers this is a list of anything)
-        - Functional, reactive                
+        - [Functional](https://www.smashingmagazine.com/2014/07/dont-be-scared-of-functional-programming/)
+            - immutable (data doesn't change, new data structures are created instead of modifying existing ones)
+            - stateless (perform every task as if for the first time with no knowledge of what may have happened previously)
+        - Reactive                
         - Reliable (no RTEs) - errors at compile time prevent errors at runtime
         - Culture
             - Slack  
@@ -41,12 +44,13 @@
     - `elm-repl` (Read Eval Print Loop) in command line
     - MODEL 
         - Represents the current application state
-        - Record - similar to objects in JS
-        - A record is just data - no inheritance, no methods
+        - Record - similar to objects in JS (but with key differences)
+        - A record is immutable data - no inheritance, no methods
         - Use persistent data structures to return a new model that is a copy of the old model with the updated data efficiently (only really copies the part that changed)
         - Record update syntax: `{ model | property = newValue }`
     - UPDATE 
-        - Transitions between application states    
+        - Transitions between application states 
+        - Case expressions are indentation sensitive   
     - VIEW 
         - Describes the rendered view based on the application state 
         - Uses virtual DOM to render: view is a function and corresponds to DOM nodes, the nodes are actually functions that pass lists as parameters 
@@ -80,11 +84,15 @@
     - Anonymous functions 
         - Anonymous function with argument: `\str -> "Hi " ++ str`  
         - Anonymous function that discards its argument: `\_ -> "Hi"` 
+        - `\` is meant to look like a lambda, which is the symbol for function in functional programming
     - `http` are effects: descriptions of what you want done, but don't execute until handed off to Elm runtime
     - `Debug.log` type annotation is `String -> a -> a`
         - `Debug.log "the value of a is" a`
         - `thing |> Debug.log "thing is"` or `(Debug.log "thing is" thing)`   
-    - `|>` is an alias for function application; `arg |> function` is the same as `function arg`     
+    - `|>` and `<|` are aliases for function application
+        - this helps to reduce parentheses
+        - [<|](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#%3C|) backward function application
+        - [|>](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#|%3E) forward function application
 - Hello World Elm app
     - Create a basic main view
     - `index.html` and styles
@@ -138,6 +146,7 @@
 - [Error handling SO](http://stackoverflow.com/questions/37390998/how-can-i-get-the-error-message-out-of-http-error)
 - Video: [Let's be mainstream! Evan Czaplicki](https://www.youtube.com/watch?v=oYk8CKH7OhE)
 - Video: [Introduction to Elm - Richard Fedlman](https://www.youtube.com/watch?v=zBHB9i8e3Kc)
+- Vidoe: [Elm Basics](https://www.youtube.com/watch?v=g48K6ABfRzA)
 - [Styleguide](http://elm-lang.org/docs/style-guide)
 
 ### Notes
