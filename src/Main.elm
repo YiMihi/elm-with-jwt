@@ -1,7 +1,7 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Html exposing (..)
-import Html.App as Html
+import Html.App as Html exposing (programWithFlags)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import String
@@ -12,13 +12,13 @@ import Task exposing (Task)
 import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode exposing (..)
 
-main : Program Never
+main : Program (Maybe Model)
 main = 
-    Html.program 
+    Html.programWithFlags
         { init = init 
-        , view = view
         , update = update
         , subscriptions = \_ -> Sub.none
+        , view = view
         }
     
 {- 
@@ -37,11 +37,14 @@ type alias Model =
     , errorMsg : String
     }
     
-init : (Model, Cmd Msg)
-init =
-    ( Model "" "" "" "" "" ""
-    , fetchRandomQuoteCmd
-    )
+init : Maybe Model -> (Model, Cmd Msg)
+init model =
+    case model of 
+        Just model ->
+            ( model, fetchRandomQuoteCmd )
+
+        Nothing ->
+            ( Model "" "" "" "" "" "", fetchRandomQuoteCmd )    
     
 {-
     UPDATE
@@ -175,6 +178,10 @@ type Msg
     | FetchProtectedQuoteSuccess String
     | LogOut
 
+-- PORTS
+
+port setStorage : Model -> Cmd msg  
+
 -- Update
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -205,7 +212,7 @@ update msg model =
             (model, loginCmd model) 
 
         GetTokenSuccess newToken ->
-            ({ model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none) 
+            ({ model | token = newToken, password = "", errorMsg = "" } |> Debug.log "got new token", setStorage { model | token = newToken, password = "" }) 
 
         GetProtectedQuote ->
             (model, fetchProtectedQuoteCmd model)
@@ -214,7 +221,7 @@ update msg model =
             ({ model | protectedQuote = newPQuote }, Cmd.none)  
             
         LogOut ->
-            ({ model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, Cmd.none)
+            ({ model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, setStorage { model | username = "", token = ""})
                        
 {-
     VIEW

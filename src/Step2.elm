@@ -30,9 +30,7 @@ type alias Model =
     
 init : (Model, Cmd Msg)
 init =
-    ( Model ""
-    , fetchRandomQuoteCmd
-    )
+    ( Model "", fetchRandomQuoteCmd )
        
 {-
     UPDATE
