@@ -163,6 +163,12 @@ responseText response =
         _ ->
             ""
 
+-- Helper to update model and set localStorage with the updated model
+
+setStorageCmd : Model -> ( Model, Cmd Msg )
+setStorageCmd model = 
+    ( model, setStorage model )
+
 -- Messages
 
 type Msg 
@@ -187,45 +193,42 @@ port setStorage : Model -> Cmd msg
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-    let
-        emptyModel = { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }
-    in 
-        case msg of
-            GetQuote ->
-                ( model, fetchRandomQuoteCmd )
+    case msg of
+        GetQuote ->
+            ( model, fetchRandomQuoteCmd )
 
-            FetchQuoteSuccess newQuote ->
-                ( { model | quote = newQuote }, Cmd.none )
+        FetchQuoteSuccess newQuote ->
+            ( { model | quote = newQuote }, Cmd.none )
 
-            HttpError _ ->
-                ( model, Cmd.none )  
+        HttpError _ ->
+            ( model, Cmd.none )  
 
-            AuthError error ->
-                ( { model | errorMsg = (toString error) }, Cmd.none )  
+        AuthError error ->
+            ( { model | errorMsg = (toString error) }, Cmd.none )  
 
-            SetUsername username ->
-                ( { model | username = username }, Cmd.none )
+        SetUsername username ->
+            ( { model | username = username }, Cmd.none )
 
-            SetPassword password ->
-                ( { model | password = password }, Cmd.none )
+        SetPassword password ->
+            ( { model | password = password }, Cmd.none )
 
-            ClickRegisterUser ->
-                ( model, registerUserCmd model )
+        ClickRegisterUser ->
+            ( model, registerUserCmd model )
 
-            ClickLogIn ->
-                ( model, loginCmd model ) 
+        ClickLogIn ->
+            ( model, loginCmd model ) 
 
-            GetTokenSuccess newToken ->
-                ( { model | token = newToken, password = "", errorMsg = "" }, setStorage { model | token = newToken, password = "" } ) 
+        GetTokenSuccess newToken ->
+            setStorageCmd { model | token = newToken, password = "", errorMsg = "" }
 
-            GetProtectedQuote ->
-                ( model, fetchProtectedQuoteCmd model )
+        GetProtectedQuote ->
+            ( model, fetchProtectedQuoteCmd model )
 
-            FetchProtectedQuoteSuccess newPQuote ->
-                ( { model | protectedQuote = newPQuote }, setStorage { model | protectedQuote = newPQuote } )  
-                
-            LogOut ->
-                ( emptyModel, setStorage emptyModel )
+        FetchProtectedQuoteSuccess newPQuote ->
+            setStorageCmd { model | protectedQuote = newPQuote }
+            
+        LogOut ->
+            setStorageCmd { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }
                        
 {-
     VIEW
@@ -241,72 +244,76 @@ view model =
         -- Is the user logged in?
         loggedIn : Bool
         loggedIn =
-            if String.length model.token > 0 then True else False
-
-        -- If no protected quote, apply a class of "hidden"
-        hideIfNoProtectedQuote : String
-        hideIfNoProtectedQuote = 
-            if String.isEmpty model.protectedQuote then "hidden" else "" 
-
-        -- If there is an error on authentication, show the error alert
-        showError : String
-        showError = 
-            if String.isEmpty model.errorMsg then "hidden" else ""  
-
-        -- Greet a logged in user by username
-        greeting : String
-        greeting =
-            "Hello, " ++ model.username ++ "!" 
-
+            if String.length model.token > 0 then True else False 
+            
         -- If the user is logged in, show a greeting; if logged out, show the login/register form
         authBoxView =
-            if loggedIn then
-                div [id "greeting" ][
-                    h3 [ class "text-center" ] [ text greeting ]
-                    , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]
-                    , p [ class "text-center" ] [
-                        button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
-                    ]   
-                ] 
-            else
-                div [ id "form" ] [
-                    h2 [ class "text-center" ] [ text "Log In or Register" ]
-                    , p [ class "help-block" ] [ text "If you already have an account, please Log In. Otherwise, enter your desired username and password and Register." ]
-                    , div [ class showError ] [
-                        div [ class "alert alert-danger" ] [ text model.errorMsg ]
-                    ]
-                    , div [ class "form-group row" ] [
-                        div [ class "col-md-offset-2 col-md-8" ] [
-                            label [ for "username" ] [ text "Username:" ]
-                            , input [ id "username", type' "text", class "form-control", Html.Attributes.value model.username, onInput SetUsername ] []
-                        ]    
-                    ]
-                    , div [ class "form-group row" ] [
-                        div [ class "col-md-offset-2 col-md-8" ] [
-                            label [ for "password" ] [ text "Password:" ]
-                            , input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput SetPassword ] []
-                        ]    
-                    ]
-                    , div [ class "text-center" ] [
-                        button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
-                        , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
+            let
+                -- If there is an error on authentication, show the error alert
+                showError : String
+                showError = 
+                    if String.isEmpty model.errorMsg then "hidden" else ""  
+
+                -- Greet a logged in user by username
+                greeting : String
+                greeting =
+                    "Hello, " ++ model.username ++ "!" 
+
+            in
+                if loggedIn then
+                    div [id "greeting" ][
+                        h3 [ class "text-center" ] [ text greeting ]
+                        , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]
+                        , p [ class "text-center" ] [
+                            button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
+                        ]   
                     ] 
-                ]
+                else
+                    div [ id "form" ] [
+                        h2 [ class "text-center" ] [ text "Log In or Register" ]
+                        , p [ class "help-block" ] [ text "If you already have an account, please Log In. Otherwise, enter your desired username and password and Register." ]
+                        , div [ class showError ] [
+                            div [ class "alert alert-danger" ] [ text model.errorMsg ]
+                        ]
+                        , div [ class "form-group row" ] [
+                            div [ class "col-md-offset-2 col-md-8" ] [
+                                label [ for "username" ] [ text "Username:" ]
+                                , input [ id "username", type' "text", class "form-control", Html.Attributes.value model.username, onInput SetUsername ] []
+                            ]    
+                        ]
+                        , div [ class "form-group row" ] [
+                            div [ class "col-md-offset-2 col-md-8" ] [
+                                label [ for "password" ] [ text "Password:" ]
+                                , input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput SetPassword ] []
+                            ]    
+                        ]
+                        , div [ class "text-center" ] [
+                            button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
+                            , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
+                        ] 
+                    ]
 
         -- If user is logged in, show button and quote; if logged out, show a message instructing them to log in
         protectedQuoteView = 
-            if loggedIn then
-                div [] [
-                    p [ class "text-center" ] [
-                        button [ class "btn btn-info", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
-                    ]
-                    -- Blockquote with protected quote: only show if a protectedQuote is present in model
-                    , blockquote [ class hideIfNoProtectedQuote ] [ 
-                        p [] [text model.protectedQuote] 
-                    ]
-                ]    
-            else
-                p [ class "text-center" ] [ text "Please log in or register to see protected quotes." ]  
+            let
+                -- If no protected quote, apply a class of "hidden"
+                hideIfNoProtectedQuote : String
+                hideIfNoProtectedQuote = 
+                    if String.isEmpty model.protectedQuote then "hidden" else ""
+
+            in        
+                if loggedIn then
+                    div [] [
+                        p [ class "text-center" ] [
+                            button [ class "btn btn-info", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
+                        ]
+                        -- Blockquote with protected quote: only show if a protectedQuote is present in model
+                        , blockquote [ class hideIfNoProtectedQuote ] [ 
+                            p [] [text model.protectedQuote] 
+                        ]
+                    ]    
+                else
+                    p [ class "text-center" ] [ text "Please log in or register to see protected quotes." ]  
 
     in
         div [ class "container" ] [

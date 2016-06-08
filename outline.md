@@ -66,7 +66,7 @@
 5. Step 3 - `HTTP` POST to register, authbox view, decode token, error messaging, debug log
 6. Step 4 - `HTTP` POST to log in, build on register code, add log out
 7. Step 5 - `HTTP` GET authenticated quote, add decorators package for type reconciliation, clean up logs
-8. Step 6 - Save model to `localStorage` _(Step6.elm == Main.elm)_
+8. Step 6 - `programWithFlags` Save model to `localStorage`  _(Step6.elm == Main.elm)_
 
 ## Familiarizing with Elm
 
