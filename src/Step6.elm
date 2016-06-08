@@ -53,6 +53,7 @@ init model =
     * Encode request body 
     * Decode responses
     * Messages
+    * Ports
     * Update case
 -}
 
@@ -178,7 +179,7 @@ type Msg
     | FetchProtectedQuoteSuccess String
     | LogOut
 
--- PORTS
+-- Ports
 
 port setStorage : Model -> Cmd msg  
 
@@ -191,40 +192,40 @@ update msg model =
     in 
         case msg of
             GetQuote ->
-                (model, fetchRandomQuoteCmd)
+                ( model, fetchRandomQuoteCmd )
 
             FetchQuoteSuccess newQuote ->
-                ({ model | quote = newQuote }, Cmd.none)
+                ( { model | quote = newQuote }, Cmd.none )
 
             HttpError _ ->
-                (model, Cmd.none)  
+                ( model, Cmd.none )  
 
             AuthError error ->
-                ({ model | errorMsg = (toString error) }, Cmd.none)  
+                ( { model | errorMsg = (toString error) }, Cmd.none )  
 
             SetUsername username ->
-                ({ model | username = username }, Cmd.none)
+                ( { model | username = username }, Cmd.none )
 
             SetPassword password ->
-                ({ model | password = password }, Cmd.none)
+                ( { model | password = password }, Cmd.none )
 
             ClickRegisterUser ->
-                (model, registerUserCmd model)
+                ( model, registerUserCmd model )
 
             ClickLogIn ->
-                (model, loginCmd model) 
+                ( model, loginCmd model ) 
 
             GetTokenSuccess newToken ->
-                ({ model | token = newToken, password = "", errorMsg = "" }, setStorage { model | token = newToken, password = "" } |> Debug.log "localstorage model") 
+                ( { model | token = newToken, password = "", errorMsg = "" }, setStorage { model | token = newToken, password = "" } ) 
 
             GetProtectedQuote ->
-                (model, fetchProtectedQuoteCmd model)
+                ( model, fetchProtectedQuoteCmd model )
 
             FetchProtectedQuoteSuccess newPQuote ->
-                ({ model | protectedQuote = newPQuote }, setStorage { model | protectedQuote = newPQuote })  
+                ( { model | protectedQuote = newPQuote }, setStorage { model | protectedQuote = newPQuote } )  
                 
             LogOut ->
-                (emptyModel, setStorage emptyModel)
+                ( emptyModel, setStorage emptyModel )
                        
 {-
     VIEW

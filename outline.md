@@ -44,7 +44,7 @@
     - Error handling
     - Log out (remove username, password, token, error messages)
     - Show/Hide views
-    - Save model to localStorage
+    - Save model to localStorage for persisted login
 - Conclusion
     - Compiler gives you a lot of test coverage "free of charge" with no RTE
     - Elm is evolving rapidly

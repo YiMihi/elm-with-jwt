@@ -15,9 +15,9 @@ main : Program Never
 main = 
     Html.program 
         { init = init 
-        , view = view
         , update = update
         , subscriptions = \_ -> Sub.none
+        , view = view
         }
     
 {- 
@@ -122,28 +122,28 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         GetQuote ->
-            (model, fetchRandomQuoteCmd)
+            ( model, fetchRandomQuoteCmd )
 
         FetchQuoteSuccess newQuote ->
-            ({ model | quote = newQuote }, Cmd.none)
+            ( { model | quote = newQuote }, Cmd.none )
 
         HttpError _ ->
-            (model, Cmd.none)  
+            ( model, Cmd.none )  
 
         AuthError error ->
-            ({ model | errorMsg = (toString error) }, Cmd.none)  
+            ( { model | errorMsg = (toString error) }, Cmd.none )  
 
         SetUsername username ->
-            ({ model | username = username }, Cmd.none)
+            ( { model | username = username }, Cmd.none )
 
         SetPassword password ->
-            ({ model | password = password }, Cmd.none)
+            ( { model | password = password }, Cmd.none )
 
         ClickRegisterUser ->
-            (model, registerUserCmd model)
+            ( model, registerUserCmd model )
 
         GetTokenSuccess newToken ->
-            ({ model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none)  
+            ( { model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none )  
                        
 {-
     VIEW

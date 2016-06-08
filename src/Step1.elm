@@ -7,9 +7,9 @@ main : Program Never
 main = 
     Html.program 
         { init = init 
-        , view = view
         , update = update
         , subscriptions = \_ -> Sub.none
+        , view = view
         }
     
 {- 
@@ -38,7 +38,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         GetQuote ->
-            ({ model | quote = model.quote ++ "A quote! " }, Cmd.none)
+            ( { model | quote = model.quote ++ "A quote! " }, Cmd.none )
             
 {-
     VIEW
