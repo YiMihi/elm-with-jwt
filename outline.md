@@ -44,6 +44,7 @@
     - Error handling
     - Log out (remove username, password, token, error messages)
     - Show/Hide views
+    - Save model to localStorage
 - Conclusion
     - Compiler gives you a lot of test coverage "free of charge" with no RTE
     - Elm is evolving rapidly
@@ -64,7 +65,8 @@
 4. Step 2 - `HTTP` GET unauthenticated quote and display in view with styles
 5. Step 3 - `HTTP` POST to register, authbox view, decode token, error messaging, debug log
 6. Step 4 - `HTTP` POST to log in, build on register code, add log out
-7. Step 5 - `HTTP` GET authenticated quote, add decorators package for type reconciliation, clean up logs _(Step6.elm == Main.elm)_
+7. Step 5 - `HTTP` GET authenticated quote, add decorators package for type reconciliation, clean up logs
+8. Step 6 - Save model to `localStorage` _(Step6.elm == Main.elm)_
 
 ## Familiarizing with Elm
 
