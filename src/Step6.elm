@@ -90,8 +90,9 @@ fetchRandomQuoteCmd =
 userEncoder : Model -> Encode.Value
 userEncoder model = 
     Encode.object 
-        [("username", Encode.string model.username)
-        , ("password", Encode.string model.password)]          
+        [ ("username", Encode.string model.username)
+        , ("password", Encode.string model.password)
+        ]          
 
 -- POST register request and decode token response
     

@@ -76,7 +76,9 @@
                 else
                     str2
             ``` 
-        - Can also pass something like `foo -> foo -> String` and `foo` could be any type, but must be consistently the same type   
+        - Can also pass something like `foo -> foo -> String` and `foo` could be any type, but must be consistently the same type _(exclude this?)_
+        - Top-level things should have type annotation, but can use them everywhere (may help beginners) 
+        - [How to Read a Type Annotation](https://github.com/elm-guides/elm-for-js/blob/master/How%20to%20Read%20a%20Type%20Annotation.md)
     - `Model -> (Cmd Msg)` takes a model and returns a command that accepts a message parameter  
     - Union types: case expression 
         - Model the user interactions and can have a guarantee of no RTE for all branches
