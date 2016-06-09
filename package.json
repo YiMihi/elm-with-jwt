@@ -1,6 +1,6 @@
 {
   "name": "elm-with-jwt",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "Kim Maida",
   "description": "Authenticating an Elm App with JWT",
   "main": "",
@@ -16,8 +16,8 @@
     "url": "https://github.com/YiMihi/elm-with-jwt/issues"
   },
   "scripts": {
-    "start": "gulp",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "gulp",
+    "build": "gulp build"
   },
   "homepage": "https://github.com/YiMihi/elm-with-jwt",
   "dependencies": {},

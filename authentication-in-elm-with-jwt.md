@@ -27,21 +27,25 @@ Enter [Elm](http://www.elm-lang.org): a [functional](https://www.smashingmagazin
 
 ## Why Elm?
 
-Elm's creator [Evan Czaplicki](https://github.com/evancz) [positions Elm with several strong concepts](http://www.elmbark.com/2016/03/16/mainstream-elm-user-focused-design), but we'll touch on two in particular: gradual learning and usage-driven design. _Gradual learning_ is the idea that we can be productive with the language before diving deep. _Usage-driven design_ emphasizes starting with the minimimum viable solution and iteratively building on it, but Evan points out that it's best to keep it simple, and the minimum viable solution is often enough.
+Elm's creator [Evan Czaplicki](https://github.com/evancz) [positions Elm with several strong concepts](http://www.elmbark.com/2016/03/16/mainstream-elm-user-focused-design), but we'll touch on two in particular: gradual learning and usage-driven design. _Gradual learning_ is the idea that we can be productive with the language before diving deep. As we use Elm, we are able to gradually learn through use and build up our skillset, but we are not hampered in the beginner stage by a high barrier to entry. _Usage-driven design_ emphasizes starting with the minimimum viable solution and iteratively building on it, but Evan points out that it's best to keep it simple, and the minimum viable solution is often enough by itself.
 
-If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with a nice featureset highlighting several things, including "No runtime exceptions", "Blazing fast rendering", and "Smooth JavaScript interop". But what does all of this really boil down to when we're writing code? Let's take a look.
+Okay, we're interested! If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with a nice featureset highlighting several points, including "No runtime exceptions", "Blazing fast rendering", and "Smooth JavaScript interop". But what does all of this boil down to when we're writing real code? Let's take a look.
 
 ## Building an Elm web app
 
-We're going to build a simple Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn some Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll go over some common real-world needs, like implementing `HTTP` and using JavaScript interop to store data in `localStorage`.
+We're going to build a simple Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements, like implementing `HTTP` and using JavaScript interop to store data in `localStorage`.
 
-If you're [familiar with JavaScript but new to Elm](http://elm-lang.org/docs/from-javascript), the language might look a little strange at first; but once we start building, we'll learn how the [Elm Architecture](http://guide.elm-lang.org/architecture/index.html), [types](http://guide.elm-lang.org/types), and [clean syntax](http://elm-lang.org/docs/syntax) can really streamline development.
+If you're [familiar with JavaScript but new to Elm](http://elm-lang.org/docs/from-javascript), the language might look a little strange at first--but once we start building, we'll learn how the [Elm Architecture](http://guide.elm-lang.org/architecture/index.html), [types](http://guide.elm-lang.org/types), and [clean syntax](http://elm-lang.org/docs/syntax) can really streamline development.
 
 ## Setup and Installation
 
-The full source code for our app can be [cloned here](https://github.com/YiMihi/elm-app-jwt-api).
+The full source code for our finished app can be [cloned here](https://github.com/YiMihi/elm-app-jwt-api).
 
-We're going to use [Gulp](http://gulpjs.com) to build and serve our application locally and [NodeJS](https://nodejs.org/en) to serve our API. If you don't already have Node and Gulp installed, please head over to their respective websites and follow instructions for download and installation. We'll also need the API. Please clone the [NodeJS JWT Authentication sample API](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) repository and follow the README to get it running.
+We're going to use [Gulp](http://gulpjs.com) to build and serve our application locally and [NodeJS](https://nodejs.org/en) to serve our API and install dependencies through the Node Package Manager (`npm`). If you don't already have Node and Gulp installed, please head over to their respective websites and follow instructions for download and installation. 
+
+We'll also need the API. Clone the [NodeJS JWT Authentication sample API](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) repository and follow the README to get it running.
+
+### Installing and Configuring Elm
 
 To install Elm globally, run the following command:
 
@@ -49,9 +53,11 @@ To install Elm globally, run the following command:
 npm install -g elm
 ```
 
-Once Elm is successfully installed, we need to set up our project's specific Elm configuration. This is done with an `elm-package.json` file:
+Once Elm is successfully installed, we need to set up our project's configuration. This is done with an `elm-package.json` file:
 
 ```js
+// elm-package.json
+
 {
     "version": "0.1.0",
     "summary": "Build an App in Elm with JWT Authentication and an API",
@@ -72,7 +78,7 @@ Once Elm is successfully installed, we need to set up our project's specific Elm
 }
 ```
 
-We'll be using Elm v0.17 in this tutorial. The `elm-version` here is restricted to minor point releases of 0.17. There are large breaking changes between versions 0.17 and 0.16, and we can likely expect the same for 0.18, hence the restriction to 0.17.x in the `elm-package.json`.
+We'll be using Elm v0.17 in this tutorial. The `elm-version` here is restricted to minor point releases of 0.17. There are large breaking changes between versions 0.17 and 0.16 and we can likely expect the same for 0.18, hence the restriction to 0.17.x in the `elm-package.json`.
 
 Now that we've declared our Elm dependencies, we can install them by using the command:
 
@@ -82,31 +88,15 @@ elm package install
 
 When prompted, confirm installation of the dependencies. Once everything has installed successfully, an `elm-stuff` folder will live at the root of your project.
 
-Now we have Node, Gulp, Elm, and the API ready. Let's set up our Elm project's build configuration. We'll start with the `package.json`, which should live at our project's root:
+### Build Tools
+
+Now we have Node, Gulp, Elm, and the API ready. Let's set up our project's build configuration. Create a JSON file called `package.json`, which should live at our project's root:
 
 ```js
-{
-  "name": "elm-app-jwt-api",
-  "version": "0.1.0",
-  "author": "Kim Maida",
-  "description": "Authenticating an Elm App with JWT",
-  "main": "",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/YiMihi/elm-app-jwt-api.git"
-  },
-  "keywords": [
-    "elm"
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/YiMihi/elm-app-jwt-api/issues"
-  },
-  "scripts": {
-    "dev": "gulp",
-    "build": "gulp build"
-  },
-  "homepage": "https://github.com/YiMihi/elm-app-jwt-api",
+// package.json
+
+...
+
   "dependencies": {},
   "devDependencies": {
     "gulp": "^3.9.0",
@@ -115,11 +105,11 @@ Now we have Node, Gulp, Elm, and the API ready. Let's set up our Elm project's b
     "gulp-plumber": "^1.1.0",
     "gulp-util": "^3.0.7"
   }
-}
 
+...
 ```
 
-Once the `package.json` file is in place, we can run the following command from the project root to install the dependencies:
+Once the `package.json` file is in place, we can run the following command from the project root to install the Node dependencies we specified:
 
 ```bash
 npm install
@@ -128,6 +118,8 @@ npm install
 Next, we need to create a `gulpfile.js` at the root:
 
 ```js
+// gulpfile.js
+
 var gulp = require('gulp');
 var elm = require('gulp-elm');
 var gutil = require('gulp-util');
@@ -148,7 +140,7 @@ gulp.task('elm-init', elm.init);
 gulp.task('elm', ['elm-init'], function(){
     return gulp.src(paths.elm)
         .pipe(plumber())
-        .pipe(elm()).on('error', errorHandler)
+        .pipe(elm())
         .pipe(gulp.dest(paths.dest));
 });
 
@@ -173,13 +165,6 @@ gulp.task('connect', function() {
     });
 });
 
-// Error handling (beep and echo error message)
-function errorHandler(err){
-	gutil.beep();
-	gutil.log(gutil.colors.red('Error: '), err.message);
-	this.emit('end');
-}
-
 // Main gulp tasks
 gulp.task('build', ['elm', 'static']);
 gulp.task('default', ['connect', 'build', 'watch']);
@@ -202,11 +187,11 @@ That's it for the build process. We're ready to start writing our Elm app. When 
 
 Image assets:
 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step1.jpg) 
+<!--![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step1.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step2.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3a.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3b.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4a.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4b.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5a.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg) 
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)-->

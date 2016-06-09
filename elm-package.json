@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0",
+    "version": "0.1.0",
     "summary": "Authenticating Elm with JWT",
     "repository": "https://github.com/YiMihi/elm-with-jwt.git",
     "license": "MIT",

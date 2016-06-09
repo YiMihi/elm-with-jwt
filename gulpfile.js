@@ -14,11 +14,11 @@ var paths = {
 // Init Elm
 gulp.task('elm-init', elm.init);
  
-// Compile Elm to HTML
+// Compile Elm
 gulp.task('elm', ['elm-init'], function(){
     return gulp.src(paths.elm)
         .pipe(plumber())
-        .pipe(elm()).on('error', errorHandler)
+        .pipe(elm())
         .pipe(gulp.dest(paths.dest));
 });
 
@@ -42,13 +42,6 @@ gulp.task('connect', function() {
         port: 3000
     });
 });
-
-// Error handling (beep and echo error message)
-function errorHandler(err){
-	gutil.beep();
-	gutil.log(gutil.colors.red('Error: '), err.message);
-	this.emit('end');
-}
 
 // Main gulp tasks
 gulp.task('build', ['elm', 'static']);
