@@ -78,7 +78,7 @@ Once Elm is successfully installed, we need to set up our project's configuratio
 }
 ```
 
-We'll be using Elm v0.17 in this tutorial. The `elm-version` here is restricted to minor point releases of 0.17. There are large breaking changes between versions 0.17 and 0.16 and we can likely expect the same for 0.18, hence the restriction to 0.17.x in the `elm-package.json`.
+We'll be using Elm v0.17 in this tutorial. The `elm-version` here is restricted to minor point releases of 0.17. There are breaking changes between versions 0.17 and 0.16 and we can likely expect the same for 0.18, hence the restriction to 0.17.x in the `elm-package.json`.
 
 Now that we've declared our Elm dependencies, we can install them by using the command:
 
@@ -86,11 +86,11 @@ Now that we've declared our Elm dependencies, we can install them by using the c
 elm package install
 ```
 
-When prompted, confirm installation of the dependencies. Once everything has installed successfully, an `elm-stuff` folder will live at the root of your project.
+When prompted, confirm installation of the dependencies. Once everything has installed successfully, an `/elm-stuff` folder will live at the root of your project. This folder contains all of the Elm package dependencies we specified in our `elm-package.json`.
 
 ### Build Tools
 
-Now we have Node, Gulp, Elm, and the API ready. Let's set up our project's build configuration. Create a JSON file called `package.json`, which should live at our project's root:
+Now we have Node, Gulp, Elm, and the API ready. Let's set up our project's build configuration. Create and populate a `package.json`, which should live at our project's root:
 
 ```js
 // package.json
@@ -170,7 +170,9 @@ gulp.task('build', ['elm', 'static']);
 gulp.task('default', ['connect', 'build', 'watch']);
 ```
 
-The `gulpfile.js` sets up tasks that that will compile our Elm code and copy necessary assets to a `/dist` folder as well as run a local server where we can view our application in a browser. Our development files should be located in a `/src` folder. Please create the `/dist` and `/src` folders at the root of the project. If all steps have been followed so far, our file structure should look like this:
+The `gulpfile.js` sets up tasks that will compile our Elm code, copy necessary assets to a `/dist` folder when they are saved, and run a local server where we can view our application in a browser. We will primarily be using the default `gulp` task during development of our application. 
+
+Our development files should be located in a `/src` folder. Please create the `/dist` and `/src` folders at the root of the project. If all steps have been followed so far, our file structure should look like this:
 
 ```
 /dist
@@ -185,13 +187,13 @@ That's it for the build process. We're ready to start writing our Elm app. When 
 
 ---
 
-Image assets:
+Image assets (placement TBD):
 
-<!--![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step1.jpg) 
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step1.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step2.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3a.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3b.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4a.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4b.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5a.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)-->
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)
