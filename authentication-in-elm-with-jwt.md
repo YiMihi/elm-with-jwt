@@ -90,6 +90,10 @@ elm package install
 
 When prompted, confirm installation of the dependencies. Once everything has installed successfully, an `/elm-stuff` folder will live at the root of your project. This folder contains all of the Elm package dependencies we specified in our `elm-package.json`.
 
+#### Elm REPL
+
+_TODO: what Elm REPL is and how to use it_
+
 ### Build Tools
 
 Now we have Node, Gulp, Elm, and the API ready. Let's set up our project's build configuration. Create and populate a `package.json`, which should live at our project's root:
@@ -185,17 +189,163 @@ gulpfile.js
 package.json
 ```
 
-That's it for the build process. We're ready to start writing our Elm app. When the `gulp` default task is running, we'll be able to access our app in the browser at [http://localhost:3000](http://localhost:3000).
+That's it for the build process. When the `gulp` default task is running, we'll be able to access our app in the browser at [http://localhost:3000](http://localhost:3000).
+
+### Syntax Highlighting
+
+There's one more thing we should do before we start writing Elm, and that is to grab a plugin for our code editor that will provide syntax highlighting and inline compile error messaging. There are plugins available for many popular editors, so [go download the plugin for your editor of choice](http://elm-lang.org/install) and install it. With that done, we're ready to begin coding our Elm app.
+
+## Hello Chuck Norris
+
+As mentioned, we're going to build an application that does more than echo "Hello world". We're going to connect to an API, register, log in, and make authenticated requests, but we'll start simple. We'll begin by displaying a button that will append a string to our model each time it's clicked.
+
+When we've got everything hooked up, this is what the first phase of our app will look like:
+
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step1.jpg)
+
+We'll put all files directly in the `/src` folder. Gulp will compile the Elm code and move the static files to the `/dist` folder where we'll view them in the browser.
+
+Let's fire up our Gulp task. This will start a local server and begin watching for files to compile and move to `/dist`:
+
+```bash
+gulp
+```
+
+_Note:_ Since Gulp is compiling Elm for us, if we have compile errors they will show up in the command prompt / terminal window. If you have one of the Elm plugins installed in your editor, they should also show up inline in your code. I like to use [VS Code](https://code.visualstudio.com/Download) with [vscode-elm](https://github.com/sbrink/vscode-elm).
+
+### HTML and CSS
+
+Let's start by creating a basic `index.html`:
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Chuck Norris Quoter - Step 1</title>
+        <script src="Main.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    
+    <body>
+    </body>
+    
+    <script>
+        var app = Elm.Main.fullscreen();
+    </script>
+</html>   
+```
+
+We're calling our app "Chuck Norris Quoter" and loading a JavaScript file called `Main.js` in the `<head>`. Elm compiles to JavaScript and this is the file that will be built from our Elm code. 
+
+We've also added links to stylesheets. We'll start with [Bootstrap](http://www.getbootstrap.com) and load the CSS from a [CDN](https://www.bootstrapcdn.com) to keep it simple. The second stylesheet is a local `styles.css` file. In it, we'll put a few helper overrides.
+
+The `<body>` can be empty. The Elm app will live in it, and the last thing we'll do in our `index.html` is tell Elm to load our application. The Elm module we're going to export is called `Main` (from `Main.js`), so this is what our index file should use.
+
+Next, let's create the `styles.css` file:
+
+```css
+/* styles.css */
+
+.container {
+    margin: 1em auto;
+    max-width: 600px;
+}
+blockquote {
+    margin: 1em 0;
+}
+.jumbotron {
+    margin: 2em auto;
+    max-width: 400px;
+}
+.jumbotron h2 {
+    margin-top: 0;
+}
+.jumbotron .help-block {
+    font-size: 14px;
+}
+```
+
+As you can see, for the most part these are simple Bootstrap overrides to make the app display a little nicer.
+
+### Elm App
+
+Now we're ready to start writing Elm.
+
+Create a file in the `/src` folder called `Main.elm`. This is what we'll be building for the first step, but we'll break it down below:
+
+```js
+import Html exposing (..)
+import Html.App as Html
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
+
+main : Program Never
+main = 
+    Html.program 
+        { init = init 
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        , view = view
+        }
+    
+{- 
+    MODEL
+    * Model type 
+    * Initialize model with empty values
+-}
+
+type alias Model =
+    { quote : String 
+    }
+    
+init : (Model, Cmd Msg)
+init =
+    ( Model "", Cmd.none )
+
+{-
+    UPDATE
+    * Messages
+    * Update case
+-}
+
+type Msg = GetQuote
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        GetQuote ->
+            ( { model | quote = model.quote ++ "A quote! " }, Cmd.none )
+            
+{-
+    VIEW
+-}
+
+view : Model -> Html Msg
+view model =
+    div [ class "container" ] [
+        h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+        , p [ class "text-center" ] [
+            button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
+        ]
+        -- Blockquote with quote
+        , blockquote [] [ 
+            p [] [text model.quote] 
+        ]
+    ]            
+```
 
 ---
 
 Image assets (placement TBD):
 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step1.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step2.jpg) 
+
+
+<!--![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step2.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3a.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3b.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4a.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4b.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5a.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)-->
