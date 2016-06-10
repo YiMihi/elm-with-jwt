@@ -276,6 +276,8 @@ Now we're ready to start writing Elm.
 Create a file in the `/src` folder called `Main.elm`. This is what we'll be building for the first step, but we'll break it down below:
 
 ```js
+-- Main.elm
+
 import Html exposing (..)
 import Html.App as Html
 import Html.Events exposing (..)
@@ -334,6 +336,42 @@ view model =
             p [] [text model.quote] 
         ]
     ]            
+```
+
+Let's go through this code in more detail.
+
+```js
+import Html exposing (..)
+import Html.App as Html
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
+```
+
+At the top, we need to import dependencies. We expose the `Html` package to the application for use and then declare `Html.App` as `Html` for brevity when referencing it. Because we'll be writing a view function, we will expose `Html.Events` (for click events on buttons) and `Html.Attributes` for IDs, types, classes, and other HTML element attributes.
+
+```js
+main : Program Never
+main = 
+    Html.program 
+        { init = init 
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        , view = view
+        }
+```
+
+Every Elm project defines `main` as a program. There are a few options here, including `beginnerProgram`, `program`, and `programWithFlags`. Initially, we won't be starting with any preset JavaScript variables (we'll do this later when we integrate with `localStorage`), so we declare `main`'s type as `Program Never`.
+
+Comments in Elm are represented like this:
+
+```js
+{-
+	This is a
+	multi-line
+	comment
+-}
+
+-- Single line comment
 ```
 
 ---
