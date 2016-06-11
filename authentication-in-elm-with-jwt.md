@@ -496,6 +496,49 @@ The `update` function has a type annotation that says "`update` takes a message 
 
 This is the first time we've seen `->` in a type annotation, so let's take a moment to look at that. A series of items separated by `->` in a type annotation represent argument types until the last one, which is the return type. The reason that we don't use a different notation to indicate the return has to do with currying. In a nutshell, _currying_ means that if you don't pass all the arguments to a function, another function will be returned that accepts whatever arguments are still needed. You can [learn more](http://www.lambdacat.com/road-to-elm-currying-the-unknown/) [about currying](https://en.wikipedia.org/wiki/Currying) [elsewhere](http://veryfancy.net/blog/curried-form-in-elm-functions).
 
+As just discussed above in our assessment of the type annotation, the `update` function accepts two arguments: a message and a model. If the `msg` is `GetQuote`, we'll return a tuple that updates the `quote` to append `"A quote! "` to the existing string value. The second element in the tuple is currently `Cmd.none`. Later, we will change this to execute the command to get a random quote from the API. The case expression models possible user interactions.
+
+The syntax for updating properties of a record is:
+
+```js
+{ recordName | property = updatedValue, property2 = updatedValue2 }
+```
+
+We now have the logic in place for our application. How will we display the UI? We need to render a view.
+
+```js
+{-
+    VIEW
+-}
+
+view : Model -> Html Msg
+view model =
+    div [ class "container" ] [
+        h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+        , p [ class "text-center" ] [
+            button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
+        ]
+        -- Blockquote with quote
+        , blockquote [] [ 
+            p [] [text model.quote] 
+        ]
+    ]
+``` 
+
+The type annotation for the `view` function reads, "`view` accepts model as an argument and returns HTML with a message". We've seen `Msg` a few places before, and now we have defined its union type. A message in Elm is a function that notifies the `update` method that a command was completed. 
+
+The `view` function describes the rendered view based on the application state, which is represented by the model. The code for the `view` resembles `HTML` but it's actually composed of functions that correspond to virtual DOM nodes and pass lists as parameters. When the model is updated, the view function executes again. The previous virtual DOM is diffed against the next and the minimal set of updates necessary are run.
+
+The structure of the HTML functions does somewhat resemble HTML, so it's fairly intuitive to write. The first list argument passed to each node function are the attribute functions with values passed as arguments. The second list contains the contents of the element. For example:
+
+```js
+button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
+```
+
+This `button` function's first argument is a list. The first item in that list is the `class` function passing the string of classes we want to display. The second item in the list is an `onClick` function: `GetQuote`. We set this up earlier to update the model and append "A quote!" each time it's executed. The next list argument is the contents of the button. We'll give the `text` function an argument of "Grab a quote!".
+
+Last, we want to display the quote text. We'll do this with a `blockquote` with a `p` inside it, passing the `model.quote` to the paragraph's `text` function.
+
 ---
 
 ...
