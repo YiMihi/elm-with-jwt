@@ -355,7 +355,7 @@ view model =
     ]            
 ```
 
-Let's go through this code in more detail.
+Let's go through this code in more detail. If you're already familiar with Elm, you can likely skip ahead to the next step. If Elm is new to you, keep reading: we'll run through an introduction to the [Elm Architecture](http://guide.elm-lang.org/architecture) and Elm's language syntax by breaking down the code. Make sure you have a good grasp of the following section before moving on; the next sections will assume understanding of the syntax and concepts.
 
 ```js
 import Html exposing (..)
@@ -364,7 +364,7 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 ```
 
-At the top, we need to import dependencies. We expose the `Html` package to the application for use and then declare `Html.App` as `Html` for brevity when referencing it. Because we'll be writing a view function, we will expose `Html.Events` (for click events) and `Html.Attributes` for IDs, types, classes, and other HTML element attributes.
+At the top of our app file, we need to import dependencies. We expose the `Html` package to the application for use and then declare `Html.App` as `Html` for brevity when referencing it. Because we'll be writing a view function, we will expose `Html.Events` (for click events) and `Html.Attributes` to use IDs, types, classes, and other HTML element attributes.
 
 ```js
 main : Program Never
@@ -377,20 +377,22 @@ main =
         }
 ```
 
-`main : Program Never` is a [type annotation](https://github.com/elm-guides/elm-for-js/blob/master/How%20to%20Read%20a%20Type%20Annotation.md). This annotation says "`main` has type `Program` that should `Never` expect flags". If this doesn't make a ton of sense yet, hang tight--we'll go into more detail in the last step when we add support for `localStorage`.
+`main : Program Never` is a [type annotation](https://github.com/elm-guides/elm-for-js/blob/master/How%20to%20Read%20a%20Type%20Annotation.md). This annotation says "`main` has type `Program` and should `Never` expect a flags argument". If this doesn't make a ton of sense yet, hang tight--we'll be covering more type annotations throughout the development of our app.
 
 Every Elm project defines `main` as a program. There are a few program candidates, including `beginnerProgram`, `program`, and `programWithFlags`. Initially, we'll use `main = Html.program`.
 
-The next thing we'll do is start our app with a record that references an `init` function, an `update` function, and a `view` function.
+The next thing we'll do is start our app with a record that references an `init` function, an `update` function, and a `view` function. We'll create these functions shortly.
 
-`subscriptions` might look a little strange at first. We won't be using [subscriptions](http://www.elm-tutorial.org/en/03-subs-cmds/01-subs.html), so we're telling the app that there won't be any. Elm does not have a concept of `null` or `undefined`. Therefore, this is an anonymous function that is declaring that there are no subscriptions. `\` declares an anonymous function. `_` indicates an argument that is discarded, so `\_` is stating "this is an unnamed function that doesn't use arguments". `->` signifies the body of the function. `subscriptions = \_ -> ...` in JavaScript would look like this:
+`subscriptions` might look a little strange at first. [Subscriptions](http://www.elm-tutorial.org/en/03-subs-cmds/01-subs.html) listen for external input and we won't be using any in the Chuck Norris Quoter so we don't really need a named function here. Elm does not have a concept of `null` or `undefined` and it is expecting functions as values for all items in this particular record. Therefore, this is an anonymous function that simply declares there are no subscriptions. 
+
+Here's a breakdown of the syntax. `\` begins an anonymous function. `_` represents an argument that is discarded, so `\_` is stating "this is an unnamed function that doesn't use arguments". `->` signifies the body of the function. `subscriptions = \_ -> ...` in JavaScript would look like this:
 
 ```js
 // JS
-subscriptions = function() {
-	...
-}
+subscriptions = function() { ... }
 ```
+
+(Keeping this in mind, what would an anonymous function _with_ an argument look like? Answer: `\x -> ...`)
 
 Next up is the model:
 
@@ -421,6 +423,44 @@ The first block is just a multi-line comment. Comments in Elm are represented li
 
 -- Single line comment
 ```
+
+The next thing we'll do is create a `type alias` called `Model`. 
+
+```js
+type alias Model =
+    { quote : String 
+    }
+```
+
+A [type alias](http://guide.elm-lang.org/types/type_aliases.html) is a definition for use in type annotations. Consider the following example:
+
+```js
+someRecord : Bool -> { somestr : String, someint : Int, somebool : Bool }
+
+...
+
+type alias RecordModel =
+	{ somestr : String
+	, someint : Int
+	, somebool : Bool
+	}
+	
+someRecord : Bool -> RecordModel
+``` 
+
+The first example of `someRecord` and the second example are synonymous. The first one has the type defined long-hand, and the second is referencing the type alias to define `someRecord`'s type. The value of this is clear when you need longer types that can become unwieldy to read in sequence.
+
+Moving on, we now have a `type alias` for `Model`. We expect a record with a property of `quote` that has a value that is a `String`. We've mentioned [records](http://elm-lang.org/docs/records) a few times now, so we'll expand on them briefly: records look similar to objects in JavaScript. They are data structures. However, records in Elm are immutable: they do not have inheritance or methods. Elm's functional paradigm uses persistent data structures so "updating the model" in Elm returns a new model with the only the updated data copied. This doesn't manipulate the original model. If you're coming from a JavaScript background but haven't used something like React/Redux, you're probably still familiar with libraries like [lodash](http://lodash.com) that use functional JS.
+
+Now we've come to the `init` function that we referenced in our `main` program:
+
+```js
+init : (Model, Cmd Msg)
+init =
+    ( Model "", Cmd.none )
+```
+
+The type annotation for `init` basically means "`init` has type tuple containing record defined in Model type alias, and a command for an effect with an update message". That's a mouthful, so for now, let's concentrate on the function. We'll be encountering additional type annotations that look similar but will have more context, so they'll be easier to understand.
 
 ---
 
