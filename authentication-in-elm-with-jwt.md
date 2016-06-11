@@ -288,7 +288,7 @@ gulpfile.js
 package.json
 ```
 
-### "How To Elm"
+### Introduction to Elm with Main.elm
 
 Now we're ready to start writing Elm.
 
@@ -464,7 +464,7 @@ init =
     ( Model "", Cmd.none )
 ```
 
-The type annotation for `init` basically means "`init` has type tuple containing record defined in Model type alias, and a command for an effect with an update message". That's a mouthful--and we'll be encountering additional type annotations that look similar but will have more context, so they'll be easier to understand. What we should take away from this type annotation is that we're returning a [tuple](http://guide.elm-lang.org/core_language.html#tuples) (an ordered list of values of potentially varying types). So for now, let's concentrate on the `init` function.
+The type annotation for `init` basically means "`init` has type tuple containing record defined in Model type alias, and a command for an effect with an update message". That's a mouthful--and we'll be encountering additional type annotations that look similar but have more context, so they'll be easier to understand. What we should take away from this type annotation is that we're returning a [tuple](http://guide.elm-lang.org/core_language.html#tuples) (an ordered list of values of potentially varying types). So for now, let's concentrate on the `init` function.
 
 Functions in Elm are defined with a name followed by a space and any arguments (separated by spaces), an `=`, and the body of the function indented on a newline. There are no parentheses, braces, `function` or `return` keywords. This might feel sparse at first, but the clean syntax speeds development. This is most noticeable when switching to another language after Elm--I start to realize how much _time_ I spend writing syntax.
 
@@ -488,7 +488,13 @@ update msg model =
 
 The next vital piece of the Elm Architecture (we've covered model already) is update. There are a few new things here.
 
-First we have `type Msg = GetQuote`. This is a union type. 
+First we have `type Msg = GetQuote`. This is a union type. [Union types](https://dennisreimann.de/articles/elm-data-structures-union-type.html) provide a way to represent types that have structures other than the "usual", like `String`, `Bool`, etc. This says `type Msg` could be any of the following values, with the possibilities separated by pipes `|`. Right now we only have `GetQuote`, but we'll add more later.
+
+Now that we have a union type definition, we need a function that will handle the union type using a `case` expression. We are calling this function `update`, because its purpose is to update the model, representing the current application state.
+
+The `update` function has a type annotation that says "`update` takes a message as an argument and a model argument and returns a tuple containing a model and a command for an effect with an update message". 
+
+This is the first time we've seen `->` in a type annotation, so let's take a moment to look at that. A series of items separated by `->` in a type annotation represent argument types until the last one, which is the return type. The reason that we don't use a different notation to indicate the return has to do with currying. In a nutshell, _currying_ means that if you don't pass all the arguments to a function, another function will be returned that accepts whatever arguments are still needed. You can [learn more](http://www.lambdacat.com/road-to-elm-currying-the-unknown/) [about currying](https://en.wikipedia.org/wiki/Currying) [elsewhere](http://veryfancy.net/blog/curried-form-in-elm-functions).
 
 ---
 
