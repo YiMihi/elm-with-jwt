@@ -452,9 +452,9 @@ type alias RecordModel =
 someRecord : Bool -> RecordModel
 ``` 
 
-The first and second examples of `someRecord` are synonymous. The first one has the type defined long-hand, and the second is referencing the type alias to define `someRecord`'s type. The value of this is clear when you need longer types that can become unwieldy to read in sequence.
+The first and second examples of `someRecord` are synonymous. The first one has the type defined long-hand, and the second is referencing the type alias to define `someRecord`'s type. The advantage of this is clear when you need longer types that can become unwieldy to read in sequence, particularly if they're used in multiple places.
 
-Moving on, we now have a `type alias` for `Model`. We expect a record with a property of `quote` that has a value that is a `String`. We've mentioned [records](http://elm-lang.org/docs/records) a few times now, so we'll expand on them briefly: records look similar to objects in JavaScript. They are data structures. However, records in Elm are immutable: they do not have inheritance or methods. Elm's functional paradigm uses persistent data structures so "updating the model" in Elm returns a new model with only the updated data copied. This doesn't manipulate the original model. If you're coming from a JavaScript background but haven't used something like React/Redux, you're probably still familiar with libraries like [lodash](http://lodash.com) that use functional JS. If you think about how lodash is used, this should seem familiar.
+Moving on, we now have a `type alias` for `Model`. We expect a record with a property of `quote` that has `String` value. We've mentioned [records](http://elm-lang.org/docs/records) a few times now, so we'll expand on them briefly: records look similar to objects in JavaScript. However, records in Elm are immutable: they hold labeled data but do not have inheritance or methods. Elm's functional paradigm uses persistent data structures so "updating the model" returns a new model with only the changed data copied. This doesn't manipulate the original model. If you're coming from a JavaScript background but haven't used something like React/Redux, you're probably still familiar with libraries like [lodash](http://lodash.com) that use functional JS. If you think about how lodash is used, this should seem familiar.
 
 Now we've come to the `init` function that we referenced in our `main` program:
 
@@ -464,11 +464,11 @@ init =
     ( Model "", Cmd.none )
 ```
 
-The type annotation for `init` basically means "`init` has type tuple containing record defined in Model type alias, and a command for an effect with an update message". That's a mouthful and we're not actually going to be sending a command just yet. We'll be encountering additional type annotations that look similar but will have more context, so they'll be easier to understand. What we should take away from this type annotation is that we're returning a [tuple](http://guide.elm-lang.org/core_language.html#tuples) (an ordered list of values of potentially varying types). So for now, let's concentrate on the `init` function.
+The type annotation for `init` basically means "`init` has type tuple containing record defined in Model type alias, and a command for an effect with an update message". That's a mouthful--and we'll be encountering additional type annotations that look similar but will have more context, so they'll be easier to understand. What we should take away from this type annotation is that we're returning a [tuple](http://guide.elm-lang.org/core_language.html#tuples) (an ordered list of values of potentially varying types). So for now, let's concentrate on the `init` function.
 
 Functions in Elm are defined with a name followed by a space and any arguments (separated by spaces), an `=`, and the body of the function indented on a newline. There are no parentheses, braces, `function` or `return` keywords. This might feel sparse at first, but the clean syntax speeds development. This is most noticeable when switching to another language after Elm--I start to realize how much _time_ I spend writing syntax.
 
-Returning a tuple is the easiest way to get multiple results from a function. The first element in the tuple declares the initial values of the Model record properties. Strings are denoted with double quotes, so we are defining `{ quote = "" }` on initialization of our app. The second element is `Cmd.none` because we are not sending a command (yet!). 
+Returning a tuple is the easiest way to get multiple results from a function. The first element in the tuple declares the initial values of the Model record. Strings are denoted with double quotes, so we are defining `{ quote = "" }` on initialization. The second element is `Cmd.none` because we're not sending a command (yet!). 
 
 ```js
 {-
