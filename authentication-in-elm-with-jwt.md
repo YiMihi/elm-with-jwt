@@ -45,6 +45,8 @@ The full source code for our finished app can be [cloned here](https://github.co
 
 We're going to use [Gulp](http://gulpjs.com) to build and serve our application locally and [NodeJS](https://nodejs.org/en) to serve our API and install dependencies through the Node Package Manager (`npm`). If you don't already have Node and Gulp installed, please head over to their respective websites and follow instructions for download and installation. 
 
+_Note: Webpack is an alternative to Gulp. If you're interested in trying a very customizable webpack build in the future for larger Elm projects, check out [elm-webpack-loader](https://github.com/rtfeldman/elm-webpack-loader)._
+
 We'll also need the API. Clone the [NodeJS JWT Authentication sample API](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) repository and follow the README to get it running.
 
 ### Installing and Configuring Elm
@@ -96,7 +98,7 @@ _TODO: what Elm REPL is and how to use it_
 
 ### Build Tools
 
-Now we have Node, Gulp, Elm, and the API ready. Let's set up our project's build configuration. Create and populate a `package.json`, which should live at our project's root:
+Now we have Node, Gulp, Elm, and the API installed. Let's set up our project's build configuration. Create and populate a `package.json`, which should live at our project's root:
 
 ```js
 // package.json
@@ -121,7 +123,7 @@ Once the `package.json` file is in place, we can run the following command from 
 npm install
 ```
 
-Next, we need to create a `gulpfile.js` at the root:
+Next, we need to create a `gulpfile.js`:
 
 ```js
 // gulpfile.js
@@ -176,7 +178,7 @@ gulp.task('build', ['elm', 'static']);
 gulp.task('default', ['connect', 'build', 'watch']);
 ```
 
-The `gulpfile.js` sets up tasks that will compile our Elm code, copy necessary assets to a `/dist` folder when they are saved, and run a local server where we can view our application in a browser. We will primarily be using the default `gulp` task during development of our application. 
+The `gulpfile.js` sets up the tasks that will compile our Elm code, copy files to a `/dist` folder when they are saved, and run a local server where we can view our application in a browser. We will primarily be using the default `gulp` task during development of our application. 
 
 Our development files should be located in a `/src` folder. Please create the `/dist` and `/src` folders at the root of the project. If all steps have been followed so far, our file structure should look like this:
 
@@ -185,6 +187,7 @@ Our development files should be located in a `/src` folder. Please create the `/
 /elm-stuff
 /node_modules
 /src
+elm-package.json
 gulpfile.js
 package.json
 ```
@@ -193,11 +196,11 @@ That's it for the build process. When the `gulp` default task is running, we'll 
 
 ### Syntax Highlighting
 
-There's one more thing we should do before we start writing Elm, and that is to grab a plugin for our code editor that will provide syntax highlighting and inline compile error messaging. There are plugins available for many popular editors, so [go download the plugin for your editor of choice](http://elm-lang.org/install) and install it. With that done, we're ready to begin coding our Elm app.
+There's one more thing we should do before we start writing Elm, and that is to grab a plugin for our code editor that will provide syntax highlighting and inline compile error messaging. There are plugins available for many popular editors. I like to use [VS Code](https://code.visualstudio.com/Download) with [vscode-elm](https://github.com/sbrink/vscode-elm), but you can [download the plugin for your editor of choice here](http://elm-lang.org/install) and install it. With that done, we're ready to begin coding our Elm app.
 
 ## Hello Chuck Norris
 
-As mentioned, we're going to build an application that does more than echo "Hello world". We're going to connect to an API, register, log in, and make authenticated requests, but we'll start simple. We'll begin by displaying a button that will append a string to our model each time it's clicked.
+As mentioned, we're going to build an application that does a bit more than echo "Hello world". We're going to connect to an API, register, log in, and make authenticated requests, but we'll start simple. We'll begin by displaying a button that will append a string to our model each time it's clicked.
 
 When we've got everything hooked up, this is what the first phase of our app will look like:
 
@@ -205,13 +208,13 @@ When we've got everything hooked up, this is what the first phase of our app wil
 
 We'll put all files directly in the `/src` folder. Gulp will compile the Elm code and move the static files to the `/dist` folder where we'll view them in the browser.
 
-Let's fire up our Gulp task. This will start a local server and begin watching for files to compile and move to `/dist`:
+Let's fire up our Gulp task in a command window. This will start a local server and begin watching for files to compile and copy to `/dist`:
 
 ```bash
 gulp
 ```
 
-_Note:_ Since Gulp is compiling Elm for us, if we have compile errors they will show up in the command prompt / terminal window. If you have one of the Elm plugins installed in your editor, they should also show up inline in your code. I like to use [VS Code](https://code.visualstudio.com/Download) with [vscode-elm](https://github.com/sbrink/vscode-elm).
+_Note:_ Since Gulp is compiling Elm for us, if we have compile errors they will show up in the command prompt / terminal window. If you have one of the Elm plugins installed in your editor, they should also show up inline in your code.
 
 ### HTML and CSS
 
@@ -222,7 +225,7 @@ Let's start by creating a basic `index.html`:
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Chuck Norris Quoter - Step 1</title>
+        <title>Chuck Norris Quoter</title>
         <script src="Main.js"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
         <link rel="stylesheet" href="styles.css">
@@ -237,11 +240,11 @@ Let's start by creating a basic `index.html`:
 </html>   
 ```
 
-We're calling our app "Chuck Norris Quoter" and loading a JavaScript file called `Main.js` in the `<head>`. Elm compiles to JavaScript and this is the file that will be built from our Elm code. 
+We're titling our app "Chuck Norris Quoter" and loading a JavaScript file called `Main.js`. Elm compiles to JavaScript and this is the file that will be built from our compiled Elm code. 
 
 We've also added links to stylesheets. We'll start with [Bootstrap](http://www.getbootstrap.com) and load the CSS from a [CDN](https://www.bootstrapcdn.com) to keep it simple. The second stylesheet is a local `styles.css` file. In it, we'll put a few helper overrides.
 
-The `<body>` can be empty. The Elm app will live in it, and the last thing we'll do in our `index.html` is tell Elm to load our application. The Elm module we're going to export is called `Main` (from `Main.js`), so this is what our index file should use.
+The `<body>` can be empty. The Elm app will be dynamically written to it, and the last thing we'll do in our `index.html` is tell Elm to load our application. The Elm module we're going to export is called `Main` (from `Main.js`), so this is what our index file should use.
 
 Next, let's create the `styles.css` file:
 
@@ -269,11 +272,25 @@ blockquote {
 
 As you can see, for the most part these are simple Bootstrap overrides to make the app display a little nicer.
 
+Our file structure should now look like this:
+
+```
+/dist
+/elm-stuff
+/node_modules
+/src
+  |-- index.html
+  |-- styles.css
+elm-package.json  
+gulpfile.js
+package.json
+```
+
 ### Elm App
 
 Now we're ready to start writing Elm.
 
-Create a file in the `/src` folder called `Main.elm`. This is what we'll be building for the first step, but we'll break it down below:
+Create a file in the `/src` folder called `Main.elm`. This is what we'll be building for the first step:
 
 ```js
 -- Main.elm
@@ -347,7 +364,7 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 ```
 
-At the top, we need to import dependencies. We expose the `Html` package to the application for use and then declare `Html.App` as `Html` for brevity when referencing it. Because we'll be writing a view function, we will expose `Html.Events` (for click events on buttons) and `Html.Attributes` for IDs, types, classes, and other HTML element attributes.
+At the top, we need to import dependencies. We expose the `Html` package to the application for use and then declare `Html.App` as `Html` for brevity when referencing it. Because we'll be writing a view function, we will expose `Html.Events` (for click events) and `Html.Attributes` for IDs, types, classes, and other HTML element attributes.
 
 ```js
 main : Program Never
@@ -360,9 +377,40 @@ main =
         }
 ```
 
-Every Elm project defines `main` as a program. There are a few options here, including `beginnerProgram`, `program`, and `programWithFlags`. Initially, we won't be starting with any preset JavaScript variables (we'll do this later when we integrate with `localStorage`), so we declare `main`'s type as `Program Never`.
+`main : Program Never` is a [type annotation](https://github.com/elm-guides/elm-for-js/blob/master/How%20to%20Read%20a%20Type%20Annotation.md). This annotation says "`main` has type `Program` that should `Never` expect flags". If this doesn't make a ton of sense yet, hang tight--we'll go into more detail in the last step when we add support for `localStorage`.
 
-Comments in Elm are represented like this:
+Every Elm project defines `main` as a program. There are a few program candidates, including `beginnerProgram`, `program`, and `programWithFlags`. Initially, we'll use `main = Html.program`.
+
+The next thing we'll do is start our app with a record that references an `init` function, an `update` function, and a `view` function.
+
+`subscriptions` might look a little strange at first. We won't be using [subscriptions](http://www.elm-tutorial.org/en/03-subs-cmds/01-subs.html), so we're telling the app that there won't be any. Elm does not have a concept of `null` or `undefined`. Therefore, this is an anonymous function that is declaring that there are no subscriptions. `\` declares an anonymous function. `_` indicates an argument that is discarded, so `\_` is stating "this is an unnamed function that doesn't use arguments". `->` signifies the body of the function. `subscriptions = \_ -> ...` in JavaScript would look like this:
+
+```js
+// JS
+subscriptions = function() {
+	...
+}
+```
+
+Next up is the model:
+
+```js
+{- 
+    MODEL
+    * Model type 
+    * Initialize model with empty values
+-}
+
+type alias Model =
+    { quote : String 
+    }
+    
+init : (Model, Cmd Msg)
+init =
+    ( Model "", Cmd.none )
+```
+
+The first block is just a multi-line comment. Comments in Elm are represented like this:
 
 ```js
 {-
