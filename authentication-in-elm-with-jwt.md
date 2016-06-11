@@ -290,7 +290,7 @@ package.json
 
 ### Introduction to Elm with Main.elm
 
-Now we're ready to start writing Elm.
+Now we're ready to start writing Elm. If we start the `gulp` task, our files will be compiled and watched and the local server will be accessible at [http://localhost:3000](http://localhost:3000). We can view our progress there.
 
 Create a file in the `/src` folder called `Main.elm`. This is what we'll be building for the first step:
 
@@ -359,7 +359,7 @@ view model =
 
 Let's go through this code in more detail. 
 
-**If you're already familiar with Elm, you can likely skip ahead to the next step. If Elm is brand new to you, keep reading: we'll run through an introduction to the [Elm Architecture](http://guide.elm-lang.org/architecture) and Elm's language syntax by thoroughly breaking down this code.** Make sure you have a good grasp of this section before moving on; the next sections will assume an understanding of the following syntax and concepts.
+**If you're already familiar with Elm, you can likely skip ahead to the next step. If Elm is brand new to you, keep reading: we'll run through an introduction to The Elm Architecture and Elm's language syntax by thoroughly breaking down this code.** Make sure you have a good grasp of this section before moving on; the next sections will assume an understanding of the following syntax and concepts.
 
 ```js
 import Html exposing (..)
@@ -369,6 +369,8 @@ import Html.Attributes exposing (..)
 ```
 
 At the top of our app file, we need to import dependencies. We expose the `Html` package to the application for use and then declare `Html.App` as `Html` for brevity when referencing it. Because we'll be writing a view function, we will expose `Html.Events` (for click events) and `Html.Attributes` to use IDs, types, classes, and other HTML element attributes.
+
+Everything we're going to write next falls into **The Elm Architecture**. In brief, this refers to the basic pattern of Elm application logic. It consists of `Model` (application state), `Update` (way to update the application state), and `View` (render the application state as HTML). You can read more about [The Elm Architecture in Elm's guide](http://guide.elm-lang.org/architecture).
 
 ```js
 main : Program Never
@@ -396,7 +398,7 @@ Here's a breakdown of the syntax. `\` begins an anonymous function. `_` represen
 subscriptions = function() { ... }
 ```
 
-(Keeping this in mind, what would an anonymous function _with_ an argument look like? Answer: `\x -> ...`)
+(Keeping this in mind, what would an anonymous function _with_ an argument look like? Answer: `\x -> ...`) 
 
 Next up are the model and the `init` function:
 
@@ -535,15 +537,20 @@ The structure of the HTML functions does somewhat resemble HTML, so it's fairly 
 button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
 ```
 
-This `button` function's first argument is a list. The first item in that list is the `class` function passing the string of classes we want to display. The second item in the list is an `onClick` function: `GetQuote`. We set this up earlier to update the model and append "A quote!" each time it's executed. The next list argument is the contents of the button. We'll give the `text` function an argument of "Grab a quote!".
+This `button` function's first argument is a list. The first item in that list is the `class` function accepting the string of classes we want to display. The second item in the list is an `onClick` function: `GetQuote`. We set this up earlier to update the model and append "A quote!" each time it's executed. The next list argument is the contents of the button. We'll give the `text` function an argument of "Grab a quote!".
 
 Last, we want to display the quote text. We'll do this with a `blockquote` with a `p` inside it, passing the `model.quote` to the paragraph's `text` function.
 
----
+We now have all the pieces in place for the first phase of our app! If we've done everything correctly, the app should compile and we can view it at [http://localhost:3000](http://localhost:3000). Try clicking the "Grab a quote!" button a few times.
 
-...
+_Note: If the app didn't compile, Elm provides [compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) in the console where you've been running the Gulp task, or also in your editor if you're using one of the Elm syntax highlighting plugins. Elm will not compile if there are errors! This is to avoid errors at runtime (RTE)._
 
-That was a lot of detail, but we're now set on the syntax and basic structure of an Elm app. We'll be moving faster from here on. 
+That was a lot of detail, but we're now set on the syntax and basic structure of an Elm app. We'll be moving faster from here on to build the rest of the features of our Chuck Norris Quoter application. 
+
+### Calling the API
+
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step2.jpg)
+
 
 ---
 
@@ -551,7 +558,7 @@ Image assets (placement TBD):
 
 
 
-<!--![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step2.jpg) 
+<!-- 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3a.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3b.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4a.jpg) 
