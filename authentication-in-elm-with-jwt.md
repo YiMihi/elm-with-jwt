@@ -198,7 +198,7 @@ That's it for the build process. When the `gulp` default task is running, we'll 
 
 There's one more thing we should do before we start writing Elm, and that is to grab a plugin for our code editor that will provide syntax highlighting and inline compile error messaging. There are plugins available for many popular editors. I like to use [VS Code](https://code.visualstudio.com/Download) with [vscode-elm](https://github.com/sbrink/vscode-elm), but you can [download the plugin for your editor of choice here](http://elm-lang.org/install) and install it. With that done, we're ready to begin coding our Elm app.
 
-## Hello Chuck Norris
+## Static Files
 
 As mentioned, we're going to build an application that does a bit more than echo "Hello world". We're going to connect to an API, register, log in, and make authenticated requests, but we'll start simple. We'll begin by displaying a button that will append a string to our model each time it's clicked.
 
@@ -216,7 +216,7 @@ gulp
 
 _Note:_ Since Gulp is compiling Elm for us, if we have compile errors they will show up in the command prompt / terminal window. If you have one of the Elm plugins installed in your editor, they should also show up inline in your code.
 
-### HTML and CSS
+### HTML
 
 Let's start by creating a basic `index.html`:
 
@@ -245,6 +245,8 @@ We're titling our app "Chuck Norris Quoter" and loading a JavaScript file called
 We've also added links to stylesheets. We'll start with [Bootstrap](http://www.getbootstrap.com) and load the CSS from a [CDN](https://www.bootstrapcdn.com) to keep it simple. The second stylesheet is a local `styles.css` file. In it, we'll put a few helper overrides.
 
 The `<body>` can be empty. The Elm app will be dynamically written to it, and the last thing we'll do in our `index.html` is tell Elm to load our application. The Elm module we're going to export is called `Main` (from `Main.js`), so this is what our index file should use.
+
+### CSS
 
 Next, let's create the `styles.css` file:
 
@@ -286,7 +288,7 @@ gulpfile.js
 package.json
 ```
 
-### Elm App
+## Beginning the Elm App
 
 Now we're ready to start writing Elm.
 
@@ -355,7 +357,9 @@ view model =
     ]            
 ```
 
-Let's go through this code in more detail. If you're already familiar with Elm, you can likely skip ahead to the next step. If Elm is new to you, keep reading: we'll run through an introduction to the [Elm Architecture](http://guide.elm-lang.org/architecture) and Elm's language syntax by breaking down the code. Make sure you have a good grasp of the following section before moving on; the next sections will assume understanding of the syntax and concepts.
+Let's go through this code in more detail. 
+
+**If you're already familiar with Elm, you can likely skip ahead to the next step. If Elm is brand new to you, keep reading: we'll run through an introduction to the [Elm Architecture](http://guide.elm-lang.org/architecture) and Elm's language syntax by thoroughly breaking down this code.** Make sure you have a good grasp of this section before moving on; the next sections will assume an understanding of the following syntax and concepts.
 
 ```js
 import Html exposing (..)
@@ -394,7 +398,7 @@ subscriptions = function() { ... }
 
 (Keeping this in mind, what would an anonymous function _with_ an argument look like? Answer: `\x -> ...`)
 
-Next up is the model:
+Next up are the model and the `init` function:
 
 ```js
 {- 
@@ -424,7 +428,7 @@ The first block is just a multi-line comment. Comments in Elm are represented li
 -- Single line comment
 ```
 
-The next thing we'll do is create a `type alias` called `Model`. 
+Now we'll create a `type alias` called `Model`. 
 
 ```js
 type alias Model =
@@ -448,9 +452,9 @@ type alias RecordModel =
 someRecord : Bool -> RecordModel
 ``` 
 
-The first example of `someRecord` and the second example are synonymous. The first one has the type defined long-hand, and the second is referencing the type alias to define `someRecord`'s type. The value of this is clear when you need longer types that can become unwieldy to read in sequence.
+The first and second examples of `someRecord` are synonymous. The first one has the type defined long-hand, and the second is referencing the type alias to define `someRecord`'s type. The value of this is clear when you need longer types that can become unwieldy to read in sequence.
 
-Moving on, we now have a `type alias` for `Model`. We expect a record with a property of `quote` that has a value that is a `String`. We've mentioned [records](http://elm-lang.org/docs/records) a few times now, so we'll expand on them briefly: records look similar to objects in JavaScript. They are data structures. However, records in Elm are immutable: they do not have inheritance or methods. Elm's functional paradigm uses persistent data structures so "updating the model" in Elm returns a new model with the only the updated data copied. This doesn't manipulate the original model. If you're coming from a JavaScript background but haven't used something like React/Redux, you're probably still familiar with libraries like [lodash](http://lodash.com) that use functional JS.
+Moving on, we now have a `type alias` for `Model`. We expect a record with a property of `quote` that has a value that is a `String`. We've mentioned [records](http://elm-lang.org/docs/records) a few times now, so we'll expand on them briefly: records look similar to objects in JavaScript. They are data structures. However, records in Elm are immutable: they do not have inheritance or methods. Elm's functional paradigm uses persistent data structures so "updating the model" in Elm returns a new model with only the updated data copied. This doesn't manipulate the original model. If you're coming from a JavaScript background but haven't used something like React/Redux, you're probably still familiar with libraries like [lodash](http://lodash.com) that use functional JS. If you think about how lodash is used, this should seem familiar.
 
 Now we've come to the `init` function that we referenced in our `main` program:
 
@@ -460,7 +464,37 @@ init =
     ( Model "", Cmd.none )
 ```
 
-The type annotation for `init` basically means "`init` has type tuple containing record defined in Model type alias, and a command for an effect with an update message". That's a mouthful, so for now, let's concentrate on the function. We'll be encountering additional type annotations that look similar but will have more context, so they'll be easier to understand.
+The type annotation for `init` basically means "`init` has type tuple containing record defined in Model type alias, and a command for an effect with an update message". That's a mouthful and we're not actually going to be sending a command just yet. We'll be encountering additional type annotations that look similar but will have more context, so they'll be easier to understand. What we should take away from this type annotation is that we're returning a [tuple](http://guide.elm-lang.org/core_language.html#tuples) (an ordered list of values of potentially varying types). So for now, let's concentrate on the `init` function.
+
+Functions in Elm are defined with a name followed by a space and any arguments (separated by spaces), an `=`, and the body of the function indented on a newline. There are no parentheses, braces, `function` or `return` keywords. This might feel sparse at first, but the clean syntax speeds development. This is most noticeable when switching to another language after Elm--I start to realize how much _time_ I spend writing syntax.
+
+Returning a tuple is the easiest way to get multiple results from a function. The first element in the tuple declares the initial values of the Model record properties. Strings are denoted with double quotes, so we are defining `{ quote = "" }` on initialization of our app. The second element is `Cmd.none` because we are not sending a command (yet!). 
+
+```js
+{-
+    UPDATE
+    * Messages
+    * Update case
+-}
+
+type Msg = GetQuote
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        GetQuote ->
+            ( { model | quote = model.quote ++ "A quote! " }, Cmd.none )
+```
+
+The next vital piece of the Elm Architecture (we've covered model already) is update. There are a few new things here.
+
+First we have `type Msg = GetQuote`. This is a union type. 
+
+---
+
+...
+
+That was a lot of detail, but we're now set on the syntax and basic structure of an Elm app. We'll be moving faster from here on. 
 
 ---
 
