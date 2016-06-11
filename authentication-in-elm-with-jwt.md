@@ -198,7 +198,7 @@ That's it for the build process. When the `gulp` default task is running, we'll 
 
 There's one more thing we should do before we start writing Elm, and that is to grab a plugin for our code editor that will provide syntax highlighting and inline compile error messaging. There are plugins available for many popular editors. I like to use [VS Code](https://code.visualstudio.com/Download) with [vscode-elm](https://github.com/sbrink/vscode-elm), but you can [download the plugin for your editor of choice here](http://elm-lang.org/install) and install it. With that done, we're ready to begin coding our Elm app.
 
-## Static Files
+## Hello, Chuck Norris
 
 As mentioned, we're going to build an application that does a bit more than echo "Hello world". We're going to connect to an API, register, log in, and make authenticated requests, but we'll start simple. We'll begin by displaying a button that will append a string to our model each time it's clicked.
 
@@ -288,7 +288,7 @@ gulpfile.js
 package.json
 ```
 
-## Beginning the Elm App
+### "How To Elm"
 
 Now we're ready to start writing Elm.
 
