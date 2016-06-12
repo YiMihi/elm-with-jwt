@@ -709,7 +709,7 @@ fetchRandomQuoteCmd =
 
 We've added some code to our `Update` section. The first thing we'll do is store the API routes for repeated use. We define `api` and `randomQuoteUrl` as strings and then declare their values. 
 
-The Chuck Norris API returns unauthenticated random quotes as strings, not JSON. Let's create a function called `fetchRandomQuote`. The type annotation declares that this function returns a task that either fails and returns `Http.Error` or succeeds and returns a `String`. We can use the [`Http.getString`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#getString) method to make the HTTP request, we just need to send the necessary API route as an argument.
+The Chuck Norris API returns unauthenticated random quotes as strings, not JSON. Let's create a function called `fetchRandomQuote`. The type annotation declares that this function is a task that either fails with an error or succeeds with a `String`. We can use the [`Http.getString`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#getString) method to make the HTTP request, we just need to send the necessary API route as an argument.
 
 Now recall that this is an effect: `HTTP` is something that happens outside of Elm. A command is needed to request the effect and a message is needed to notify the update that the effect was completed and to deliver its results.
 
