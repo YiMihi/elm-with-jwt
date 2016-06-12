@@ -84,7 +84,7 @@ userEncoder model =
 
 -- POST register request and decode token response
     
-registerUser : Model -> Task Http.Error (String)
+registerUser : Model -> Task Http.Error String
 registerUser model =
     { verb = "POST"
     , headers = [ ("Content-Type", "application/json") ]

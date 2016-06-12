@@ -867,7 +867,7 @@ userEncoder model =
 
 -- POST register request and decode token response
     
-registerUser : Model -> Task Http.Error (String)
+registerUser : Model -> Task Http.Error String
 registerUser model =
     { verb = "POST"
     , headers = [ ("Content-Type", "application/json") ]
@@ -1058,8 +1058,12 @@ registerUrl =
 
 -- GET a random quote (unauthenticated)
     
-...   
+... 
+```
 
+The API route for `POST`ing new users is [http://localhost:3001/users](http://localhost:3001/users) so we'll create `registerUrl` to store this.
+  
+```js
 -- Encode user to construct POST request body (for Register and Log In)
     
 userEncoder : Model -> Encode.Value
@@ -1068,10 +1072,16 @@ userEncoder model =
         [ ("username", Encode.string model.username)
         , ("password", Encode.string model.password) 
         ]          
+```
 
+The API expects a request body for the registration and login as a JavaScript object that looks like this: `{ username: "string", password: "string" }`
+
+An Elm record is not the same as a JavaScript object, so we need to [encode](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) the applicable properties of our model before we can send them with the `HTTP` request. The `userEncoder` function utilizes [`Json.Encode.object`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#object) to take the model and return an encoded value.
+
+```js
 -- POST register request and decode token response
     
-registerUser : Model -> Task Http.Error (String)
+registerUser : Model -> Task Http.Error String
 registerUser model =
     { verb = "POST"
     , headers = [ ("Content-Type", "application/json") ]
@@ -1084,7 +1094,13 @@ registerUser model =
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
     Task.perform AuthError GetTokenSuccess <| registerUser model
-    
+```    
+
+We're using a [fully specified `HTTP` request](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Request) this time as opposed to the simple `getString` used for the quote in the previous step. 
+
+The type for this effect function is "`registerUser` has type that takes model as an argument and returns a task that fails with an error or succeeds with a string".
+
+```js    
 -- Decode POST response to get token
     
 tokenDecoder : Decoder String
