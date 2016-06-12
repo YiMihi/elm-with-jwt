@@ -29,9 +29,7 @@ Enter [Elm](http://www.elm-lang.org): a [functional](https://www.smashingmagazin
 
 Elm's creator [Evan Czaplicki](https://github.com/evancz) [positions Elm with several strong concepts](http://www.elmbark.com/2016/03/16/mainstream-elm-user-focused-design), but we'll touch on two in particular: gradual learning and usage-driven design. _Gradual learning_ is the idea that we can be productive with the language before diving deep. As we use Elm, we are able to gradually learn via development and build up our skillset, but we are not hampered in the beginner stage by a high barrier to entry. _Usage-driven design_ emphasizes starting with the minimimum viable solution and iteratively building on it, but Evan points out that it's best to keep it simple, and the minimum viable solution is often enough by itself.
 
-_TODO: another paragraph or two here, possibly about The Elm Architecture, the compiler's friendly errors, and/or immutability / statelessness_
-
-Okay, we're interested! If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with a nice featureset highlighting several points, including "No runtime exceptions", "Blazing fast rendering", and "Smooth JavaScript interop". But what does all of this boil down to when we're writing real code? Let's take a look.
+Sounds interesting! If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with a nice featureset highlighting several points, including "No runtime exceptions", "Blazing fast rendering", and "Smooth JavaScript interop". But what does all of this boil down to when we're writing real code? Let's take a look.
 
 ## Building an Elm web app
 
@@ -91,10 +89,6 @@ elm package install
 ```
 
 When prompted, confirm installation of the dependencies. Once everything has installed successfully, an `/elm-stuff` folder will live at the root of your project. This folder contains all of the Elm package dependencies we specified in our `elm-package.json`.
-
-#### Elm REPL
-
-_TODO: what Elm REPL is and how to use it_
 
 ### Build Tools
 
