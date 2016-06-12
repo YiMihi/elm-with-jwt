@@ -498,7 +498,7 @@ The `update` function has a type annotation that says "`update` takes a message 
 
 This is the first time we've seen `->` in a type annotation, so let's take a moment to look at that. A series of items separated by `->` in a type annotation represent argument types until the last one, which is the return type. The reason that we don't use a different notation to indicate the return has to do with currying. In a nutshell, _currying_ means that if you don't pass all the arguments to a function, another function will be returned that accepts whatever arguments are still needed. You can [learn more](http://www.lambdacat.com/road-to-elm-currying-the-unknown/) [about currying](https://en.wikipedia.org/wiki/Currying) [elsewhere](http://veryfancy.net/blog/curried-form-in-elm-functions).
 
-As just discussed above in our assessment of the type annotation, the `update` function accepts two arguments: a message and a model. If the `msg` is `GetQuote`, we'll return a tuple that updates the `quote` to append `"A quote! "` to the existing string value. The second element in the tuple is currently `Cmd.none`. Later, we will change this to execute the command to get a random quote from the API. The case expression models possible user interactions.
+As just discussed above in our assessment of the type annotation, the `update` function accepts two arguments: a message and a model. If the `msg` is `GetQuote`, we'll return a tuple that updates the `quote` to append `"A quote! "` to the existing string value. String concatenation in Elm is performed with `++`. The second element in the tuple is currently `Cmd.none`. Later, we will change this to execute the command to get a random quote from the API. The case expression models possible user interactions.
 
 The syntax for updating properties of a record is:
 
@@ -671,7 +671,7 @@ import Http
 import Task exposing (Task)
 ```
 
-HTTP is self-explanatory: we need this package to make `HTTP` requests. We also need `Task`. A [task](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task) in Elm is similar to a promise in JavaScript. Tasks describe asynchronous operations that can succeed or fail.
+[Http](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http) is self-explanatory: we need this package to make `HTTP` requests. We also need [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task). A [task](http://guide.elm-lang.org/error_handling/task.html) in Elm is similar to a promise in JavaScript. Tasks describe asynchronous operations that can succeed or fail.
 
 Next we'll update our `init` function:
 
@@ -681,7 +681,7 @@ init =
     ( Model "", fetchRandomQuoteCmd )
 ```
 
-Now instead of `Cmd.none` in the second element of the tuple, we have a command called `fetchRandomQuoteCmd`. This tells the application to fetch a random quote on initialization. We won't have to click the button before a quote shows up. We'll define this function shortly.
+Now instead of `Cmd.none` in the second element of the tuple, we have a command called `fetchRandomQuoteCmd`. A [command](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Platform-Cmd#Cmd) is a way to tell Elm to go do some effect (like `HTTP`). Our `init` now commands the application to fetch a random quote from the API on initialization. We'll define the `fetchRandomQuoteCmd` function shortly.
 
 ```js
 {-
@@ -711,16 +711,66 @@ fetchRandomQuote =
 fetchRandomQuoteCmd : Cmd Msg
 fetchRandomQuoteCmd =
     Task.perform HttpError FetchQuoteSuccess fetchRandomQuote
-```    
+``` 
 
----
+We've added some code to our `Update` section. The first thing we'll do is store the API routes for repeated use. We define `api` and `randomQuoteUrl` as strings and then declare their values. 
 
-Image assets (placement TBD):
+The Chuck Norris API returns unauthenticated random quotes as strings, not JSON. Let's create a function called `fetchRandomQuote`. The type annotation declares that this function returns a task that either fails and returns `Http.Error` or succeeds and returns a `String`. We can use the [`Http.getString`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#getString) method to make the HTTP request, we just need to send the necessary API route as an argument.
 
-<!-- 
+Now recall that this is an effect: `HTTP` is something that happens outside of Elm. A command is needed to request the effect and a message is needed to notify the update that the effect was completed and to deliver its results.
+
+We'll do this by defining `fetchRandomQuoteCmd`. This function's type annotation declares that it returns a command with a message. [`Task.perform`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task#perform) is a command that tells the runtime to execute a task. As mentioned earlier, tasks can fail or succeed so we need to pass three arguments to `Task.perform`: a message for failure (`HttpError`), a message for success (`FetchQuoteSuccess`), and what task to perform (`fetchRandomQuote`: the `GET` request to the API). 
+
+`HttpError` and `FetchQuoteSuccess` are messages that don't exist yet, so let's create them:
+
+```js
+-- Messages
+
+type Msg 
+    = GetQuote
+    | FetchQuoteSuccess String
+    | HttpError Http.Error      
+
+-- Update
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        GetQuote ->
+            ( model, fetchRandomQuoteCmd )
+
+        FetchQuoteSuccess newQuote ->
+            ( { model | quote = newQuote }, Cmd.none )
+            
+        HttpError _ ->
+            ( model, Cmd.none )
+```            
+
+We add these two new messages to the `Msg` union type and annotate the types of their arguments. `FetchQuoteSuccess` accepts a string that contains the new Chuck Norris quote from the API and `HttpError` accepts an [`Http.Error`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Error). These are the possible success / fail results of the task.
+
+Next we add these cases to the `update` function and declare what we want returned in the `(Model, Cmd Msg)` tuple. We also need to update the `GetQuote` tuple to fetch a quote from the API instead of appending to a string with no command. We'll change `GetQuote` to return the current model and issue the command to fetch a random quote, `fetchRandomQuoteCmd`.
+
+`FetchQuoteSuccess`'s argument is the new quote string. We want to update the model with this. There are no commands to execute here, so we will declare the second element of the tuple `Cmd.none`.
+
+`HttpError`'s argument is `Http.Error`, but we aren't going to do anything special with this. For the sake of brevity, we'll handle API errors when we get to authentication but not for getting unauthenticated quotes. Since we're discarding this argument, we can pass `_` to `HttpError`. This will return a tuple that sends the model in its current state and no command. You may want to handle errors here on your own after completing the provided code.
+
+It's important to remember that the `update` function's type is `Msg -> Model -> (Model, Cmd Msg)`. This means that all branches of the `case` statement _must_ return the same type. If any branch does not return a tuple with a model and a command, a compiler error will occur.
+
+Nothing changes in the `view`. We altered the `GetQuote` onClick function, but everything that we've written in the HTML works fine with our updated logic. Try it out!
+
+### Register a User
+
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3a.jpg) 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3b.jpg) 
+
+### Login
+
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4a.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4b.jpg) 
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4b.jpg)
+
+### Get Protected Quotes
+
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5a.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)-->
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)
+
+### Persist Logins with localStorage
