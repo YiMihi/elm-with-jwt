@@ -1583,13 +1583,41 @@ update msg model =
             ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, Cmd.none )
 ```
 
-    
+`ClickLogIn` returns the model and runs the `authUserCmd` command passing in the model and the login API URL. `LogOut` resets any authentication-related data in the model record to empty strings.
 
-A nice future enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?
+```js
+...
+
+if loggedIn then
+    div [id "greeting" ][
+        h3 [ class "text-center" ] [ text greeting ]
+        , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]
+        , p [ class "text-center" ] [
+            button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
+        ]   
+    ]
+                    
+...                    
+
+, div [ class "text-center" ] [
+	button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
+	, button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
+]
+
+...
+
+```
+
+There are only minimal updates to the view. We'll add a paragraph in the `authBoxView` in the greeting message that contains our logout button. Then in the form we'll insert the login button before the register button.
+
+Users can now register as well as log in. Our application is really coming together!
+
+_Note: A nice future enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?_
 
 ### Get Protected Quotes
 
-<!--![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5a.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)-->
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5a.jpg) 
+
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)
 
 ### Persist Logins with localStorage
