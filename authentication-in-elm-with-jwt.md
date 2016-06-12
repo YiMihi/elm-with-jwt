@@ -35,7 +35,7 @@ Sounds interesting! If we head over to the [Elm site](http://www.elm-lang.org), 
 
 We're going to build a simple Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements, like implementing `HTTP` and using JavaScript interop to store data in `localStorage`.
 
-If you're [familiar with JavaScript but new to Elm](http://elm-lang.org/docs/from-javascript), the language might look a little strange at first--but once we start building, we'll learn how the [Elm Architecture](http://guide.elm-lang.org/architecture/index.html), [types](http://guide.elm-lang.org/types), and [clean syntax](http://elm-lang.org/docs/syntax) can really streamline development.
+If you're [familiar with JavaScript but new to Elm](http://elm-lang.org/docs/from-javascript), the language might look a little strange at first--but once we start building, we'll learn how the [Elm Architecture](http://guide.elm-lang.org/architecture/index.html), [types](http://guide.elm-lang.org/types), and [clean syntax](http://elm-lang.org/docs/syntax) can really streamline development. This tutorial is structured to help JavaScript developers get started with Elm without assuming previous experience with other functional or strongly typed languages. 
 
 ## Setup and Installation
 
@@ -192,7 +192,7 @@ That's it for the build process. When the `gulp` default task is running, we'll 
 
 There's one more thing we should do before we start writing Elm, and that is to grab a plugin for our code editor that will provide syntax highlighting and inline compile error messaging. There are plugins available for many popular editors. I like to use [VS Code](https://code.visualstudio.com/Download) with [vscode-elm](https://github.com/sbrink/vscode-elm), but you can [download the plugin for your editor of choice here](http://elm-lang.org/install) and install it. With that done, we're ready to begin coding our Elm app.
 
-## Hello, Chuck Norris
+## Let's Build the Chuck Norris Quoter App
 
 As mentioned, we're going to build an application that does a bit more than echo "Hello world". We're going to connect to an API, register, log in, and make authenticated requests, but we'll start simple. We'll begin by displaying a button that will append a string to our model each time it's clicked.
 
@@ -236,9 +236,9 @@ Let's start by creating a basic `index.html`:
 
 We're titling our app "Chuck Norris Quoter" and loading a JavaScript file called `Main.js`. Elm compiles to JavaScript and this is the file that will be built from our compiled Elm code. 
 
-We've also added links to stylesheets. We'll start with [Bootstrap](http://www.getbootstrap.com) and load the CSS from a [CDN](https://www.bootstrapcdn.com) to keep it simple. The second stylesheet is a local `styles.css` file. In it, we'll put a few helper overrides.
+We'll start with [Bootstrap](http://www.getbootstrap.com) and load the CSS from a [CDN](https://www.bootstrapcdn.com) to keep it simple. The second stylesheet is a local `styles.css` file for a few helper overrides.
 
-The `<body>` can be empty. The Elm app will be dynamically written to it, and the last thing we'll do in our `index.html` is tell Elm to load our application. The Elm module we're going to export is called `Main` (from `Main.js`), so this is what our index file should use.
+The last thing we'll do in our `index.html` is tell Elm to load our application. The Elm module we're going to export is called `Main` (from `Main.js`), so this is what our index file should use.
 
 ### CSS
 
@@ -750,21 +750,356 @@ Next we add these cases to the `update` function and declare what we want return
 
 It's important to remember that the `update` function's type is `Msg -> Model -> (Model, Cmd Msg)`. This means that all branches of the `case` statement _must_ return the same type. If any branch does not return a tuple with a model and a command, a compiler error will occur.
 
-Nothing changes in the `view`. We altered the `GetQuote` onClick function, but everything that we've written in the HTML works fine with our updated logic. Try it out!
+Nothing changes in the `view`. We altered the `GetQuote` onClick function logic, but everything that we've written in the HTML works fine with our updated code. Try it out!
+
+#### Sidenote: Reading Compiler Type Errors
+
+If you've been following along and writing your own code, you may have encountered Elm's compiler errors. Though they are very readable, type mismatch messages can sometimes seem ambiguous.
+
+Here's a small breakdown of some things you may see:
+
+```js
+String -> a
+```
+
+A lowercase variable `a` means "anything could go here". The above means "takes a string as an argument and returns anything".
+
+`[1, 2, 3]` has a type of `List number`, a list that only contains numbers. `[]` is type `List a`: Elm infers that this is a list that could contain anything.
+
+Elm always infers types. If we have set type definitions, it checks its inferences against our definitions. We're defining types upfront in most places in our app. It's best practice to define the types at the top-level at a minimum. If Elm finds a type mismatch, it will tell us what type it has inferred. Resolving type mismatches can be one of the larger challenges to developers coming strictly from a loosely typed language, so it's worth spending some extra time getting comfortable with this. 
 
 ### Register a User
 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3a.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3b.jpg) 
+We are now getting quotes from the API. We also need user registration so that our users can be issued [JSON Web Tokens](https://auth0.com/learn/json-web-tokens) with which to access protected quotes. We'll create a form that submits a `POST` request to the API to create a new user and return a token.
+
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3a.jpg)
+
+After the user has registered, we'll display a welcome message confirming successful authentication:
+
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3b.jpg)
+
+Here's the complete `Main.elm` code for this step:
+
+```js
+module Main exposing (..)
+
+import Html exposing (..)
+import Html.App as Html
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
+import String
+
+import Http
+import Task exposing (Task)
+import Json.Decode as Decode exposing (..)
+import Json.Encode as Encode exposing (..)
+
+main : Program Never
+main = 
+    Html.program 
+        { init = init 
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        , view = view
+        }
+    
+{- 
+    MODEL
+    * Model type 
+    * Initialize model with empty values
+    * Initialize with a random quote
+-}
+
+type alias Model =
+    { username : String
+    , password : String
+    , token : String
+    , quote : String
+    , errorMsg : String
+    }
+    
+init : (Model, Cmd Msg)
+init =
+    ( Model "" "" "" "" "", fetchRandomQuoteCmd )
+    
+{-
+    UPDATE
+    * API routes
+    * GET and POST
+    * Encode request body 
+    * Decode responses
+    * Messages
+    * Update case
+-}
+
+-- API request URLs
+    
+api : String
+api =
+     "http://localhost:3001/"    
+    
+randomQuoteUrl : String
+randomQuoteUrl =    
+    api ++ "api/random-quote"
+    
+registerUrl : String
+registerUrl =
+    api ++ "users"       
+
+-- GET a random quote (unauthenticated)
+    
+fetchRandomQuote : Platform.Task Http.Error String
+fetchRandomQuote =
+    Http.getString randomQuoteUrl
+    
+fetchRandomQuoteCmd : Cmd Msg
+fetchRandomQuoteCmd =
+    Task.perform HttpError FetchQuoteSuccess fetchRandomQuote     
+
+-- Encode user to construct POST request body (for Register and Log In)
+    
+userEncoder : Model -> Encode.Value
+userEncoder model = 
+    Encode.object 
+        [ ("username", Encode.string model.username)
+        , ("password", Encode.string model.password) 
+        ]          
+
+-- POST register request and decode token response
+    
+registerUser : Model -> Task Http.Error (String)
+registerUser model =
+    { verb = "POST"
+    , headers = [ ("Content-Type", "application/json") ]
+    , url = registerUrl
+    , body = Http.string <| Encode.encode 0 <| userEncoder model
+    }
+    |> Http.send Http.defaultSettings
+    |> Http.fromJson tokenDecoder
+    
+registerUserCmd : Model -> Cmd Msg
+registerUserCmd model =
+    Task.perform AuthError GetTokenSuccess <| registerUser model
+    
+-- Decode POST response to get token
+    
+tokenDecoder : Decoder String
+tokenDecoder =
+    "id_token" := Decode.string         
+    
+-- Messages
+
+type Msg 
+    = GetQuote
+    | FetchQuoteSuccess String
+    | HttpError Http.Error
+    | AuthError Http.Error
+    | SetUsername String
+    | SetPassword String
+    | ClickRegisterUser
+    | GetTokenSuccess String
+
+-- Update
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        GetQuote ->
+            ( model, fetchRandomQuoteCmd )
+
+        FetchQuoteSuccess newQuote ->
+            ( { model | quote = newQuote }, Cmd.none )
+
+        HttpError _ ->
+            ( model, Cmd.none )  
+
+        AuthError error ->
+            ( { model | errorMsg = (toString error) }, Cmd.none )  
+
+        SetUsername username ->
+            ( { model | username = username }, Cmd.none )
+
+        SetPassword password ->
+            ( { model | password = password }, Cmd.none )
+
+        ClickRegisterUser ->
+            ( model, registerUserCmd model )
+
+        GetTokenSuccess newToken ->
+            ( { model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none )  
+                       
+{-
+    VIEW
+    * Hide sections of view depending on authenticaton state of model
+    * Get a quote
+    * Register
+-}
+
+view : Model -> Html Msg
+view model =
+    let 
+        -- Is the user logged in?
+        loggedIn : Bool
+        loggedIn =
+            if String.length model.token > 0 then True else False 
+
+        -- If the user is logged in, show a greeting; if logged out, show the login/register form
+        authBoxView =
+            let
+                -- If there is an error on authentication, show the error alert
+                showError : String
+                showError = 
+                    if String.isEmpty model.errorMsg then "hidden" else ""  
+
+                -- Greet a logged in user by username
+                greeting : String
+                greeting =
+                    "Hello, " ++ model.username ++ "!"
+
+            in        
+                if loggedIn then
+                    div [id "greeting" ][
+                        h3 [ class "text-center" ] [ text greeting ]
+                        , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]  
+                    ] 
+                else
+                    div [ id "form" ] [
+                        h2 [ class "text-center" ] [ text "Log In or Register" ]
+                        , p [ class "help-block" ] [ text "If you already have an account, please Log In. Otherwise, enter your desired username and password and Register." ]
+                        , div [ class showError ] [
+                            div [ class "alert alert-danger" ] [ text model.errorMsg ]
+                        ]
+                        , div [ class "form-group row" ] [
+                            div [ class "col-md-offset-2 col-md-8" ] [
+                                label [ for "username" ] [ text "Username:" ]
+                                , input [ id "username", type' "text", class "form-control", Html.Attributes.value model.username, onInput SetUsername ] []
+                            ]    
+                        ]
+                        , div [ class "form-group row" ] [
+                            div [ class "col-md-offset-2 col-md-8" ] [
+                                label [ for "password" ] [ text "Password:" ]
+                                , input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput SetPassword ] []
+                            ]    
+                        ]
+                        , div [ class "text-center" ] [
+                            button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
+                        ] 
+                    ]
+                           
+    in
+        div [ class "container" ] [
+            h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+            , p [ class "text-center" ] [
+                button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
+            ]
+            -- Blockquote with quote
+            , blockquote [] [ 
+                p [] [text model.quote] 
+            ]
+            , div [ class "jumbotron text-left" ] [
+                -- Login/Register form or user greeting
+                authBoxView
+            ]
+        ]
+```
+
+Starting with new imports:
+
+```js
+import Json.Decode as Decode exposing (..)
+import Json.Encode as Encode exposing (..)
+```
+
+We'll be sending objects and receiving JSON now instead of just working with a string API response, so we need to be able to translate objects and JSON to and from Elm records.
+
+```js
+{- 
+    MODEL
+    * Model type 
+    * Initialize model with empty values
+    * Initialize with a random quote
+-}
+
+type alias Model =
+    { username : String
+    , password : String
+    , token : String
+    , quote : String
+    , errorMsg : String
+    }
+    
+init : (Model, Cmd Msg)
+init =
+    ( Model "" "" "" "" "", fetchRandomQuoteCmd )
+```
+
+Our model needs to hold more data than just a quote string now. We've added `username`, `password`, `token`, and `errorMsg` (to display any API errors from authentication).
+
+We'll initialize our application with empty strings for all of the above.
+
+```js
+{-
+    UPDATE
+    * API routes
+    * GET and POST
+    * Encode request body 
+    * Decode responses
+    * Messages
+    * Update case
+-}
+
+-- API request URLs  
+    
+...
+    
+registerUrl : String
+registerUrl =
+    api ++ "users"       
+
+-- GET a random quote (unauthenticated)
+    
+...   
+
+-- Encode user to construct POST request body (for Register and Log In)
+    
+userEncoder : Model -> Encode.Value
+userEncoder model = 
+    Encode.object 
+        [ ("username", Encode.string model.username)
+        , ("password", Encode.string model.password) 
+        ]          
+
+-- POST register request and decode token response
+    
+registerUser : Model -> Task Http.Error (String)
+registerUser model =
+    { verb = "POST"
+    , headers = [ ("Content-Type", "application/json") ]
+    , url = registerUrl
+    , body = Http.string <| Encode.encode 0 <| userEncoder model
+    }
+    |> Http.send Http.defaultSettings
+    |> Http.fromJson tokenDecoder
+    
+registerUserCmd : Model -> Cmd Msg
+registerUserCmd model =
+    Task.perform AuthError GetTokenSuccess <| registerUser model
+    
+-- Decode POST response to get token
+    
+tokenDecoder : Decoder String
+tokenDecoder =
+    "id_token" := Decode.string
+```    
 
 ### Login
 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4a.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4b.jpg)
+<!--![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4a.jpg) 
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4b.jpg)-->
 
 ### Get Protected Quotes
 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5a.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)
+<!--![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5a.jpg) 
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)-->
 
 ### Persist Logins with localStorage
