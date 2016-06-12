@@ -865,21 +865,21 @@ userEncoder model =
         , ("password", Encode.string model.password) 
         ]          
 
--- POST register request and decode token response
+-- POST register / login request
     
-registerUser : Model -> Task Http.Error String
-registerUser model =
+authUser : Model -> String -> Task Http.Error String
+authUser model apiUrl =
     { verb = "POST"
     , headers = [ ("Content-Type", "application/json") ]
-    , url = registerUrl
+    , url = apiUrl
     , body = Http.string <| Encode.encode 0 <| userEncoder model
     }
     |> Http.send Http.defaultSettings
-    |> Http.fromJson tokenDecoder
+    |> Http.fromJson tokenDecoder    
     
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
-    Task.perform AuthError GetTokenSuccess <| registerUser model
+    Task.perform AuthError GetTokenSuccess <| authUser model registerUrl
     
 -- Decode POST response to get token
     
@@ -1079,22 +1079,22 @@ The API expects a request body for the registration and login as a JavaScript ob
 An Elm record is not the same as a JavaScript object so we need to [encode](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) the applicable properties of our model before we can send them with the HTTP request. The `userEncoder` function utilizes [`Json.Encode.object`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#object) to take the model and return an encoded value.
 
 ```js
--- POST register request and decode token response
+-- POST register / login request
     
-registerUser : Model -> Task Http.Error String
-registerUser model =
+authUser : Model -> String -> Task Http.Error String
+authUser model apiUrl =
     { verb = "POST"
     , headers = [ ("Content-Type", "application/json") ]
-    , url = registerUrl
+    , url = apiUrl
     , body = Http.string <| Encode.encode 0 <| userEncoder model
     }
     |> Http.send Http.defaultSettings
-    |> Http.fromJson tokenDecoder
+    |> Http.fromJson tokenDecoder 
 ```    
 
-We're using a [fully specified HTTP request](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Request) this time as opposed to the simple `getString` used for the quote in the previous step. 
+We're using a [fully specified HTTP request](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Request) this time as opposed to the simple `getString` used for the quote in the previous step. The same settings can be used for both register and login, with the exception of the API route which we'll pass in as an argument.
 
-The type for this effect function is "`registerUser` has type that takes model as an argument and returns a task that fails with an error or succeeds with a string". This is the same type annotation used for `fetchRandomQuote`, so it should look familiar.
+We're calling this effect function `authUser` because it authenticates a user as either registering or logging in. The type is "`authUser` takes model as an argument and a string as an argument and returns a task that fails with an error or succeeds with a string".
 
 Now let's take a closer look at these lines:
 
@@ -1114,13 +1114,15 @@ We're running the `userEncoder` function to encode the request body. Then [`Json
 
 Next we have [forward function application performed with `|>`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#|%3E) to send the HTTP request with default settings and then take the JSON result and decode it with a `tokenDecoder` function that we'll create in a moment.
 
-We now have our `registerUser` effect so we need to create the command. This should look familiar from fetching quotes earlier. We'll create the `AuthError` and `GetTokenSuccess` messages shortly.
+We now have our `authUser` effect so we need to create a `registerUserCmd` command. This should look familiar from fetching quotes earlier but we're also passing the API route as an argument. We'll create the `AuthError` and `GetTokenSuccess` messages shortly.
 
 ```js
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
-    Task.perform AuthError GetTokenSuccess <| registerUser model
+    Task.perform AuthError GetTokenSuccess <| authUser model registerUrl
 ```
+
+Because `authUser` takes an argument, we'll use `<|` to tell the app that the `model` argument belongs to `authUser` and not to `Task.perform`.
 
 We'll also define the `tokenDecoder` function that ensures we can work with the response from the HTTP request:
 
@@ -1389,37 +1391,25 @@ userEncoder model =
         , ("password", Encode.string model.password)
         ]          
 
--- POST register request and decode token response
+-- POST register / login request
     
-registerUser : Model -> Task Http.Error String
-registerUser model =
+authUser : Model -> String -> Task Http.Error String
+authUser model apiUrl =
     { verb = "POST"
     , headers = [ ("Content-Type", "application/json") ]
-    , url = registerUrl
+    , url = apiUrl
     , body = Http.string <| Encode.encode 0 <| userEncoder model
     }
     |> Http.send Http.defaultSettings
-    |> Http.fromJson tokenDecoder
+    |> Http.fromJson tokenDecoder    
     
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
-    Task.perform AuthError GetTokenSuccess <| registerUser model
-
--- POST log in request and decode token response
-    
-login : Model -> Task Http.Error String
-login model =
-    { verb = "POST"
-    , headers = [ ("Content-Type", "application/json") ]
-    , url = loginUrl
-    , body = Http.string <| Encode.encode 0 <| userEncoder model
-    }
-    |> Http.send Http.defaultSettings
-    |> Http.fromJson tokenDecoder
+    Task.perform AuthError GetTokenSuccess <| authUser model registerUrl
     
 loginCmd : Model -> Cmd Msg
 loginCmd model =
-    Task.perform AuthError GetTokenSuccess <| login model 
+    Task.perform AuthError GetTokenSuccess <| authUser model loginUrl
     
 -- Decode POST response to get token
     
@@ -1555,6 +1545,32 @@ view model =
             ]
         ]
 ```
+
+Login works similarly to Register (and even uses the same request body), so creating its functionality should be straightforward and familiar. 
+
+```js
+-- API request URLs
+    
+... 
+    
+loginUrl : String
+loginUrl =
+    api ++ "sessions/create" 
+```   
+
+We'll add the login API route, which is [http://localhost:3001/sessions/create](http://localhost:3001/sessions/create).
+
+```js
+-- POST register / log in request
+    
+...
+    
+loginCmd : Model -> Cmd Msg
+loginCmd model =
+    Task.perform AuthError GetTokenSuccess <| authUser model loginUrl
+```
+
+We already have the `authUser` effect so we'll just need to add a command that passes the proper route argument.    
 
 A nice future enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?
 

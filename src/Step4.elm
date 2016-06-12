@@ -86,37 +86,25 @@ userEncoder model =
         , ("password", Encode.string model.password)
         ]          
 
--- POST register request and decode token response
+-- POST register / login request
     
-registerUser : Model -> Task Http.Error String
-registerUser model =
+authUser : Model -> String -> Task Http.Error String
+authUser model apiUrl =
     { verb = "POST"
     , headers = [ ("Content-Type", "application/json") ]
-    , url = registerUrl
+    , url = apiUrl
     , body = Http.string <| Encode.encode 0 <| userEncoder model
     }
     |> Http.send Http.defaultSettings
-    |> Http.fromJson tokenDecoder
+    |> Http.fromJson tokenDecoder    
     
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
-    Task.perform AuthError GetTokenSuccess <| registerUser model
-
--- POST log in request and decode token response
-    
-login : Model -> Task Http.Error String
-login model =
-    { verb = "POST"
-    , headers = [ ("Content-Type", "application/json") ]
-    , url = loginUrl
-    , body = Http.string <| Encode.encode 0 <| userEncoder model
-    }
-    |> Http.send Http.defaultSettings
-    |> Http.fromJson tokenDecoder
+    Task.perform AuthError GetTokenSuccess <| authUser model registerUrl
     
 loginCmd : Model -> Cmd Msg
 loginCmd model =
-    Task.perform AuthError GetTokenSuccess <| login model 
+    Task.perform AuthError GetTokenSuccess <| authUser model loginUrl
     
 -- Decode POST response to get token
     

@@ -82,21 +82,21 @@ userEncoder model =
         , ("password", Encode.string model.password) 
         ]          
 
--- POST register request and decode token response
+-- POST register / login request
     
-registerUser : Model -> Task Http.Error String
-registerUser model =
+authUser : Model -> String -> Task Http.Error String
+authUser model apiUrl =
     { verb = "POST"
     , headers = [ ("Content-Type", "application/json") ]
-    , url = registerUrl
+    , url = apiUrl
     , body = Http.string <| Encode.encode 0 <| userEncoder model
     }
     |> Http.send Http.defaultSettings
-    |> Http.fromJson tokenDecoder
+    |> Http.fromJson tokenDecoder    
     
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
-    Task.perform AuthError GetTokenSuccess <| registerUser model
+    Task.perform AuthError GetTokenSuccess <| authUser model registerUrl
     
 -- Decode POST response to get token
     
