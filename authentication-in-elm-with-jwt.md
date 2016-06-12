@@ -1074,11 +1074,321 @@ userEncoder model =
         ]          
 ```
 
-The API expects a request body for the registration and login as a JavaScript object that looks like this: `{ username: "string", password: "string" }`
+The API expects a request body for the registration and login as a JavaScript object in string format that looks like this: `{ username: "string", password: "string" }`
 
-An Elm record is not the same as a JavaScript object, so we need to [encode](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) the applicable properties of our model before we can send them with the `HTTP` request. The `userEncoder` function utilizes [`Json.Encode.object`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#object) to take the model and return an encoded value.
+An Elm record is not the same as a JavaScript object so we need to [encode](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) the applicable properties of our model before we can send them with the HTTP request. The `userEncoder` function utilizes [`Json.Encode.object`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#object) to take the model and return an encoded value.
 
 ```js
+-- POST register request and decode token response
+    
+registerUser : Model -> Task Http.Error String
+registerUser model =
+    { verb = "POST"
+    , headers = [ ("Content-Type", "application/json") ]
+    , url = registerUrl
+    , body = Http.string <| Encode.encode 0 <| userEncoder model
+    }
+    |> Http.send Http.defaultSettings
+    |> Http.fromJson tokenDecoder
+```    
+
+We're using a [fully specified HTTP request](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Request) this time as opposed to the simple `getString` used for the quote in the previous step. 
+
+The type for this effect function is "`registerUser` has type that takes model as an argument and returns a task that fails with an error or succeeds with a string". This is the same type annotation used for `fetchRandomQuote`, so it should look familiar.
+
+Now let's take a closer look at these lines:
+
+```js
+...
+	, body = Http.string <| Encode.encode 0 <| userEncoder model
+    }
+    |> Http.send Http.defaultSettings
+    |> Http.fromJson tokenDecoder
+```
+
+`<|` and `|>` are aliases for function application in order to reduce parentheses. [`<|` is backward function application](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#%3C|). 
+
+`body = Http.string <| Encode.encode 0 <| userEncoder model` says to take the results of the last function and pass it as the last argument to the function to its left. Written with parentheses, the equivalent would be: `body = Http.string (Encode.encode 0 (userEncoder model))`
+
+We're running the `userEncoder` function to encode the request body. Then [`Json.Encode.encode`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) converts the resulting value to a prettified string with no (`0`) indentation. Finally, we provide the resulting string as the request body with [`Http.String`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#string).
+
+Next we have [forward function application performed with `|>`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#|%3E) to send the HTTP request with default settings and then take the JSON result and decode it with a `tokenDecoder` function that we'll create in a moment.
+
+We now have our `registerUser` effect so we need to create the command. This should look familiar from fetching quotes earlier. We'll create the `AuthError` and `GetTokenSuccess` messages shortly.
+
+```js
+registerUserCmd : Model -> Cmd Msg
+registerUserCmd model =
+    Task.perform AuthError GetTokenSuccess <| registerUser model
+```
+
+We'll also define the `tokenDecoder` function that ensures we can work with the response from the HTTP request:
+
+```js   
+-- Decode POST response to get token
+    
+tokenDecoder : Decoder String
+tokenDecoder =
+    "id_token" := Decode.string
+``` 
+
+When registering or logging in a user, the response from the API is JSON shaped like this:
+
+```js
+{
+	"id_token": "someJWTTokenString"
+}
+```
+
+Recall that `:` means "has type" in Elm. We're taking the `id_token` and extracting its contents as a string. This string is what will be returned on success.   
+
+Now we will do something with that result and also set up a way for our UI to interact with the model:
+
+```js
+-- Messages
+
+type Msg 
+    = ...
+    | AuthError Http.Error
+    | SetUsername String
+    | SetPassword String
+    | ClickRegisterUser
+    | GetTokenSuccess String
+
+-- Update
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        ...  
+
+        AuthError error ->
+            ( { model | errorMsg = (toString error) }, Cmd.none )  
+
+        SetUsername username ->
+            ( { model | username = username }, Cmd.none )
+
+        SetPassword password ->
+            ( { model | password = password }, Cmd.none )
+
+        ClickRegisterUser ->
+            ( model, registerUserCmd model )
+
+        GetTokenSuccess newToken ->
+            ( { model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none )
+```  
+
+We want to display authentication errors to the user. Unlike the `HttpError` message we implemented earlier, `AuthError` won't discard its argument. The type of the `error` argument is [`Http.Error`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Error). As you can see from the docs, this is a union type that could be a few different errors. For the sake of simplicity, we're just going to convert the error to a string and update the model's `errorMsg` with that string. A good exercise later would be to translate the different errors to user-friendly messaging.
+
+The `SetUsername` and `SetPassword` messages are for sending form field values to update the model. `ClickRegisterUser` is the `onClick` for our "Register" button. It runs the `registerUserCmd` command we just created. 
+
+`GetTokenSuccess` is the success function for the `registerUser` task. Its argument is the token string. We need to update our model with the token so we can use it to request protected quotes later. This is a good place to verify that everything is working as expected, so let's log the updated model to the browser console using the `|>` forward function application alias and a [`Debug.log`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Debug#log): `{ model | token = newToken, errorMsg = "" } |> Debug.log "got new token"`.
+
+```js
+{-
+    VIEW
+    * Hide sections of view depending on authenticaton state of model
+    * Get a quote
+    * Register
+-}
+
+view : Model -> Html Msg
+view model =
+    let 
+        -- Is the user logged in?
+        loggedIn : Bool
+        loggedIn =
+            if String.length model.token > 0 then True else False 
+
+        -- If the user is logged in, show a greeting; if logged out, show the login/register form
+        authBoxView =
+            let
+                -- If there is an error on authentication, show the error alert
+                showError : String
+                showError = 
+                    if String.isEmpty model.errorMsg then "hidden" else ""  
+
+                -- Greet a logged in user by username
+                greeting : String
+                greeting =
+                    "Hello, " ++ model.username ++ "!"
+
+            in        
+                if loggedIn then
+                    div [id "greeting" ][
+                        h3 [ class "text-center" ] [ text greeting ]
+                        , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]  
+                    ] 
+                else
+                    div [ id "form" ] [
+                        h2 [ class "text-center" ] [ text "Log In or Register" ]
+                        , p [ class "help-block" ] [ text "If you already have an account, please Log In. Otherwise, enter your desired username and password and Register." ]
+                        , div [ class showError ] [
+                            div [ class "alert alert-danger" ] [ text model.errorMsg ]
+                        ]
+                        , div [ class "form-group row" ] [
+                            div [ class "col-md-offset-2 col-md-8" ] [
+                                label [ for "username" ] [ text "Username:" ]
+                                , input [ id "username", type' "text", class "form-control", Html.Attributes.value model.username, onInput SetUsername ] []
+                            ]    
+                        ]
+                        , div [ class "form-group row" ] [
+                            div [ class "col-md-offset-2 col-md-8" ] [
+                                label [ for "password" ] [ text "Password:" ]
+                                , input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput SetPassword ] []
+                            ]    
+                        ]
+                        , div [ class "text-center" ] [
+                            button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
+                        ] 
+                    ]
+                           
+    in
+        div [ class "container" ] [
+            h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+            , p [ class "text-center" ] [
+                button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
+            ]
+            -- Blockquote with quote
+            , blockquote [] [ 
+                p [] [text model.quote] 
+            ]
+            , div [ class "jumbotron text-left" ] [
+                -- Login/Register form or user greeting
+                authBoxView
+            ]
+        ]
+```
+
+There's a lot of new stuff in the view but it's mostly form HTML. However, we'll start with some logic to hide the form once the user is authenticated; we want to show a greeting in this case instead.
+
+Remember that `view` is a function. This means we can do things like create scoped variables with [`let` expressions](http://elm-lang.org/docs/syntax#let-expressions) to conditionally render parts of the view.
+
+For the sake of simplicity, we'll check if the model's token string has a length to determine if the user is logged in. In a real-world application, token verification would be performed in something like a route callback to ensure proper UI access. For our Chuck Norris Quoter, the token is needed to get protected quotes so all the `loggedIn` variable does is show the form vs. a simple greeting.
+
+We'll then create the `authBoxView`. This contains the form and greeting and executes either depending on the value of `loggedIn`. We'll also display the authentication error if there is one.
+
+If the user is logged in, we'll greet them by their username and inform them that they have super-secret access to protected quotes.
+
+If the user is not logged in, we'll display a Log In / Register form. We can use the same form to do both because they share the same request body. Right now though, we only have the functionality for Register prepared. 
+
+After the heading, instructional copy, and conditional error alert, we need the `username` and `password` [form fields](http://guide.elm-lang.org/architecture/user_input/forms.html). We can supply various attributes:
+
+```
+input [ id "username", type' "text", class "form-control", Html.Attributes.value model.username, onInput SetUsername ] []
+...
+input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput SetPassword ] []
+```
+
+There are a few things that may stand out here: `type'` has a single quote after it because `type` is a reserved keyword in Elm. Appending the quote to create a new variable name has origins in the usage of the [prime symbol in mathematics](https://en.wikipedia.org/wiki/Prime_(symbol)#Use_in_mathematics.2C_statistics.2C_and_science). `Html.Attributes.value` is fully qualified because `value` alone is ambiguous in context because the compiler could confuse it with `Json.Decode.value`. `onInput` is a [custom event handler](http://package.elm-lang.org/packages/evancz/elm-html/4.0.2/Html-Events#targetValue) that gets values from triggered events, in this case, form field input. When this event is fired we want to set the username or password to update the model.
+
+After our form fields, we'll include a "Register" button with an `onClick ClickRegisterUser`. We'll use Bootstrap's CSS to style this button like a link since it will live next to a Log In button in the next step.
+
+Finally, we'll use our `authBoxView` variable in the main view. We'll place it below our Chuck Norris quote in a jumbotron.
+
+Now we can register new users in our app. When successfully registered, the user will receive a token and be authenticated. The view should update to show the greeting message. Try it out in the browser. You should also try to trigger an error message!
+
+### Log In and Log Out
+
+Now that users can register, they also need to be able to log in with existing accounts.
+
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4a.jpg) 
+
+We also want them to be able to log out.
+
+![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4b.jpg)
+
+The full `Main.elm` code with login and logout implemented will look like this:
+
+```js
+module Main exposing (..)
+
+import Html exposing (..)
+import Html.App as Html
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
+import String
+
+import Http
+import Task exposing (Task)
+import Json.Decode as Decode exposing (..)
+import Json.Encode as Encode exposing (..)
+
+main : Program Never
+main = 
+    Html.program 
+        { init = init 
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        , view = view
+        }
+    
+{- 
+    MODEL
+    * Model type 
+    * Initialize model with empty values
+    * Initialize with a random quote
+-}
+
+type alias Model =
+    { username : String
+    , password : String
+    , token : String
+    , quote : String
+    , errorMsg : String
+    }
+    
+init : (Model, Cmd Msg)
+init =
+    ( Model "" "" "" "" "", fetchRandomQuoteCmd )
+    
+{-
+    UPDATE
+    * API routes
+    * GET and POST
+    * Encode request body 
+    * Decode responses
+    * Messages
+    * Update case
+-}
+
+-- API request URLs
+    
+api : String
+api =
+     "http://localhost:3001/"    
+    
+randomQuoteUrl : String
+randomQuoteUrl =    
+    api ++ "api/random-quote"
+    
+registerUrl : String
+registerUrl =
+    api ++ "users"  
+    
+loginUrl : String
+loginUrl =
+    api ++ "sessions/create"       
+
+-- GET a random quote (unauthenticated)
+    
+fetchRandomQuote : Platform.Task Http.Error String
+fetchRandomQuote =
+    Http.getString randomQuoteUrl
+    
+fetchRandomQuoteCmd : Cmd Msg
+fetchRandomQuoteCmd =
+    Task.perform HttpError FetchQuoteSuccess fetchRandomQuote     
+
+-- Encode user to construct POST request body (for Register and Log In)
+    
+userEncoder : Model -> Encode.Value
+userEncoder model = 
+    Encode.object 
+        [ ("username", Encode.string model.username)
+        , ("password", Encode.string model.password)
+        ]          
+
 -- POST register request and decode token response
     
 registerUser : Model -> Task Http.Error String
@@ -1094,52 +1404,159 @@ registerUser model =
 registerUserCmd : Model -> Cmd Msg
 registerUserCmd model =
     Task.perform AuthError GetTokenSuccess <| registerUser model
-```    
 
-We're using a [fully specified `HTTP` request](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Request) this time as opposed to the simple `getString` used for the quote in the previous step. 
-
-The type for this effect function is "`registerUser` has type that takes model as an argument and returns a task that fails with an error or succeeds with a string".
-
-Let's take a closer look at these lines:
-
-```js
-...
-	, body = Http.string <| Encode.encode 0 <| userEncoder model
+-- POST log in request and decode token response
+    
+login : Model -> Task Http.Error String
+login model =
+    { verb = "POST"
+    , headers = [ ("Content-Type", "application/json") ]
+    , url = loginUrl
+    , body = Http.string <| Encode.encode 0 <| userEncoder model
     }
     |> Http.send Http.defaultSettings
     |> Http.fromJson tokenDecoder
-```
-
-`<|` and `|>` are aliases for function application in order to reduce parentheses. `<|` is [backward function application](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#%3C|). 
-
-`body = Http.string <| Encode.encode 0 <| userEncoder model` says to take the results of the last function and pass it as the last argument to the function to its left. Written with parentheses, the equivalent would be: `body = Http.string (Encode.encode 0 (userEncoder model))`
-
-We're running the `userEncoder` function to encode the request body. Then [`Json.Encode.encode`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) converts the resulting value to a prettified string with no (`0`) indentation. Finally, we provide the resulting string as the request body with [`Http.String`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#string).
-
-Next we have [forward function application](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#|%3E) performed with `|>` to send the HTTP request with default settings and then take the JSON result and decode it with a `tokenDecoder`:
-
-```js    
+    
+loginCmd : Model -> Cmd Msg
+loginCmd model =
+    Task.perform AuthError GetTokenSuccess <| login model 
+    
 -- Decode POST response to get token
     
 tokenDecoder : Decoder String
 tokenDecoder =
-    "id_token" := Decode.string
-``` 
+    "id_token" := Decode.string         
+    
+-- Messages
 
-The response from the API here is:
+type Msg 
+    = GetQuote
+    | FetchQuoteSuccess String
+    | HttpError Http.Error
+    | AuthError Http.Error
+    | SetUsername String
+    | SetPassword String
+    | ClickRegisterUser
+    | ClickLogIn
+    | GetTokenSuccess String
+    | LogOut
 
-```js
-{
-	"id_token": "someJWTTokenString"
-}
+-- Update
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        GetQuote ->
+            ( model, fetchRandomQuoteCmd )
+
+        FetchQuoteSuccess newQuote ->
+            ( { model | quote = newQuote }, Cmd.none )
+
+        HttpError _ ->
+            ( model, Cmd.none )  
+
+        AuthError error ->
+            ( { model | errorMsg = (toString error) }, Cmd.none )  
+
+        SetUsername username ->
+            ( { model | username = username }, Cmd.none )
+
+        SetPassword password ->
+            ( { model | password = password }, Cmd.none )
+
+        ClickRegisterUser ->
+            ( model, registerUserCmd model )
+
+        ClickLogIn ->
+            ( model, loginCmd model ) 
+
+        GetTokenSuccess newToken ->
+            ( { model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none )  
+            
+        LogOut ->
+            ( { model | username = "", password = "", token = "", errorMsg = "" }, Cmd.none )
+                       
+{-
+    VIEW
+    * Hide sections of view depending on authenticaton state of model
+    * Get a quote
+    * Log In or Register
+    * Get a protected quote
+-}
+
+view : Model -> Html Msg
+view model =
+    let 
+        -- Is the user logged in?
+        loggedIn : Bool
+        loggedIn =
+            if String.length model.token > 0 then True else False
+
+        -- If the user is logged in, show a greeting; if logged out, show the login/register form
+        authBoxView =
+            let
+                -- If there is an error on authentication, show the error alert
+                showError : String
+                showError = 
+                    if String.isEmpty model.errorMsg then "hidden" else ""  
+
+                -- Greet a logged in user by username
+                greeting : String
+                greeting =
+                    "Hello, " ++ model.username ++ "!" 
+
+            in
+                if loggedIn then
+                    div [id "greeting" ][
+                        h3 [ class "text-center" ] [ text greeting ]
+                        , p [ class "text-center" ] [ text "You have super-secret access to protected quotes." ]
+                        , p [ class "text-center" ] [
+                            button [ class "btn btn-danger", onClick LogOut ] [ text "Log Out" ]
+                        ]   
+                    ] 
+                else
+                    div [ id "form" ] [
+                        h2 [ class "text-center" ] [ text "Log In or Register" ]
+                        , p [ class "help-block" ] [ text "If you already have an account, please Log In. Otherwise, enter your desired username and password and Register." ]
+                        , div [ class showError ] [
+                            div [ class "alert alert-danger" ] [ text model.errorMsg ]
+                        ]
+                        , div [ class "form-group row" ] [
+                            div [ class "col-md-offset-2 col-md-8" ] [
+                                label [ for "username" ] [ text "Username:" ]
+                                , input [ id "username", type' "text", class "form-control", Html.Attributes.value model.username, onInput SetUsername ] []
+                            ]    
+                        ]
+                        , div [ class "form-group row" ] [
+                            div [ class "col-md-offset-2 col-md-8" ] [
+                                label [ for "password" ] [ text "Password:" ]
+                                , input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput SetPassword ] []
+                            ]    
+                        ]
+                        , div [ class "text-center" ] [
+                            button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
+                            , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
+                        ] 
+                    ]
+                           
+    in
+        div [ class "container" ] [
+            h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+            , p [ class "text-center" ] [
+                button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
+            ]
+            -- Blockquote with quote
+            , blockquote [] [ 
+                p [] [text model.quote] 
+            ]
+            , div [ class "jumbotron text-left" ] [
+                -- Login/Register form or user greeting
+                authBoxView
+            ]
+        ]
 ```
 
-Recall that `:` means "has type". We're taking the `id_token` and extracting its contents as a string. This string is what will be returned on success.   
-
-### Login
-
-<!--![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4a.jpg) 
-![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4b.jpg)-->
+A nice future enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?
 
 ### Get Protected Quotes
 
