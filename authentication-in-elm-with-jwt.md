@@ -1100,13 +1100,41 @@ We're using a [fully specified `HTTP` request](http://package.elm-lang.org/packa
 
 The type for this effect function is "`registerUser` has type that takes model as an argument and returns a task that fails with an error or succeeds with a string".
 
+Let's take a closer look at these lines:
+
+```js
+...
+	, body = Http.string <| Encode.encode 0 <| userEncoder model
+    }
+    |> Http.send Http.defaultSettings
+    |> Http.fromJson tokenDecoder
+```
+
+`<|` and `|>` are aliases for function application in order to reduce parentheses. `<|` is [backward function application](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#%3C|). 
+
+`body = Http.string <| Encode.encode 0 <| userEncoder model` says to take the results of the last function and pass it as the last argument to the function to its left. Written with parentheses, the equivalent would be: `body = Http.string (Encode.encode 0 (userEncoder model))`
+
+We're running the `userEncoder` function to encode the request body. Then [`Json.Encode.encode`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) converts the resulting value to a prettified string with no (`0`) indentation. Finally, we provide the resulting string as the request body with [`Http.String`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#string).
+
+Next we have [forward function application](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#|%3E) performed with `|>` to send the HTTP request with default settings and then take the JSON result and decode it with a `tokenDecoder`:
+
 ```js    
 -- Decode POST response to get token
     
 tokenDecoder : Decoder String
 tokenDecoder =
     "id_token" := Decode.string
-```    
+``` 
+
+The response from the API here is:
+
+```js
+{
+	"id_token": "someJWTTokenString"
+}
+```
+
+Recall that `:` means "has type". We're taking the `id_token` and extracting its contents as a string. This string is what will be returned on success.   
 
 ### Login
 
