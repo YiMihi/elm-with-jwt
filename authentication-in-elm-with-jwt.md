@@ -877,9 +877,9 @@ authUser model apiUrl =
     |> Http.send Http.defaultSettings
     |> Http.fromJson tokenDecoder    
     
-registerUserCmd : Model -> Cmd Msg
-registerUserCmd model =
-    Task.perform AuthError GetTokenSuccess <| authUser model registerUrl
+authUserCmd : Model -> String -> Cmd Msg    
+authUserCmd model apiUrl = 
+    Task.perform AuthError GetTokenSuccess <| authUser model apiUrl
     
 -- Decode POST response to get token
     
@@ -923,7 +923,7 @@ update msg model =
             ( { model | password = password }, Cmd.none )
 
         ClickRegisterUser ->
-            ( model, registerUserCmd model )
+            ( model, authUserCmd model registerUrl )
 
         GetTokenSuccess newToken ->
             ( { model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none )  
@@ -1114,15 +1114,15 @@ We're running the `userEncoder` function to encode the request body. Then [`Json
 
 Next we have [forward function application performed with `|>`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#|%3E) to send the HTTP request with default settings and then take the JSON result and decode it with a `tokenDecoder` function that we'll create in a moment.
 
-We now have our `authUser` effect so we need to create a `registerUserCmd` command. This should look familiar from fetching quotes earlier but we're also passing the API route as an argument. We'll create the `AuthError` and `GetTokenSuccess` messages shortly.
+We now have our `authUser` effect so we need to create an `authUserCmd` command. This should look familiar from fetching quotes earlier but we're also passing the API route as an argument. We'll create the `AuthError` and `GetTokenSuccess` messages shortly.
 
 ```js
-registerUserCmd : Model -> Cmd Msg
-registerUserCmd model =
-    Task.perform AuthError GetTokenSuccess <| authUser model registerUrl
+authUserCmd : Model -> String -> Cmd Msg    
+authUserCmd model apiUrl = 
+    Task.perform AuthError GetTokenSuccess <| authUser model apiUrl
 ```
 
-Because `authUser` takes an argument, we'll use `<|` to tell the app that the `model` argument belongs to `authUser` and not to `Task.perform`.
+Because `authUser` takes arguments, we'll use `<|` to tell the app that the `model` and `apiUrl` belong to `authUser` and not to `Task.perform`.
 
 We'll also define the `tokenDecoder` function that ensures we can work with the response from the HTTP request:
 
@@ -1174,7 +1174,7 @@ update msg model =
             ( { model | password = password }, Cmd.none )
 
         ClickRegisterUser ->
-            ( model, registerUserCmd model )
+            ( model, authUserCmd model registerUrl )
 
         GetTokenSuccess newToken ->
             ( { model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none )
@@ -1182,9 +1182,9 @@ update msg model =
 
 We want to display authentication errors to the user. Unlike the `HttpError` message we implemented earlier, `AuthError` won't discard its argument. The type of the `error` argument is [`Http.Error`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Error). As you can see from the docs, this is a union type that could be a few different errors. For the sake of simplicity, we're just going to convert the error to a string and update the model's `errorMsg` with that string. A good exercise later would be to translate the different errors to user-friendly messaging.
 
-The `SetUsername` and `SetPassword` messages are for sending form field values to update the model. `ClickRegisterUser` is the `onClick` for our "Register" button. It runs the `registerUserCmd` command we just created. 
+The `SetUsername` and `SetPassword` messages are for sending form field values to update the model. `ClickRegisterUser` is the `onClick` for our "Register" button. It runs the `authUserCmd` command we just created and passes the model and the API route for new user creation. 
 
-`GetTokenSuccess` is the success function for the `registerUser` task. Its argument is the token string. We need to update our model with the token so we can use it to request protected quotes later. This is a good place to verify that everything is working as expected, so let's log the updated model to the browser console using the `|>` forward function application alias and a [`Debug.log`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Debug#log): `{ model | token = newToken, errorMsg = "" } |> Debug.log "got new token"`.
+`GetTokenSuccess` is the success function for the `authUser` task. Its argument is the token string. We need to update our model with the token so we can use it to request protected quotes later. This is a good place to verify that everything is working as expected, so let's log the updated model to the browser console using the `|>` forward function application alias and a [`Debug.log`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Debug#log): `{ model | token = newToken, errorMsg = "" } |> Debug.log "got new token"`.
 
 ```js
 {-
@@ -1403,13 +1403,9 @@ authUser model apiUrl =
     |> Http.send Http.defaultSettings
     |> Http.fromJson tokenDecoder    
     
-registerUserCmd : Model -> Cmd Msg
-registerUserCmd model =
-    Task.perform AuthError GetTokenSuccess <| authUser model registerUrl
-    
-loginCmd : Model -> Cmd Msg
-loginCmd model =
-    Task.perform AuthError GetTokenSuccess <| authUser model loginUrl
+authUserCmd : Model -> String -> Cmd Msg    
+authUserCmd model apiUrl = 
+    Task.perform AuthError GetTokenSuccess <| authUser model apiUrl
     
 -- Decode POST response to get token
     
@@ -1455,10 +1451,10 @@ update msg model =
             ( { model | password = password }, Cmd.none )
 
         ClickRegisterUser ->
-            ( model, registerUserCmd model )
+            ( model, authUserCmd model registerUrl )
 
         ClickLogIn ->
-            ( model, loginCmd model ) 
+            ( model, authUserCmd model loginUrl ) 
 
         GetTokenSuccess newToken ->
             ( { model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none )  
@@ -1560,17 +1556,34 @@ loginUrl =
 
 We'll add the login API route, which is [http://localhost:3001/sessions/create](http://localhost:3001/sessions/create).
 
+We already have the `authUser` effect and `authUserCmd` command, so now all we need to do is create a way for login to interact with the UI. We'll also create a logout.
+
 ```js
--- POST register / log in request
-    
-...
-    
-loginCmd : Model -> Cmd Msg
-loginCmd model =
-    Task.perform AuthError GetTokenSuccess <| authUser model loginUrl
+-- Messages
+
+type Msg 
+    ...
+    | ClickLogIn
+	 ...
+    | LogOut
+
+-- Update
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+    	 ...
+    	 
+        ClickLogIn ->
+            ( model, authUserCmd model loginUrl ) 
+
+        ...
+            
+        LogOut ->
+            ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, Cmd.none )
 ```
 
-We already have the `authUser` effect so we'll just need to add a command that passes the proper route argument for logging in.    
+    
 
 A nice future enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?
 
