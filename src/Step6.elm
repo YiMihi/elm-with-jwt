@@ -109,14 +109,10 @@ authUser model apiUrl =
     }
     |> Http.send Http.defaultSettings
     |> Http.fromJson tokenDecoder    
-    
-registerUserCmd : Model -> Cmd Msg
-registerUserCmd model =
-    Task.perform AuthError GetTokenSuccess <| authUser model registerUrl
-    
-loginCmd : Model -> Cmd Msg
-loginCmd model =
-    Task.perform AuthError GetTokenSuccess <| authUser model loginUrl
+
+authUserCmd : Model -> String -> Cmd Msg    
+authUserCmd model apiUrl = 
+    Task.perform AuthError GetTokenSuccess <| authUser model apiUrl
     
 -- Decode POST response to get token
     
@@ -201,10 +197,10 @@ update msg model =
             ( { model | password = password }, Cmd.none )
 
         ClickRegisterUser ->
-            ( model, registerUserCmd model )
+            ( model, authUserCmd model registerUrl )
 
         ClickLogIn ->
-            ( model, loginCmd model ) 
+            ( model, authUserCmd model loginUrl ) 
 
         GetTokenSuccess newToken ->
             setStorageCmd { model | token = newToken, password = "", errorMsg = "" }

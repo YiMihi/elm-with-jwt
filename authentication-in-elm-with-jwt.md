@@ -1570,7 +1570,7 @@ loginCmd model =
     Task.perform AuthError GetTokenSuccess <| authUser model loginUrl
 ```
 
-We already have the `authUser` effect so we'll just need to add a command that passes the proper route argument.    
+We already have the `authUser` effect so we'll just need to add a command that passes the proper route argument for logging in.    
 
 A nice future enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?
 
