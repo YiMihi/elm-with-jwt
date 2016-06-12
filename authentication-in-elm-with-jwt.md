@@ -506,6 +506,8 @@ The syntax for updating properties of a record is:
 { recordName | property = updatedValue, property2 = updatedValue2 }
 ```
 
+We use `=` in Elm to set values. Colons `:` are reserved for type definitions. A `:` means "has type" so if we were to use them here, we would get a compiler error.
+
 We now have the logic in place for our application. How will we display the UI? We need to render a view.
 
 ```js
@@ -527,9 +529,9 @@ view model =
     ]
 ``` 
 
-The type annotation for the `view` function reads, "`view` accepts model as an argument and returns HTML with a message". We've seen `Msg` a few places before, and now we have defined its union type. A message in Elm is a function that notifies the `update` method that a command was completed. 
+The type annotation for the `view` function reads, "`view` accepts model as an argument and returns HTML with a message". We've seen `Msg` a few places before and now we've defined its union type. If you recall, a command `Cmd` is a request for an effect to take place outside of Elm. A message `Msg` is a function that notifies the `update` method that a command was completed. The view needs to return HTML with this message outcome to display the updated UI.
 
-The `view` function describes the rendered view based on the application state, which is represented by the model. The code for the `view` resembles `HTML` but it's actually composed of functions that correspond to virtual DOM nodes and pass lists as parameters. When the model is updated, the view function executes again. The previous virtual DOM is diffed against the next and the minimal set of updates necessary are run.
+The `view` function describes the rendered view based on the application state, which is represented by the model. The code for `view` resembles `HTML` but it's actually composed of functions that correspond to virtual DOM nodes and pass lists as parameters. When the model is updated, the view function executes again. The previous virtual DOM is diffed against the next and the minimal set of updates necessary are run.
 
 The structure of the HTML functions does somewhat resemble HTML, so it's fairly intuitive to write. The first list argument passed to each node function are the attribute functions with values passed as arguments. The second list contains the contents of the element. For example:
 
@@ -543,20 +545,177 @@ Last, we want to display the quote text. We'll do this with a `blockquote` with 
 
 We now have all the pieces in place for the first phase of our app! If we've done everything correctly, the app should compile and we can view it at [http://localhost:3000](http://localhost:3000). Try clicking the "Grab a quote!" button a few times.
 
-_Note: If the app didn't compile, Elm provides [compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) in the console where you've been running the Gulp task, or also in your editor if you're using one of the Elm syntax highlighting plugins. Elm will not compile if there are errors! This is to avoid errors at runtime (RTE)._
+_Note: If the app didn't compile, Elm provides [compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) in the console where you've been running the compile commands (in our case, Gulp) or also in your editor if you're using one of the Elm syntax highlighting plugins. Elm will not compile if there are errors! This is to avoid errors at runtime (RTE)._
 
 That was a lot of detail, but we're now set on the syntax and basic structure of an Elm app. We'll be moving faster from here on to build the rest of the features of our Chuck Norris Quoter application. 
 
 ### Calling the API
 
+Now we're ready to start filling in some of the blanks we left earlier. In several places we claimed in our type annotations that a command `Cmd` should be returned, but we returned `Cmd.none` instead. Now we'll replace those with the missing command. 
+
+When this step is done, our application should look like this:
+
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step2.jpg)
 
+Clicking the button will call the API and get random Chuck Norris quotes and update the view to display them. Make sure you have [the API](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) running at [http://localhost:3001](http://localhost:3001) so it is accessible to our app.
+
+Once we're successfully `GET`ting quotes from the API, our `Main.elm` file will be:
+
+```js
+module Main exposing (..)
+
+import Html exposing (..)
+import Html.App as Html
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
+
+import Http
+import Task exposing (Task)
+
+main : Program Never
+main = 
+    Html.program 
+        { init = init 
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        , view = view
+        }
+    
+{- 
+    MODEL
+    * Model type 
+    * Initialize model with empty values
+    * Initialize with a random quote
+-}
+
+type alias Model =
+    { quote : String
+    }
+    
+init : (Model, Cmd Msg)
+init =
+    ( Model "", fetchRandomQuoteCmd )
+       
+{-
+    UPDATE
+    * API routes
+    * GET
+    * Messages
+    * Update case
+-}
+
+-- API request URLs
+    
+api : String
+api =
+     "http://localhost:3001/"    
+    
+randomQuoteUrl : String
+randomQuoteUrl =    
+    api ++ "api/random-quote"   
+
+-- GET a random quote (unauthenticated)
+    
+fetchRandomQuote : Platform.Task Http.Error String
+fetchRandomQuote =
+    Http.getString randomQuoteUrl
+    
+fetchRandomQuoteCmd : Cmd Msg
+fetchRandomQuoteCmd =
+    Task.perform HttpError FetchQuoteSuccess fetchRandomQuote   
+
+-- Messages
+
+type Msg 
+    = GetQuote
+    | FetchQuoteSuccess String
+    | HttpError Http.Error      
+
+-- Update
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        GetQuote ->
+            ( model, fetchRandomQuoteCmd )
+
+        FetchQuoteSuccess newQuote ->
+            ( { model | quote = newQuote }, Cmd.none )
+            
+        HttpError _ ->
+            ( model, Cmd.none )  
+                       
+{-
+    VIEW
+    * Get a quote
+-}
+
+view : Model -> Html Msg
+view model =
+    div [ class "container" ] [
+        h2 [ class "text-center" ] [ text "Chuck Norris Quotes" ]
+        , p [ class "text-center" ] [
+            button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
+        ]
+        -- Blockquote with quote
+        , blockquote [] [ 
+            p [] [text model.quote] 
+        ]
+    ]
+```
+
+The first thing we need to do is import the dependencies necessary for making `HTTP` requests:
+
+```js
+import Http
+import Task exposing (Task)
+```
+
+HTTP is self-explanatory: we need this package to make `HTTP` requests. We also need `Task`. A [task](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task) in Elm is similar to a promise in JavaScript. Tasks describe asynchronous operations that can succeed or fail.
+
+Next we'll update our `init` function:
+
+```js
+init : (Model, Cmd Msg)
+init =
+    ( Model "", fetchRandomQuoteCmd )
+```
+
+Now instead of `Cmd.none` in the second element of the tuple, we have a command called `fetchRandomQuoteCmd`. This tells the application to fetch a random quote on initialization. We won't have to click the button before a quote shows up. We'll define this function shortly.
+
+```js
+{-
+    UPDATE
+    * API routes
+    * GET
+    * Messages
+    * Update case
+-}
+
+-- API request URLs
+    
+api : String
+api =
+     "http://localhost:3001/"    
+    
+randomQuoteUrl : String
+randomQuoteUrl =    
+    api ++ "api/random-quote"   
+
+-- GET a random quote (unauthenticated)
+    
+fetchRandomQuote : Platform.Task Http.Error String
+fetchRandomQuote =
+    Http.getString randomQuoteUrl
+    
+fetchRandomQuoteCmd : Cmd Msg
+fetchRandomQuoteCmd =
+    Task.perform HttpError FetchQuoteSuccess fetchRandomQuote
+```    
 
 ---
 
 Image assets (placement TBD):
-
-
 
 <!-- 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3a.jpg) 
