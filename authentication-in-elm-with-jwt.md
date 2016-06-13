@@ -18,7 +18,7 @@ tags:
 ---
 
 **TL;DR:** We can write statically typed, functional, reactive SPAs on the front end with [Elm](http://www.elm-lang.org). Elm's compiler prevents runtime errors and compiles to JavaScript, making it an excellent choice for clean, speedy development. Learn how to write your first Elm app that calls an API and implements authentication with JSON Web Tokens.
-
+local storage
 ---
 
 All JavaScript app developers are likely familiar with this scenario: we implement logic, deploy our code, and then in QA (or worse, production) we encounter a runtime error! Maybe it was something we forgot to write a test for, or it's an obscure edge case we didn't foresee. Either way, when it comes to business logic in production code, we often spend post-launch with the vague threat of errors hanging over our heads.
@@ -33,7 +33,7 @@ If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with a
 
 ## Building an Elm web app
 
-We're going to build a simple Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements, like implementing HTTP and using JavaScript interop to store data in `localStorage`.
+We're going to build a simple Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements, like implementing HTTP and using JavaScript interop to store data in local storage.
 
 If you're [familiar with JavaScript but new to Elm](http://elm-lang.org/docs/from-javascript), the language might look a little strange at first--but once we start building, we'll learn how the [Elm Architecture](http://guide.elm-lang.org/architecture/index.html), [types](http://guide.elm-lang.org/types), and [clean syntax](http://elm-lang.org/docs/syntax) can really streamline development. This tutorial is structured to help JavaScript developers get started with Elm without assuming previous experience with other functional or strongly typed languages. 
 
@@ -2472,7 +2472,7 @@ So where does this initial model come from? We need to write a little bit of Jav
 ...
 ```
 
-There is no Elm here. We're using JavaScript to check `localStorage` for previously saved `model` data. Then we're establishing the `startingState` in a ternary that checks the `storedState` for the model data. If data is found, we `JSON.parse` it and pass it to our Elm app. If there is no model yet, we'll pass `null`.
+There is no Elm here. We're using JavaScript to check local storage for previously saved `model` data. Then we're establishing the `startingState` in a ternary that checks the `storedState` for the model data. If data is found, we `JSON.parse` it and pass it to our Elm app. If there is no model yet, we'll pass `null`.
 
 Then we need to set up ports so we can use features of `localStorage` in our Elm code. We're going to call one port `setStorage` and then subscribe to it so we can do something with messages that come through the port. When `state` data is sent, we'll use the `setItem` method to set `model` and save the stringified data to `localStorage`. The `removeStorage` port will remove the `model` item from `localStorage`. We'll use this when logging out.
 
@@ -2486,7 +2486,7 @@ setStorageHelper model =
     ( model, setStorage model )
 ```
 
-We're going to need a helper function of a specific type to save the model to `localStorage` in multiple places in our `update`. Because the `update` type always expects a tuple with a Model and command message returned, we need our helper to take the Model as an argument and return the same type tuple. We'll understand how this fits in a little more in a moment:
+We're going to need a helper function of a specific type to save the model to local storage in multiple places in our `update`. Because the `update` type always expects a tuple with a Model and command message returned, we need our helper to take the Model as an argument and return the same type tuple. We'll understand how this fits in a little more in a moment:
 
 ```js
 -- Messages
@@ -2521,9 +2521,9 @@ We need to define the type annotation for our `setStorage` and `removeStorage` p
 
 Finally, we're going to replace some of our `update` returns with the `setStorageHelper` and use the `removeStorage` command for logging out. As noted above, this helper will return the tuple that our `update` function expects from all branches, so we won't have to worry about type mismatches.
 
-We will call our `setStorageHelper` function and pass the model updates that we want to propagate to the app and also save to `localStorage`. We're saving the model to storage when the user is successfully granted a token, when they get a protected quote, and when they log out. `GetTokenSuccess` will now also clear the password and error message; there is no reason to save these to storage. On logout, we'll remove the `localStorage` `model` item.
+We will call our `setStorageHelper` function and pass the model updates that we want to propagate to the app and also save to local storage. We're saving the model to storage when the user is successfully granted a token, when they get a protected quote, and when they log out. `GetTokenSuccess` will now also clear the password and error message; there is no reason to save these to storage. On logout, we'll remove the `localStorage` `model` item.
 
-Now when we authenticate, `localStorage` will keep our data so when we refresh or come back later, we won't lose our login state.
+Now when we authenticate, local storage will keep our data so when we refresh or come back later, we won't lose our login state.
 
 If everything compiles and works as expected, we're done with our basic Chuck Norris Quoter application!
 
