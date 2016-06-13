@@ -29,23 +29,23 @@ Enter [Elm](http://www.elm-lang.org): a [functional](https://www.smashingmagazin
 
 Elm's creator [Evan Czaplicki](https://github.com/evancz) [positions Elm with several strong concepts](http://www.elmbark.com/2016/03/16/mainstream-elm-user-focused-design), but we'll touch on two in particular: gradual learning and usage-driven design. _Gradual learning_ is the idea that we can be productive with the language before diving deep. As we use Elm, we are able to gradually learn via development and build up our skillset, but we are not hampered in the beginner stage by a high barrier to entry. _Usage-driven design_ emphasizes starting with the minimimum viable solution and iteratively building on it, but Evan points out that it's best to keep it simple, and the minimum viable solution is often enough by itself.
 
-If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with a nice featureset highlighting several points, including "No runtime exceptions", "Blazing fast rendering", and "Smooth JavaScript interop". But what does this boil down to when writing real code? Let's take a look.
+If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with an attractive featureset highlighting "No runtime exceptions", "Blazing fast rendering", and "Smooth JavaScript interop". But what does this boil down to when writing real code? Let's take a look.
 
 ## Building an Elm web app
 
-We're going to build a simple Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements, like implementing HTTP and using JavaScript interop to store data in local storage.
+We're going to build a small Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements like implementing HTTP and using JavaScript interop to store data in local storage.
 
 If you're [familiar with JavaScript but new to Elm](http://elm-lang.org/docs/from-javascript), the language might look a little strange at first--but once we start building, we'll learn how the [Elm Architecture](http://guide.elm-lang.org/architecture/index.html), [types](http://guide.elm-lang.org/types), and [clean syntax](http://elm-lang.org/docs/syntax) can really streamline development. This tutorial is structured to help JavaScript developers get started with Elm without assuming previous experience with other functional or strongly typed languages. 
 
 ## Setup and Installation
 
-The full source code for our finished app can be [cloned here](https://github.com/YiMihi/elm-app-jwt-api).
+The full source code for our finished app can be [cloned on GitHub here](https://github.com/YiMihi/elm-app-jwt-api).
 
-We're going to use [Gulp](http://gulpjs.com) to build and serve our application locally and [NodeJS](https://nodejs.org/en) to serve our API and install dependencies through the Node Package Manager (`npm`). If you don't already have Node and Gulp installed, please head over to their respective websites and follow instructions for download and installation. 
+We're going to use [Gulp](http://gulpjs.com) to build and serve our application locally and [NodeJS](https://nodejs.org/en) to serve our API and install dependencies through the Node Package Manager (npm). If you don't already have Node and Gulp installed, please visit their respective websites and follow instructions for download and installation. 
 
 _Note: Webpack is an alternative to Gulp. If you're interested in trying a very customizable webpack build in the future for larger Elm projects, check out [elm-webpack-loader](https://github.com/rtfeldman/elm-webpack-loader)._
 
-We'll also need the API. Clone the [NodeJS JWT Authentication sample API](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) repository and follow the README to get it running.
+We also need the API. Clone the [NodeJS JWT Authentication sample API](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) repository and follow the README to get it running.
 
 ### Installing and Configuring Elm
 
@@ -55,7 +55,7 @@ To install Elm globally, run the following command:
 npm install -g elm
 ```
 
-Once Elm is successfully installed, we need to set up our project's configuration. This is done with an `elm-package.json` file:
+Once Elm is successfully installed, we need to set up our project's configuration. This is done with an `elm-package.json`:
 
 ```js
 // elm-package.json
@@ -80,19 +80,19 @@ Once Elm is successfully installed, we need to set up our project's configuratio
 }
 ```
 
-We'll be using Elm v0.17 in this tutorial. The `elm-version` here is restricted to minor point releases of 0.17. There are breaking changes between versions 0.17 and 0.16 and we can likely expect the same for 0.18, hence the restriction to 0.17.x in the `elm-package.json`.
+We'll be using Elm v0.17 in this tutorial. The `elm-version` here is restricted to minor point releases of 0.17. There are breaking changes between versions 0.17 and 0.16 and we can likely expect the same for 0.18.
 
-Now that we've declared our Elm dependencies, we can install them by using the command:
+Now that we've declared our Elm dependencies, we can install them:
 
 ```bash
 elm package install
 ```
 
-When prompted, confirm installation of the dependencies. Once everything has installed successfully, an `/elm-stuff` folder will live at the root of your project. This folder contains all of the Elm package dependencies we specified in our `elm-package.json`.
+Once everything has installed, an `/elm-stuff` folder will live at the root of your project. This folder contains all of the Elm dependencies we specified in our `elm-package.json`.
 
 ### Build Tools
 
-Now we have Node, Gulp, Elm, and the API installed. Let's set up our project's build configuration. Create and populate a `package.json`, which should live at our project's root:
+Now we have Node, Gulp, Elm, and the API installed. Let's set up our build configuration. Create and populate a `package.json`, which should live at our project's root:
 
 ```js
 // package.json
@@ -111,13 +111,13 @@ Now we have Node, Gulp, Elm, and the API installed. Let's set up our project's b
 ...
 ```
 
-Once the `package.json` file is in place, we can run the following command from the project root to install the Node dependencies we specified:
+Once the `package.json` file is in place, install the Node dependencies:
 
 ```bash
 npm install
 ```
 
-Next, we need to create a `gulpfile.js`:
+Next, create a `gulpfile.js`:
 
 ```js
 // gulpfile.js
@@ -172,9 +172,9 @@ gulp.task('build', ['elm', 'static']);
 gulp.task('default', ['connect', 'build', 'watch']);
 ```
 
-The `gulpfile.js` sets up the tasks that will compile our Elm code, copy files to a `/dist` folder when they are saved, and run a local server where we can view our application in a browser. We will primarily be using the default `gulp` task during development of our application. 
+The default `gulp` task will compile Elm, watch and copy files to a `/dist` folder, and run a local server where we can view our application at [http://localhost:3000](http://localhost:3000).
 
-Our development files should be located in a `/src` folder. Please create the `/dist` and `/src` folders at the root of the project. If all steps have been followed so far, our file structure should look like this:
+Our development files should be located in a `/src` folder. Please create the `/dist` and `/src` folders at the root of the project. Our file structure now looks like this:
 
 ```
 /dist
@@ -186,23 +186,19 @@ gulpfile.js
 package.json
 ```
 
-That's it for the build process. When the `gulp` default task is running, we'll be able to access our app in the browser at [http://localhost:3000](http://localhost:3000).
-
 ### Syntax Highlighting
 
-There's one more thing we should do before we start writing Elm, and that is to grab a plugin for our code editor that will provide syntax highlighting and inline compile error messaging. There are plugins available for many popular editors. I like to use [VS Code](https://code.visualstudio.com/Download) with [vscode-elm](https://github.com/sbrink/vscode-elm), but you can [download the plugin for your editor of choice here](http://elm-lang.org/install) and install it. With that done, we're ready to begin coding our Elm app.
+There's one more thing we should do before we start writing Elm, and that is to grab a plugin for our code editor to provide syntax highlighting and inline compile error messaging. There are plugins available for many popular editors. I like to use [VS Code](https://code.visualstudio.com/Download) with [vscode-elm](https://github.com/sbrink/vscode-elm), but you can [download a plugin for your editor of choice here](http://elm-lang.org/install). With syntax highlighting installed, we're ready to begin coding our Elm app.
 
-## Let's Build the Chuck Norris Quoter App
+## Building the Chuck Norris Quoter App
 
-As mentioned, we're going to build an application that does a bit more than echo "Hello world". We're going to connect to an API, register, log in, and make authenticated requests, but we'll start simple. We'll begin by displaying a button that will append a string to our model each time it's clicked.
+We're going to build an app that does more than echo "Hello world". We're going to connect to an API, register, log in, and make authenticated requests--but we'll start simple. First we'll display a button that appends a string to our model each time it's clicked.
 
-When we've got everything hooked up, this is what the first phase of our app will look like:
+Once we've got things running, our app should look like this:
 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step1.jpg)
 
-We'll put all files directly in the `/src` folder. Gulp will compile the Elm code and move the static files to the `/dist` folder where we'll view them in the browser.
-
-Let's fire up our Gulp task in a command window. This will start a local server and begin watching for files to compile and copy to `/dist`:
+Let's fire up our Gulp task. This will start a local server and begin watching for file changes:
 
 ```bash
 gulp
@@ -212,9 +208,11 @@ _Note: Since Gulp is compiling Elm for us, if we have compile errors they will s
 
 ### HTML
 
-Let's start by creating a basic `index.html`:
+We'll start by creating a basic `index.html`:
 
 ```html
+<!-- index.html -->
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -234,11 +232,11 @@ Let's start by creating a basic `index.html`:
 </html>   
 ```
 
-We're titling our app "Chuck Norris Quoter" and loading a JavaScript file called `Main.js`. Elm compiles to JavaScript and this is the file that will be built from our compiled Elm code. 
+We're loading a JavaScript file called `Main.js`. Elm compiles to JavaScript and this is the file that will be built from our compiled Elm code. 
 
-We'll start with [Bootstrap](http://www.getbootstrap.com) and load the CSS from a [CDN](https://www.bootstrapcdn.com) to keep it simple. The second stylesheet is a local `styles.css` file for a few helper overrides.
+We'll also load the [Bootstrap CSS](https://www.bootstrapcdn.com) and a local `styles.css` file for a few helper overrides.
 
-The last thing we'll do in our `index.html` is tell Elm to load our application. The Elm module we're going to export is called `Main` (from `Main.js`), so this is what our index file should use.
+Finally we'll use JS to tell Elm to load our application. The Elm module we're going to export is called `Main` (from `Main.js`).
 
 ### CSS
 
@@ -265,8 +263,6 @@ blockquote {
     font-size: 14px;
 }
 ```
-
-As you can see, for the most part these are simple Bootstrap overrides to make the app display a little nicer.
 
 Our file structure should now look like this:
 
