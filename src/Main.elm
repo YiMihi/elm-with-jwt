@@ -151,7 +151,7 @@ responseText response =
 
 setStorageHelper : Model -> ( Model, Cmd Msg )
 setStorageHelper model = 
-    ( model, setStorage model )
+    ( model, setStorage model )   
 
 -- Messages
 
@@ -172,6 +172,7 @@ type Msg
 -- Ports
 
 port setStorage : Model -> Cmd msg  
+port removeStorage : Model -> Cmd msg
 
 -- Update
 
@@ -212,7 +213,7 @@ update msg model =
             setStorageHelper { model | protectedQuote = newPQuote }
             
         LogOut ->
-            setStorageHelper { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }
+            ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, removeStorage model )
                        
 {-
     VIEW

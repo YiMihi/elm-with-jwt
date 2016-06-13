@@ -19,5 +19,9 @@
         elmApp.ports.setStorage.subscribe(function(state) {
             localStorage.setItem('model', JSON.stringify(state));
         });
+
+        elmApp.ports.removeStorage.subscribe(function() {
+            localStorage.removeItem('model');
+        });
     </script>
 </html>    

@@ -33,7 +33,7 @@ Sounds interesting! If we head over to the [Elm site](http://www.elm-lang.org), 
 
 ## Building an Elm web app
 
-We're going to build a simple Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements, like implementing `HTTP` and using JavaScript interop to store data in `localStorage`.
+We're going to build a simple Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements, like implementing HTTP and using JavaScript interop to store data in `localStorage`.
 
 If you're [familiar with JavaScript but new to Elm](http://elm-lang.org/docs/from-javascript), the language might look a little strange at first--but once we start building, we'll learn how the [Elm Architecture](http://guide.elm-lang.org/architecture/index.html), [types](http://guide.elm-lang.org/types), and [clean syntax](http://elm-lang.org/docs/syntax) can really streamline development. This tutorial is structured to help JavaScript developers get started with Elm without assuming previous experience with other functional or strongly typed languages. 
 
@@ -658,14 +658,14 @@ view model =
     ]
 ```
 
-The first thing we need to do is import the dependencies necessary for making `HTTP` requests:
+The first thing we need to do is import the dependencies necessary for making HTTP requests:
 
 ```js
 import Http
 import Task exposing (Task)
 ```
 
-[Http](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http) is self-explanatory: we need this package to make `HTTP` requests. We also need [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task). A [task](http://guide.elm-lang.org/error_handling/task.html) in Elm is similar to a promise in JavaScript. Tasks describe asynchronous operations that can succeed or fail.
+[Http](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http) is self-explanatory: we need this package to make HTTP requests. We also need [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task). A [task](http://guide.elm-lang.org/error_handling/task.html) in Elm is similar to a promise in JavaScript. Tasks describe asynchronous operations that can succeed or fail.
 
 Next we'll update our `init` function:
 
@@ -675,7 +675,7 @@ init =
     ( Model "", fetchRandomQuoteCmd )
 ```
 
-Now instead of `Cmd.none` in the second element of the tuple, we have a command called `fetchRandomQuoteCmd`. A [command](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Platform-Cmd#Cmd) is a way to tell Elm to go do some effect (like `HTTP`). Our `init` now commands the application to fetch a random quote from the API on initialization. We'll define the `fetchRandomQuoteCmd` function shortly.
+Now instead of `Cmd.none` in the second element of the tuple, we have a command called `fetchRandomQuoteCmd`. A [command](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Platform-Cmd#Cmd) is a way to tell Elm to go do some effect (like HTTP). Our `init` now commands the application to fetch a random quote from the API on initialization. We'll define the `fetchRandomQuoteCmd` function shortly.
 
 ```js
 {-
@@ -711,7 +711,7 @@ We've added some code to our `Update` section. The first thing we'll do is store
 
 The Chuck Norris API returns unauthenticated random quotes as strings, not JSON. Let's create a function called `fetchRandomQuote`. The type annotation declares that this function is a task that either fails with an error or succeeds with a `String`. We can use the [`Http.getString`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#getString) method to make the HTTP request, we just need to send the necessary API route as an argument.
 
-Now recall that this is an effect: `HTTP` is something that happens outside of Elm. A command is needed to request the effect and a message is needed to notify the update that the effect was completed and to deliver its results.
+Now recall that this is an effect: HTTP is something that happens outside of Elm. A command is needed to request the effect and a message is needed to notify the update that the effect was completed and to deliver its results.
 
 We'll do this by defining `fetchRandomQuoteCmd`. This function's type annotation declares that it returns a command with a message. [`Task.perform`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task#perform) is a command that tells the runtime to execute a task. As mentioned earlier, tasks can fail or succeed so we need to pass three arguments to `Task.perform`: a message for failure (`HttpError`), a message for success (`FetchQuoteSuccess`), and what task to perform (`fetchRandomQuote`: the `GET` request to the API). 
 
@@ -2261,7 +2261,7 @@ responseText response =
 
 setStorageHelper : Model -> ( Model, Cmd Msg )
 setStorageHelper model = 
-    ( model, setStorage model )
+    ( model, setStorage model )   
 
 -- Messages
 
@@ -2282,6 +2282,7 @@ type Msg
 -- Ports
 
 port setStorage : Model -> Cmd msg  
+port removeStorage : Model -> Cmd msg
 
 -- Update
 
@@ -2322,7 +2323,7 @@ update msg model =
             setStorageHelper { model | protectedQuote = newPQuote }
             
         LogOut ->
-            setStorageHelper { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }
+            ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, removeStorage model )
                        
 {-
     VIEW
@@ -2459,13 +2460,17 @@ So where does this initial model come from? We need to write a little bit of Jav
     elmApp.ports.setStorage.subscribe(function(state) {
         localStorage.setItem('model', JSON.stringify(state));
     });
+    
+    elmApp.ports.removeStorage.subscribe(function() {
+        localStorage.removeItem('model');
+    });
 </script>
 ...
 ```
 
 There is no Elm here. We're using JavaScript to check `localStorage` for previously saved `model` data. Then we're establishing the `startingState` in a ternary that checks the `storedState` for the model data. If data is found, we `JSON.parse` it and pass it to our Elm app. If there is no model yet, we'll pass `null`.
 
-Then we need to set up a port so we can use features of `localStorage` in our Elm code. We're going to call the port `setStorage` and then subscribe to it so we can do something with messages that come through the port. When `state` data is sent, we'll use the `setItem` method to set `model` and save the stringified data to `localStorage`.
+Then we need to set up ports so we can use features of `localStorage` in our Elm code. We're going to call one port `setStorage` and then subscribe to it so we can do something with messages that come through the port. When `state` data is sent, we'll use the `setItem` method to set `model` and save the stringified data to `localStorage`. The `removeStorage` port will remove the `model` item from `localStorage`. We'll use this when logging out.
 
 Now we'll go back to `Main.elm`:
 
@@ -2487,6 +2492,7 @@ We're going to need a helper function of a specific type to save the model to `l
 -- Ports
 
 port setStorage : Model -> Cmd msg  
+port removeStorage : Model -> Cmd msg
 
 -- Update
 
@@ -2504,14 +2510,14 @@ update msg model =
             setStorageHelper { model | protectedQuote = newPQuote }
             
         LogOut ->
-            setStorageHelper { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }    
+            ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, removeStorage model )    
 ```                
 
-We need to define the type annotation for our `setStorage` port. It will accept a Model and return a command message. We normally write `Cmd Msg` but the lowercase `msg` is significant because this is an [effect manager](http://guide.elm-lang.org/effect_managers) and needs a specific type. The docs are still in progress at the time of writing, but just keep in mind that using `Cmd Msg` here will result in a compiler error (this may change in the future though).
+We need to define the type annotation for our `setStorage` and `removeStorage` ports. They will accept a Model and return a command message. We normally write `Cmd Msg` but the lowercase `msg` is significant because this is an [effect manager](http://guide.elm-lang.org/effect_managers) and needs a specific type. The docs are still in progress at the time of writing, but just keep in mind that using `Cmd Msg` here will result in a compiler error (this may change in the future though). We don't actually need to pass the model to `removeStorage` but again, we receive a compiler error if we do not. 
 
-Finally, we're going to replace some of our `update` returns with the `setStorageHelper`. As noted above, this helper will return the tuple that our `update` function expects from all branches, so we won't have to worry about type mismatches.
+Finally, we're going to replace some of our `update` returns with the `setStorageHelper` and use the `removeStorage` command for logging out. As noted above, this helper will return the tuple that our `update` function expects from all branches, so we won't have to worry about type mismatches.
 
-We will call our `setStorageHelper` function and pass the model updates that we want to propagate to the app and also save to `localStorage`. We're saving the model to storage when the user is successfully granted a token, when they get a protected quote, and when they log out. `GetTokenSuccess` will now also clear the password and error message; there is no reason to save these to storage. On logout, we'll clear all saved properties.
+We will call our `setStorageHelper` function and pass the model updates that we want to propagate to the app and also save to `localStorage`. We're saving the model to storage when the user is successfully granted a token, when they get a protected quote, and when they log out. `GetTokenSuccess` will now also clear the password and error message; there is no reason to save these to storage. On logout, we'll remove the `localStorage` `model` item.
 
 Now when we authenticate, `localStorage` will keep our data so when we refresh or come back later, we won't lose our login state.
 
