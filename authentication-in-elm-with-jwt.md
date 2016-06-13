@@ -2515,7 +2515,14 @@ We will call our `setStorageHelper` function and pass the model updates that we 
 
 Now when we authenticate, `localStorage` will keep our data so when we refresh or come back later, we won't lose our login state.
 
-If everything compiles and works as expected, we're done!
+If everything compiles and works as expected, we're done with our basic Chuck Norris Quoter application!
 
-## Wrapping Up
+## Elm: Now and Future
 
+We made a simple app but covered a lot of ground with Elm's architecture, syntax, and implementation of features you'll likely come across in web application development. Authenticating with JWT was straightforward and the packages offer a lot of extensibility in addition to Elm's core.
+
+Elm began in 2012 as [Evan Czaplicki's Harvard senior thesis](http://elm-lang.org/papers/concurrent-frp.pdf) and it's still a newcomer in the landscape of front-end apps. [NoRedInk](https://www.noredink.com) has been using Elm in production for almost a year ([Introduction to Elm - Richard Feldman](https://www.youtube.com/watch?v=zBHB9i8e3Kc)) with no runtime exceptions. Elm's compiler offers a lot of test coverage "free of charge" which is an amazing perk. The Elm Architecture of model-view-update also [inspired Redux](http://redux.js.org/docs/introduction/PriorArt.html). 
+
+Elm also has an [active community](http://elm-lang.org/community). The [elmlang Slack](http://elmlang.herokuapp.com) is a great place to learn about Elm and chat with skilled developers.
+
+There are a lot of exciting things about Elm and I'm looking forward to seeing how it continues to evolve. Static typing, functional, reactive programming, and friendly documentation and compiler messaging make it a clean and speedy coding experience. There's also a peace of mind that Elm provides--the fear of production runtime errors is a thing of the past. Once Elm compiles, it _just works_, and that is something that no other JavaScript SPA can offer.
