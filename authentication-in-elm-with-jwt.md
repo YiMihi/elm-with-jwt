@@ -208,7 +208,7 @@ Let's fire up our Gulp task in a command window. This will start a local server 
 gulp
 ```
 
-_Note:_ Since Gulp is compiling Elm for us, if we have compile errors they will show up in the command prompt / terminal window. If you have one of the Elm plugins installed in your editor, they should also show up inline in your code.
+_Note: Since Gulp is compiling Elm for us, if we have compile errors they will show up in the command prompt / terminal window. If you have one of the Elm plugins installed in your editor, they should also show up inline in your code._
 
 ### HTML
 
@@ -1933,7 +1933,7 @@ view model =
         ]
 ```
 
-We're going to need a new package for this step:
+We're going to need a new package:
 
 ```js
 ...
@@ -1977,6 +1977,8 @@ protectedQuoteUrl =
     api ++ "api/protected/random-quote"
 ```
 
+Add the API route for the `protectedQuoteUrl`.
+
 ```js
 -- GET request for random protected quote (authenticated)
     
@@ -1989,12 +1991,26 @@ fetchProtectedQuote model =
     }
     |> Http.send Http.defaultSettings  
     |> Http.Decorators.interpretStatus -- decorates Http.send result so error type is Http.Error instead of RawError
-    |> Task.map responseText    
-    
+    |> Task.map responseText
+```     
+
+We'll create the HTTP request to `GET` the protected quote. The type for this request is "`fetchProtectedQuote` takes model as an argument and returns a task that fails with an error or succeeds with a string". This time we need to define an `Authorization` header as a tuple in a list. The value of this header is `Bearer ` plus the user's token string. This authorizes the request so the API will return a protected quote. We then `Http.send` the request with default settings, as we did in `authUser`.
+
+We're going to step through a typing challenge now. If we try to compile before adding `|> Http.Decorators.interpretStatus` we'll receive a type mismatch error. This API route returns a string instead of JSON like our `POST` request to register and login. Elm infers that the type should be `Model -> Task Http.RawError String`, but we've written `Http.Error` instead. We didn't have this problem getting the unprotected quote because we used `Http.getString`. We can't use `getString` here because we need to pass a header. And because the response is not JSON, we can't use [`Http.fromJson`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#fromJson) (which takes a `RawError` and returns an `Error`). We want the error type to be `Http.Error` because we want to use our pre-existing `HttpError` function in our command and `HttpError` expects `Error`, not `RawError`.
+
+We can resolve this by using the `Http.Decorators` package with the [`interpretStatus`](http://package.elm-lang.org/packages/rgrempel/elm-http-decorators/1.0.2/Http-Decorators#interpretStatus) method. This decorates the `Http.send` result so the error type is `Error` instead of `RawError`. Now all our types match again!
+
+Now we need to handle the response. It's a string and not JSON so we won't be decoding it the way we did with `authUser`. We'll [map the response](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task#map) to transform it with a `responseText` function that we'll define in a moment.
+
+Before that, we'll define the command: 
+   
+```js    
 fetchProtectedQuoteCmd : Model -> Cmd Msg
 fetchProtectedQuoteCmd model = 
     Task.perform HttpError FetchProtectedQuoteSuccess <| fetchProtectedQuote model 
 ```
+
+We're quite familiar with these commands now and there are no surprises here. We'll use the same `HttpError` that we used for fetching the unprotected quote at the beginning and we'll create the `FetchProtectedQuoteSuccess` message shortly.
 
 ```js    
 -- Extract GET plain text response to get protected quote    
@@ -2007,6 +2023,8 @@ responseText response =
         _ ->
             ""
 ```
+
+Since we're not using `getString` this time, we need to extract the plain text from the result of our HTTP request. Type annotation says, "`responseText` accepts a response and returns a string" which is our new protected quote. The type of the [response](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Response) is a record that contains, among other things, a `value`. If the [response value](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Value) is a text string (the other alternative is a blob), we'll return the text. In any other case, we'll return an empty string.
 
 ```js
 -- Messages
