@@ -29,7 +29,7 @@ Enter [Elm](http://www.elm-lang.org): a [functional](https://www.smashingmagazin
 
 Elm's creator [Evan Czaplicki](https://github.com/evancz) [positions Elm with several strong concepts](http://www.elmbark.com/2016/03/16/mainstream-elm-user-focused-design), but we'll touch on two in particular: gradual learning and usage-driven design. _Gradual learning_ is the idea that we can be productive with the language before diving deep. As we use Elm, we are able to gradually learn via development and build up our skillset, but we are not hampered in the beginner stage by a high barrier to entry. _Usage-driven design_ emphasizes starting with the minimimum viable solution and iteratively building on it, but Evan points out that it's best to keep it simple, and the minimum viable solution is often enough by itself.
 
-Sounds interesting! If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with a nice featureset highlighting several points, including "No runtime exceptions", "Blazing fast rendering", and "Smooth JavaScript interop". But what does all of this boil down to when we're writing real code? Let's take a look.
+If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with a nice featureset highlighting several points, including "No runtime exceptions", "Blazing fast rendering", and "Smooth JavaScript interop". But what does this boil down to when writing real code? Let's take a look.
 
 ## Building an Elm web app
 
@@ -2431,9 +2431,13 @@ view model =
         ]
 ```
 
-The first thing you may notice is a change in the program:
+The first things you may notice are changes to our `Main` module and program:
 
 ```js
+port module Main exposing (..)
+
+...
+
 main : Program (Maybe Model)
 main = 
     Html.programWithFlags
