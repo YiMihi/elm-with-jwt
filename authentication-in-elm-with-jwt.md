@@ -2111,7 +2111,7 @@ When we're done, our completed `Main.elm` will look like this:
 port module Main exposing (..)
 
 import Html exposing (..)
-import Html.App as Html exposing (programWithFlags)
+import Html.App as Html
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import String
@@ -2430,15 +2430,7 @@ view model =
         ]
 ```
 
-The first thing you may notice is a change in imports:
-
-```js
-...
-import Html.App as Html exposing (programWithFlags)
-...
-```
-
-We've modified `import Html.App as Html` to specifically expose `programWithFlags`.
+The first thing you may notice is a change in the program:
 
 ```js
 main : Program (Maybe Model)

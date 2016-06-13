@@ -1,7 +1,7 @@
 port module Main exposing (..)
 
 import Html exposing (..)
-import Html.App as Html exposing (programWithFlags)
+import Html.App as Html
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import String
