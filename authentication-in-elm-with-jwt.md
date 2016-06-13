@@ -18,7 +18,7 @@ tags:
 ---
 
 **TL;DR:** We can write statically typed, functional, reactive SPAs on the front end with [Elm](http://www.elm-lang.org). Elm's compiler prevents runtime errors and compiles to JavaScript, making it an excellent choice for clean, speedy development. Learn how to write your first Elm app that calls an API and implements authentication with JSON Web Tokens.
-local storage
+
 ---
 
 All JavaScript app developers are likely familiar with this scenario: we implement logic, deploy our code, and then in QA (or worse, production) we encounter a runtime error! Maybe it was something we forgot to write a test for, or it's an obscure edge case we didn't foresee. Either way, when it comes to business logic in production code, we often spend post-launch with the vague threat of errors hanging over our heads.
