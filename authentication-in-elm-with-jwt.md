@@ -17,7 +17,7 @@ tags:
 
 ---
 
-**TL;DR:** TBD...
+**TL;DR:** We can write statically typed, functional, reactive SPAs on the front end with [Elm](http://www.elm-lang.org). Elm's compiler prevents runtime errors and compiles to JavaScript, making it an excellent choice for clean, speedy development. Learn how to write your first Elm app that calls an API and implements authentication with JSON Web Tokens.
 
 ---
 
