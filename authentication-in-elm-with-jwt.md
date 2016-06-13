@@ -2049,10 +2049,37 @@ update msg model =
             ( { model | protectedQuote = newPQuote }, Cmd.none )  
             
         ...
-```  
+```
+
+There are no new concepts in the implementation of the messages for getting the protected quote. `GetProtectedQuote` returns the command and `FetchProtectedQuoteSuccess` updates the model. 
 
 ```js
 ...
+
+-- If user is logged in, show button and quote; if logged out, show a message instructing them to log in
+protectedQuoteView = 
+    let
+        -- If no protected quote, apply a class of "hidden"
+        hideIfNoProtectedQuote : String
+        hideIfNoProtectedQuote = 
+            if String.isEmpty model.protectedQuote then "hidden" else ""
+
+    in        
+        if loggedIn then
+            div [] [
+                p [ class "text-center" ] [
+                    button [ class "btn btn-info", onClick GetProtectedQuote ] [ text "Grab a protected quote!" ]
+                ]
+                -- Blockquote with protected quote: only show if a protectedQuote is present in model
+                , blockquote [ class hideIfNoProtectedQuote ] [ 
+                    p [] [text model.protectedQuote] 
+                ]
+            ]    
+        else
+            p [ class "text-center" ] [ text "Please log in or register to see protected quotes." ]
+                    
+...
+
 , div [ class "jumbotron text-left" ] [
     -- Login/Register form or user greeting
     authBoxView 
@@ -2062,9 +2089,23 @@ update msg model =
     , protectedQuoteView
 ]
 ...
-```                      
+```  
+
+In the `let`, we'll add a `protectedQuoteView` under the `authBoxView` variable. We'll use a variable called `hideIfNoProtectedQuote` with an expression to output a `hidden` class to the `blockquote`. This will prevent the element from being shown if there is no quote yet. 
+
+We'll represent a logged in and logged out state using the `loggedIn` variable we declared earlier. When logged in, we'll show a button to `GetProtectedQuote` and the quote. If logged out, we'll simply show a paragraph with some copy telling the user to log in or register. 
+
+At the bottom of our `view` function, we'll add a `div` with a heading and our `protectedQuoteView`.
+
+Check it out in the browser--our app is almost finished!                  
 
 ### Persist Logins with localStorage
+
+We have all the primary functionality done now. Our app gets random quotes, allows registration, login, and gets authorized random quotes. The last thing we'll do is persist logins.
+
+We don't want our logged-in users to lose their data every time they refresh their browser or leave the app and come back. To do this, we'll implement `localStorage` with Elm using [JavaScript interop](http://guide.elm-lang.org/interop/javascript.html). This is a way to take advantage of features of JavaScript in Elm code. After all, Elm compiles to JavaScript so it only makes sense that we would be able to do this.
+
+When we're done, our completed `Main.elm` will look like this:
 
 ```js
 port module Main exposing (..)
@@ -2218,8 +2259,8 @@ responseText response =
 
 -- Helper to update model and set localStorage with the updated model
 
-setStorageCmd : Model -> ( Model, Cmd Msg )
-setStorageCmd model = 
+setStorageHelper : Model -> ( Model, Cmd Msg )
+setStorageHelper model = 
     ( model, setStorage model )
 
 -- Messages
@@ -2272,16 +2313,16 @@ update msg model =
             ( model, authUserCmd model loginUrl ) 
 
         GetTokenSuccess newToken ->
-            setStorageCmd { model | token = newToken, password = "", errorMsg = "" }
+            setStorageHelper { model | token = newToken, password = "", errorMsg = "" }
 
         GetProtectedQuote ->
             ( model, fetchProtectedQuoteCmd model )
 
         FetchProtectedQuoteSuccess newPQuote ->
-            setStorageCmd { model | protectedQuote = newPQuote }
+            setStorageHelper { model | protectedQuote = newPQuote }
             
         LogOut ->
-            setStorageCmd { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }
+            setStorageHelper { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }
                        
 {-
     VIEW
@@ -2389,11 +2430,15 @@ view model =
         ]
 ```
 
+The first thing you may notice is a change in imports:
+
 ```js
 ...
 import Html.App as Html exposing (programWithFlags)
 ...
 ```
+
+We've modified `import Html.App as Html` to specifically expose `programWithFlags`.
 
 ```js
 main : Program (Maybe Model)
@@ -2406,13 +2451,41 @@ main =
         }
 ```
 
+We need to change our `main` from a `program` to `programWithFlags`. This kind of program can pass flags on initialization. The type therefore changes from `Program Never` to `Program (Maybe Model)`. This means we might have a model on initialization. If the model is already in localStorage, it will be available. If we don't have anything in localStorage when we arrive, we'll initialize without it.
+
+So where does this initial model come from? We need to write a little bit of JavaScript in our `index.html`:
+
+```html
+<!-- index.html -->
+
+...    
+<script>
+    var storedState = localStorage.getItem('model');
+    var startingState = storedState ? JSON.parse(storedState) : null;
+    var elmApp = Elm.Main.fullscreen(startingState);
+
+    elmApp.ports.setStorage.subscribe(function(state) {
+        localStorage.setItem('model', JSON.stringify(state));
+    });
+</script>
+...
+```
+
+There is no Elm here. We're using JavaScript to check `localStorage` for previously saved `model` data. Then we're establishing the `startingState` in a ternary that checks the `storedState` for the model data. If data is found, we `JSON.parse` it and pass it to our Elm app. If there is no model yet, we'll pass `null`.
+
+Then we need to set up a port so we can use features of `localStorage` in our Elm code. We're going to call the port `setStorage` and then subscribe to it so we can do something with messages that come through the port. When `state` data is sent, we'll use the `setItem` method to set `model` and save the stringified data to `localStorage`.
+
+Now we'll go back to `Main.elm`:
+
 ```js
 -- Helper to update model and set localStorage with the updated model
 
-setStorageCmd : Model -> ( Model, Cmd Msg )
-setStorageCmd model = 
+setStorageHelper : Model -> ( Model, Cmd Msg )
+setStorageHelper model = 
     ( model, setStorage model )
 ```
+
+We're going to need a helper function of a specific type to save the model to `localStorage` in multiple places in our `update`. Because the `update` type always expects a tuple with a Model and command message returned, we need our helper to take the Model as an argument and return the same type tuple. We'll understand how this fits in a little more in a moment:
 
 ```js
 -- Messages
@@ -2431,12 +2504,26 @@ update msg model =
         ...
 
         GetTokenSuccess newToken ->
-            setStorageCmd { model | token = newToken, password = "", errorMsg = "" }
+            setStorageHelper { model | token = newToken, password = "", errorMsg = "" }
 
         ...
 
         FetchProtectedQuoteSuccess newPQuote ->
-            setStorageCmd { model | protectedQuote = newPQuote }
+            setStorageHelper { model | protectedQuote = newPQuote }
             
-        ...
+        LogOut ->
+            setStorageHelper { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }    
 ```                
+
+We need to define the type annotation for our `setStorage` port. It will accept a Model and return a command message. We normally write `Cmd Msg` but the lowercase `msg` is significant because this is an [effect manager](http://guide.elm-lang.org/effect_managers) and needs a specific type. The docs are still in progress at the time of writing, but just keep in mind that using `Cmd Msg` here will result in a compiler error (this may change in the future though).
+
+Finally, we're going to replace some of our `update` returns with the `setStorageHelper`. As noted above, this helper will return the tuple that our `update` function expects from all branches, so we won't have to worry about type mismatches.
+
+We will call our `setStorageHelper` function and pass the model updates that we want to propagate to the app and also save to `localStorage`. We're saving the model to storage when the user is successfully granted a token, when they get a protected quote, and when they log out. `GetTokenSuccess` will now also clear the password and error message; there is no reason to save these to storage. On logout, we'll clear all saved properties.
+
+Now when we authenticate, `localStorage` will keep our data so when we refresh or come back later, we won't lose our login state.
+
+If everything compiles and works as expected, we're done!
+
+## Wrapping Up
+

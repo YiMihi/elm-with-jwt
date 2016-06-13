@@ -149,8 +149,8 @@ responseText response =
 
 -- Helper to update model and set localStorage with the updated model
 
-setStorageCmd : Model -> ( Model, Cmd Msg )
-setStorageCmd model = 
+setStorageHelper : Model -> ( Model, Cmd Msg )
+setStorageHelper model = 
     ( model, setStorage model )
 
 -- Messages
@@ -203,16 +203,16 @@ update msg model =
             ( model, authUserCmd model loginUrl ) 
 
         GetTokenSuccess newToken ->
-            setStorageCmd { model | token = newToken, password = "", errorMsg = "" }
+            setStorageHelper { model | token = newToken, password = "", errorMsg = "" }
 
         GetProtectedQuote ->
             ( model, fetchProtectedQuoteCmd model )
 
         FetchProtectedQuoteSuccess newPQuote ->
-            setStorageCmd { model | protectedQuote = newPQuote }
+            setStorageHelper { model | protectedQuote = newPQuote }
             
         LogOut ->
-            setStorageCmd { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }
+            setStorageHelper { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }
                        
 {-
     VIEW
