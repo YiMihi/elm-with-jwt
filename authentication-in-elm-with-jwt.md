@@ -1226,7 +1226,7 @@ update msg model =
             ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, removeStorage model )    
 ```                
 
-We need to define the type annotation for our `setStorage` and `removeStorage` ports. They'll take a model and return a command message. We normally write `Cmd Msg` but the lowercase `msg` is significant because this is an [effect manager](http://guide.elm-lang.org/effect_managers) and needs a specific type. The docs are still in progress at the time of writing, but just keep in mind that using `Cmd Msg` here will result in a compiler error (this may change in a future Elm release). We're not going to use the model in `removeStorage` but again, we receive a compiler error if we don't pass it as an argument. 
+We need to define the type annotation for our `setStorage` and `removeStorage` ports. They'll take a model and return a command. The lowercase `msg` is significant because this is an [effect manager](http://guide.elm-lang.org/effect_managers) and its type is actually `Cmd a`. It does not send messages back to the program. Keep in mind that using `Cmd Msg` here will result in a compiler error.
 
 Finally, we're going to replace some of our `update` returns with the `setStorageHelper` and use the `removeStorage` command for logging out. This helper will return the tuple that our `update` function expects from all branches so we won't have to worry about type mismatches.
 
