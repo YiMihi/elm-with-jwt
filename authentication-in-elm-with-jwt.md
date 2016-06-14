@@ -35,7 +35,7 @@ If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with a
 
 We're going to build a small Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements like implementing HTTP and using JavaScript interop to store data in local storage.
 
-If you're [familiar with JavaScript but new to Elm](http://elm-lang.org/docs/from-javascript), the language might look a little strange at first--but once we start building, we'll learn how the [Elm Architecture](http://guide.elm-lang.org/architecture/index.html), [types](http://guide.elm-lang.org/types), and [clean syntax](http://elm-lang.org/docs/syntax) can really streamline development. This tutorial is structured to help JavaScript developers get started with Elm without assuming previous experience with other functional or strongly typed languages. 
+If you're [familiar with JavaScript but new to Elm](http://elm-lang.org/docs/from-javascript) the language might look a little strange at first--but once we start building, we'll learn how the [Elm Architecture](http://guide.elm-lang.org/architecture/index.html), [types](http://guide.elm-lang.org/types), and [clean syntax](http://elm-lang.org/docs/syntax) can really streamline development. This tutorial is structured to help JavaScript developers get started with Elm without assuming previous experience with other functional or strongly typed languages. 
 
 ## Setup and Installation
 
@@ -43,7 +43,7 @@ The full source code for our finished app can be [cloned on GitHub here](https:/
 
 We're going to use [Gulp](http://gulpjs.com) to build and serve our application locally and [NodeJS](https://nodejs.org/en) to serve our API and install dependencies through the Node Package Manager (npm). If you don't already have Node and Gulp installed, please visit their respective websites and follow instructions for download and installation. 
 
-_Note: Webpack is an alternative to Gulp. If you're interested in trying a very customizable webpack build in the future for larger Elm projects, check out [elm-webpack-loader](https://github.com/rtfeldman/elm-webpack-loader)._
+_Note: Webpack is an alternative to Gulp. If you're interested in trying a customizable webpack build in the future for larger Elm projects, check out [elm-webpack-loader](https://github.com/rtfeldman/elm-webpack-loader)._
 
 We also need the API. Clone the [NodeJS JWT Authentication sample API](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) repository and follow the README to get it running.
 
@@ -359,7 +359,7 @@ type alias Model =
 
 A [type alias](http://guide.elm-lang.org/types/type_aliases.html) is a definition for use in type annotations. In future type annotations, we can now say `Something : Model` and `Model` would be replaced by the contents of the type alias.
 
-We expect a record with a property of `quote` that has `String` value. We've mentioned [records](http://elm-lang.org/docs/records) a few times, so we'll expand on them briefly: records look similar to objects in JavaScript. However, records in Elm are immutable: they hold labeled data but do not have inheritance or methods. Elm's functional paradigm uses persistent data structures so "updating the model" returns a new model with only the changed data copied.
+We expect a record with a property of `quote` that has a string value. We've mentioned [records](http://elm-lang.org/docs/records) a few times, so we'll expand on them briefly: records look similar to objects in JavaScript. However, records in Elm are immutable: they hold labeled data but do not have inheritance or methods. Elm's functional paradigm uses persistent data structures so "updating the model" returns a new model with only the changed data copied.
 
 Now we've come to the `init` function that we referenced in our `main` program:
 
@@ -432,7 +432,7 @@ view model =
     ]
 ``` 
 
-The type annotation for the `view` function reads, "`view` accepts model as an argument and returns HTML with a message". We've seen `Msg` a few places and now we've defined its union type. A command `Cmd` is a request for an effect to take place outside of Elm. A message `Msg` is a function that notifies the `update` method that a command was completed. The view needs to return HTML with the message outcome to display the updated UI.
+The type annotation for the `view` function reads, "`view` takes model as an argument and returns HTML with a message". We've seen `Msg` a few places and now we've defined its union type. A command `Cmd` is a request for an effect to take place outside of Elm. A message `Msg` is a function that notifies the `update` method that a command was completed. The view needs to return HTML with the message outcome to display the updated UI.
 
 The `view` function describes the rendered view based on the model. The code for `view` resembles HTML but is actually composed of functions that correspond to virtual DOM nodes and pass lists as arguments. When the model is updated, the view function executes again. The previous virtual DOM is diffed against the next and the minimal set of updates necessary are run.
 
@@ -574,7 +574,7 @@ A lowercase variable `a` means "anything could go here". The above means "takes 
 
 `[1, 2, 3]` has a type of `List number`: a list that only contains numbers. `[]` is type `List a`: Elm infers that this is a list that could contain anything.
 
-Elm always infers types. If we've declared type definitions, Elm checks its inferences against our definitions. We're defining types upfront in most places in our app. It's best practice to define the types at the top-level at a minimum. If Elm finds a type mismatch, it will tell us what type it has inferred. Resolving type mismatches can be one of the larger challenges to developers coming from a loosely typed language like JS (without Typescript), so it's worth spending time getting comfortable with this. 
+Elm always infers types. If we've declared type definitions, Elm checks its inferences against our definitions. We'll define types upfront in most places in our app. It's best practice to define the types at the top-level at a minimum. If Elm finds a type mismatch, it will tell us what type it has inferred. Resolving type mismatches can be one of the larger challenges to developers coming from a loosely typed language like JS (without Typescript), so it's worth spending time getting comfortable with this. 
 
 ### Register a User
 
@@ -725,7 +725,7 @@ When registering or logging in a user, the response from the API is JSON shaped 
 }
 ```
 
-Recall that `:` means "has type" in Elm. We're taking the `id_token` and extracting its contents as a string that will be returned on success.   
+Recall that `:` means "has type" in Elm. We'll take the `id_token` and extract its contents as a string that will be returned on success.   
 
 Now we will do something with the result and set up a way for our UI to interact with the model:
 
@@ -1183,7 +1183,7 @@ So where does this initial model come from? We need to write a little bit of Jav
 
 There is no Elm here. We will use JavaScript to check local storage for previously saved `model` data. Then we'll establish the `startingState` in a ternary that checks `storedState` for model data. If data is found we'll `JSON.parse` it and pass it to our Elm app. If there is no model yet, we'll pass `null`.
 
-Then we need to set up ports so we can use features of `localStorage` in our Elm code. We're going to call one port `setStorage` and subscribe to it so we can do something with messages that come through the port. When `state` data is sent we'll use the `setItem` method to set a `model` and save the stringified data to `localStorage`. The `removeStorage` port will remove the `model` item from `localStorage`. We'll use this when logging out.
+Then we need to set up ports so we can use features of `localStorage` in our Elm code. We'll call one port `setStorage` and subscribe to it so we can do something with messages that come through the port. When `state` data is sent we'll use the `setItem` method to set a `model` and save the stringified data to `localStorage`. The `removeStorage` port will remove the `model` item from `localStorage`. We'll use this when logging out.
 
 Now we'll go back to `Main.elm`:
 
