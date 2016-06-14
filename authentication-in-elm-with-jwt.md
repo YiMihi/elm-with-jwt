@@ -31,7 +31,7 @@ Elm's creator [Evan Czaplicki](https://github.com/evancz) [positions Elm with se
 
 If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with an attractive featureset highlighting "No runtime exceptions", "Blazing fast rendering", and "Smooth JavaScript interop". But what does this boil down to when writing real code? Let's take a look.
 
-## Building an Elm web app
+## Building an Elm Web App
 
 We're going to build a small Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements like implementing HTTP and using JavaScript interop to store data in local storage.
 
@@ -190,7 +190,7 @@ package.json
 
 There's one more thing we should do before we start writing Elm, and that is to grab a plugin for our code editor to provide syntax highlighting and inline compile error messaging. There are plugins available for many popular editors. I like to use [VS Code](https://code.visualstudio.com/Download) with [vscode-elm](https://github.com/sbrink/vscode-elm), but you can [download a plugin for your editor of choice here](http://elm-lang.org/install). With syntax highlighting installed, we're ready to begin coding our Elm app.
 
-## Building the Chuck Norris Quoter App
+## Chuck Norris Quoter App
 
 We're going to build an app that does more than echo "Hello world". We're going to connect to an API, register, log in, and make authenticated requests--but we'll start simple. First we'll display a button that appends a string to our model each time it's clicked.
 
@@ -278,11 +278,11 @@ gulpfile.js
 package.json
 ```
 
-### Introduction to Elm with Main.elm
+### Introduction to Elm
 
 We're ready to start writing Elm. Create a file in the `/src` folder called `Main.elm`. The full code for this step is available in the source repository on GitHub:
 
- **[Main.elm - Step 1](https://github.com/YiMihi/elm-app-jwt-api/blob/20dc6e6e8c049f68dbf47492933659b9d19103c1/src/Main.elm)**
+ **[Main.elm - Introduction to Elm](https://github.com/YiMihi/elm-app-jwt-api/blob/20dc6e6e8c049f68dbf47492933659b9d19103c1/src/Main.elm)**
 
 If you're already familiar with Elm you can skip ahead. If Elm is brand new to you, keep reading: we'll introduce The Elm Architecture and Elm's language syntax by thoroughly breaking down this code. Make sure you have a good grasp of this section before moving on; the next sections will assume an understanding of the syntax and concepts.
 
@@ -464,7 +464,7 @@ Clicking the button will call the API to get and display random Chuck Norris quo
 
 Once we're successfully getting quotes, our source code will look like this: 
 
-**[Main.elm - Step 2](https://github.com/YiMihi/elm-app-jwt-api/blob/7713fb80e9b2f48558395bf2df0cff891121fa7e/src/Main.elm)**
+**[Main.elm - Calling the API](https://github.com/YiMihi/elm-app-jwt-api/blob/7713fb80e9b2f48558395bf2df0cff891121fa7e/src/Main.elm)**
 
 The first thing we need to do is import the dependencies necessary for making HTTP requests:
 
@@ -576,7 +576,7 @@ A lowercase variable `a` means "anything could go here". The above means "takes 
 
 Elm always infers types. If we've declared type definitions, Elm checks its inferences against our definitions. We'll define types upfront in most places in our app. It's best practice to define the types at the top-level at a minimum. If Elm finds a type mismatch, it will tell us what type it has inferred. Resolving type mismatches can be one of the larger challenges to developers coming from a loosely typed language like JS (without Typescript), so it's worth spending time getting comfortable with this. 
 
-### Register a User
+### Registering a User
 
 We're now getting quotes from the API. We also need registration so users can be issued [JSON Web Tokens](https://auth0.com/learn/json-web-tokens) with which to access protected quotes. We'll create a form that submits a `POST` request to the API to create a new user and return a token.
 
@@ -588,7 +588,7 @@ After the user has registered, we'll display a welcome message:
 
 Here's the complete `Main.elm` code for this step:
 
-**[Main.elm - Step 3](https://github.com/YiMihi/elm-app-jwt-api/blob/2430b530ee437cc3c742ef12245008439108987f/src/Main.elm)**
+**[Main.elm - Registering a User](https://github.com/YiMihi/elm-app-jwt-api/blob/2430b530ee437cc3c742ef12245008439108987f/src/Main.elm)**
 
 Starting with new imports:
 
@@ -873,7 +873,7 @@ Finally, we'll use our `authBoxView` variable in the main view. We'll place it b
 
 Now we can register new users in our app. When successfully registered, the user will receive a token and be authenticated. The view will then update to show the greeting message. Try it out in the browser. You should also try to trigger an error message!
 
-### Log In and Log Out
+### Logging In and Logging Out
 
 Now that users can register, they need to be able to log in with existing accounts.
 
@@ -885,7 +885,7 @@ We also need the ability to log out.
 
 The full `Main.elm` code with login and logout implemented will look like this:
 
-**[Main.elm - Step 4](https://github.com/YiMihi/elm-app-jwt-api/blob/22e9860f50be48410ee38a2f4a09f2caac9e4844/src/Main.elm)**
+**[Main.elm - Logging In and Logging Out](https://github.com/YiMihi/elm-app-jwt-api/blob/22e9860f50be48410ee38a2f4a09f2caac9e4844/src/Main.elm)**
 
 Login works like Register (and uses the same request body), so creating its functionality should be straightforward. 
 
@@ -959,7 +959,7 @@ Registered users can now log in and log out. Our application is really coming to
 
 _Note: A nice enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?_
 
-### Get Protected Quotes
+### Getting Protected Quotes
 
 It's time to make authorized requests to the API to get protected quotes for authenticated users. Our logged out state will look like this:
 
@@ -971,7 +971,7 @@ If a user is logged in, they'll be able to click a button to make API requests t
 
 Here's the completed `Main.elm` code for this step:
 
-**[Main.elm - Step 5](https://github.com/YiMihi/elm-app-jwt-api/blob/eeedaf70d2dd5f3848dbd539077c7d69a5745d04/src/Main.elm)**
+**[Main.elm - Getting Protected Quotes](https://github.com/YiMihi/elm-app-jwt-api/blob/eeedaf70d2dd5f3848dbd539077c7d69a5745d04/src/Main.elm)**
 
 We're going to need a new package:
 
@@ -1134,7 +1134,7 @@ At the bottom of our `view` function, we'll add a `div` with a heading and our `
 
 Check it out in the browser--our app is almost finished!
 
-### Persist Logins with Local Storage
+### Persisting Logins with Local Storage
 
 We have the primary functionality done now. Our app gets quotes, allows registration, login, and gets authorized quotes. The last thing we'll do is persist logins.
 
@@ -1142,7 +1142,7 @@ We don't want our logged-in users to lose their data if they refresh their brows
 
 When we're done, our completed `Main.elm` will look like this:
 
-**[Main.elm - Step 6](https://github.com/YiMihi/elm-app-jwt-api/blob/ff445bd645cc4595446742ca16232887d83d770e/src/Main.elm)**
+**[Main.elm - Persisting Logins with Local Storage](https://github.com/YiMihi/elm-app-jwt-api/blob/ff445bd645cc4595446742ca16232887d83d770e/src/Main.elm)**
 
 The first things you may notice are changes to our `Main` module and program:
 
@@ -1161,7 +1161,7 @@ main =
         }
 ```
 
-We need to switch from `program` to `programWithFlags`. The type therefore changes from `Program Never` to `Program (Maybe Model)`. This means we might have a model provided at initialization. If the model is already in local storage it will be available. If we don't have anything in stored when we arrive we'll initialize without it.
+We need to switch from `program` to `programWithFlags`. The type therefore changes from `Program Never` to `Program (Maybe Model)`. This means we might have a model provided at initialization. If the model is already in local storage it will be available. If we don't have anything stored when we arrive we'll initialize without it.
 
 So where does this initial model come from? We need to write a little bit of JavaScript in our `index.html`:
 
