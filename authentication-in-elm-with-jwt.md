@@ -1586,7 +1586,7 @@ It's time to make authorized requests to the API to get protected quotes for aut
 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5a.jpg) 
 
-If the user is logged in, they will be able to click a button to make API requests to get protected quotes:
+If a user is logged in, they'll be able to click a button to make API requests to get protected quotes:
 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step5b-6.jpg)
 
@@ -1902,9 +1902,7 @@ view model =
 We're going to need a new package:
 
 ```js
-...
 import Http.Decorators
-...
 ```
 
 We'll go into more detail regarding why this is needed when we make the `GET` request for the protected quotes.
@@ -1943,7 +1941,7 @@ protectedQuoteUrl =
     api ++ "api/protected/random-quote"
 ```
 
-Add the API route for the `protectedQuoteUrl`.
+Add the API route for the `protectedQuoteUrl`: [http://localhost:3001/api/protected/random-quote](http://localhost:3001/api/protected/random-quote).
 
 ```js
 -- GET request for random protected quote (authenticated)
@@ -1960,11 +1958,11 @@ fetchProtectedQuote model =
     |> Task.map responseText
 ```     
 
-We'll create the HTTP request to `GET` the protected quote. The type for this request is "`fetchProtectedQuote` takes model as an argument and returns a task that fails with an error or succeeds with a string". This time we need to define an `Authorization` header as a tuple in a list. The value of this header is `Bearer ` plus the user's token string. This authorizes the request so the API will return a protected quote. We then `Http.send` the request with default settings, as we did in `authUser`.
+We'll create the HTTP request to `GET` the protected quote. The type for this request is "`fetchProtectedQuote` takes model as an argument and returns a task that fails with an error or succeeds with a string". This time we need to define an `Authorization` header. The value of this header is `Bearer ` plus the user's token string. We then `Http.send` the request with default settings like we did in `authUser`.
 
-We're going to step through a typing challenge now. If we try to compile before adding `|> Http.Decorators.interpretStatus` we'll receive a type mismatch error. This API route returns a string instead of JSON like our `POST` request to register and login. Elm infers that the type should be `Model -> Task Http.RawError String`, but we've written `Http.Error` instead. We didn't have this problem getting the unprotected quote because we used `Http.getString`. We can't use `getString` here because we need to pass a header. And because the response is not JSON, we can't use [`Http.fromJson`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#fromJson) (which takes a `RawError` and returns an `Error`). We want the error type to be `Http.Error` because we want to use our pre-existing `HttpError` function in our command and `HttpError` expects `Error`, not `RawError`.
+We're going to step through a typing challenge now. If we try to compile before adding `|> Http.Decorators.interpretStatus` we'll receive a type mismatch error. This API route returns a string instead of JSON like our `authUser` `POST` request. Elm infers that the type should be `Model -> Task Http.RawError String` but we've written `Http.Error` instead. We didn't have this problem getting the _unprotected_ quote because we used `Http.getString`. We can't use `getString` here because we need to pass a custom header. And because the response is not JSON, we can't use [`Http.fromJson`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#fromJson) (which takes a `RawError` and returns an `Error`). We want the error type to be `Http.Error` because we want to use our pre-existing `HttpError` function in our command and `HttpError` expects `Error`, not `RawError`.
 
-We can resolve this by using the `Http.Decorators` package with the [`interpretStatus`](http://package.elm-lang.org/packages/rgrempel/elm-http-decorators/1.0.2/Http-Decorators#interpretStatus) method. This decorates the `Http.send` result so the error type is `Error` instead of `RawError`. Now all our types match again!
+We can resolve this by using [`Http.Decorators.interpretStatus`](http://package.elm-lang.org/packages/rgrempel/elm-http-decorators/1.0.2/Http-Decorators#interpretStatus). This decorates the `Http.send` result so the error type is `Error` instead of `RawError`. Now all our types match again!
 
 Now we need to handle the response. It's a string and not JSON so we won't be decoding it the way we did with `authUser`. We'll [map the response](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task#map) to transform it with a `responseText` function that we'll define in a moment.
 
@@ -1976,7 +1974,7 @@ fetchProtectedQuoteCmd model =
     Task.perform HttpError FetchProtectedQuoteSuccess <| fetchProtectedQuote model 
 ```
 
-We're quite familiar with these commands now and there are no surprises here. We'll use the same `HttpError` that we used for fetching the unprotected quote at the beginning and we'll create the `FetchProtectedQuoteSuccess` message shortly.
+We're quite familiar with these commands now and there are no surprises here. We'll use the same `HttpError` that we used for fetching the unprotected quote and we'll create the `FetchProtectedQuoteSuccess` message shortly.
 
 ```js    
 -- Extract GET plain text response to get protected quote    
@@ -1990,7 +1988,7 @@ responseText response =
             ""
 ```
 
-Since we're not using `getString` this time, we need to extract the plain text from the result of our HTTP request. Type annotation says, "`responseText` accepts a response and returns a string" which is our new protected quote. The type of the [response](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Response) is a record that contains, among other things, a `value`. If the [response value](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Value) is a text string (the other alternative is a blob), we'll return the text. In any other case, we'll return an empty string.
+Since we're not using `getString` we need to extract the plain text from the result of our HTTP request. Type annotation says, "`responseText` takes a response and returns a string" which is our new protected quote. The type of the [response](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Response) is a record that contains, among other things, a `value`. If the [response value](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Value) is a text string we'll return the text. In any other case we'll return an empty string.
 
 ```js
 -- Messages
@@ -2017,11 +2015,9 @@ update msg model =
         ...
 ```
 
-There are no new concepts in the implementation of the messages for getting the protected quote. `GetProtectedQuote` returns the command and `FetchProtectedQuoteSuccess` updates the model. 
+There are no new concepts in the implementation of the messages here. `GetProtectedQuote` returns the command and `FetchProtectedQuoteSuccess` updates the model. 
 
 ```js
-...
-
 -- If user is logged in, show button and quote; if logged out, show a message instructing them to log in
 protectedQuoteView = 
     let
@@ -2054,22 +2050,21 @@ protectedQuoteView =
     -- Protected quotes
     , protectedQuoteView
 ]
-...
 ```  
 
-In the `let`, we'll add a `protectedQuoteView` under the `authBoxView` variable. We'll use a variable called `hideIfNoProtectedQuote` with an expression to output a `hidden` class to the `blockquote`. This will prevent the element from being shown if there is no quote yet. 
+In the `let`, we'll add a `protectedQuoteView` under the `authBoxView` variable. We'll use a variable called `hideIfNoProtectedQuote` with an expression to output a `hidden` class to the `blockquote`. This will prevent the element from being shown if there is no quote. 
 
-We'll represent a logged in and logged out state using the `loggedIn` variable we declared earlier. When logged in, we'll show a button to `GetProtectedQuote` and the quote. If logged out, we'll simply show a paragraph with some copy telling the user to log in or register. 
+We'll represent logged in and logged out states using the `loggedIn` variable we declared earlier. When logged in we'll show a button to `GetProtectedQuote` and the quote. When logged out we'll show a paragraph with copy telling the user to log in or register. 
 
 At the bottom of our `view` function, we'll add a `div` with a heading and our `protectedQuoteView`.
 
-Check it out in the browser--our app is almost finished!                  
+Check it out in the browser--our app is almost finished!
 
-### Persist Logins with localStorage
+### Persist Logins with Local Storage
 
-We have all the primary functionality done now. Our app gets random quotes, allows registration, login, and gets authorized random quotes. The last thing we'll do is persist logins.
+We have the primary functionality done now. Our app gets quotes, allows registration, login, and gets authorized quotes. The last thing we'll do is persist logins.
 
-We don't want our logged-in users to lose their data every time they refresh their browser or leave the app and come back. To do this, we'll implement `localStorage` with Elm using [JavaScript interop](http://guide.elm-lang.org/interop/javascript.html). This is a way to take advantage of features of JavaScript in Elm code. After all, Elm compiles to JavaScript so it only makes sense that we would be able to do this.
+We don't want our logged-in users to lose their data if they refresh their browser or leave and come back. To do this we'll implement `localStorage` with Elm using [JavaScript interop](http://guide.elm-lang.org/interop/javascript.html). This is a way to take advantage of features of JS in Elm code. After all, Elm compiles to JavaScript so it only makes sense that we would be able to do this.
 
 When we're done, our completed `Main.elm` will look like this:
 
@@ -2414,15 +2409,12 @@ main =
         }
 ```
 
-We need to change our `main` from a `program` to `programWithFlags`. This kind of program can pass flags on initialization. The type therefore changes from `Program Never` to `Program (Maybe Model)`. This means we might have a model on initialization. If the model is already in localStorage, it will be available. If we don't have anything in localStorage when we arrive, we'll initialize without it.
+We need to switch from `program` to `programWithFlags`. The type therefore changes from `Program Never` to `Program (Maybe Model)`. This means we might have a model provided at initialization. If the model is already in local storage it will be available. If we don't have anything in stored when we arrive we'll initialize without it.
 
 So where does this initial model come from? We need to write a little bit of JavaScript in our `index.html`:
 
-```html
-<!-- index.html -->
-
+```js
 ...    
-<script>
     var storedState = localStorage.getItem('model');
     var startingState = storedState ? JSON.parse(storedState) : null;
     var elmApp = Elm.Main.fullscreen(startingState);
@@ -2434,13 +2426,12 @@ So where does this initial model come from? We need to write a little bit of Jav
     elmApp.ports.removeStorage.subscribe(function() {
         localStorage.removeItem('model');
     });
-</script>
 ...
 ```
 
-There is no Elm here. We're using JavaScript to check local storage for previously saved `model` data. Then we're establishing the `startingState` in a ternary that checks the `storedState` for the model data. If data is found, we `JSON.parse` it and pass it to our Elm app. If there is no model yet, we'll pass `null`.
+There is no Elm here. We will use JavaScript to check local storage for previously saved `model` data. Then we'll establish the `startingState` in a ternary that checks `storedState` for model data. If data is found we'll `JSON.parse` it and pass it to our Elm app. If there is no model yet, we'll pass `null`.
 
-Then we need to set up ports so we can use features of `localStorage` in our Elm code. We're going to call one port `setStorage` and then subscribe to it so we can do something with messages that come through the port. When `state` data is sent, we'll use the `setItem` method to set `model` and save the stringified data to `localStorage`. The `removeStorage` port will remove the `model` item from `localStorage`. We'll use this when logging out.
+Then we need to set up ports so we can use features of `localStorage` in our Elm code. We're going to call one port `setStorage` and subscribe to it so we can do something with messages that come through the port. When `state` data is sent we'll use the `setItem` method to set a `model` and save the stringified data to `localStorage`. The `removeStorage` port will remove the `model` item from `localStorage`. We'll use this when logging out.
 
 Now we'll go back to `Main.elm`:
 
@@ -2452,7 +2443,7 @@ setStorageHelper model =
     ( model, setStorage model )
 ```
 
-We're going to need a helper function of a specific type to save the model to local storage in multiple places in our `update`. Because the `update` type always expects a tuple with a Model and command message returned, we need our helper to take the Model as an argument and return the same type tuple. We'll understand how this fits in a little more in a moment:
+We need a helper function of a specific type to save the model to local storage in multiple places in our `update`. Because the `update` type always expects a tuple with a model and command message returned, we need our helper to take the model as an argument and return the same type of tuple. We'll understand how this fits in a little more in a moment.
 
 ```js
 -- Messages
@@ -2483,11 +2474,11 @@ update msg model =
             ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, removeStorage model )    
 ```                
 
-We need to define the type annotation for our `setStorage` and `removeStorage` ports. They will accept a Model and return a command message. We normally write `Cmd Msg` but the lowercase `msg` is significant because this is an [effect manager](http://guide.elm-lang.org/effect_managers) and needs a specific type. The docs are still in progress at the time of writing, but just keep in mind that using `Cmd Msg` here will result in a compiler error (this may change in the future though). We don't actually need to pass the model to `removeStorage` but again, we receive a compiler error if we do not. 
+We need to define the type annotation for our `setStorage` and `removeStorage` ports. They'll take a model and return a command message. We normally write `Cmd Msg` but the lowercase `msg` is significant because this is an [effect manager](http://guide.elm-lang.org/effect_managers) and needs a specific type. The docs are still in progress at the time of writing, but just keep in mind that using `Cmd Msg` here will result in a compiler error (this may change in a future Elm release). We're not going to use the model in `removeStorage` but again, we receive a compiler error if we don't pass it as an argument. 
 
-Finally, we're going to replace some of our `update` returns with the `setStorageHelper` and use the `removeStorage` command for logging out. As noted above, this helper will return the tuple that our `update` function expects from all branches, so we won't have to worry about type mismatches.
+Finally, we're going to replace some of our `update` returns with the `setStorageHelper` and use the `removeStorage` command for logging out. This helper will return the tuple that our `update` function expects from all branches so we won't have to worry about type mismatches.
 
-We will call our `setStorageHelper` function and pass the model updates that we want to propagate to the app and also save to local storage. We're saving the model to storage when the user is successfully granted a token, when they get a protected quote, and when they log out. `GetTokenSuccess` will now also clear the password and error message; there is no reason to save these to storage. On logout, we'll remove the `localStorage` `model` item.
+We will call `setStorageHelper` and pass the model updates that we want to propagate to the app and save to local storage. We're saving the model to storage when the user is successfully granted a token and when they get a protected quote. `GetTokenSuccess` will now also clear the password and error message; there is no reason to save these to storage. On logout, we'll remove the `localStorage` `model` item.
 
 Now when we authenticate, local storage will keep our data so when we refresh or come back later, we won't lose our login state.
 
@@ -2495,9 +2486,9 @@ If everything compiles and works as expected, we're done with our basic Chuck No
 
 ## Elm: Now and Future
 
-We made a simple app but covered a lot of ground with Elm's architecture, syntax, and implementation of features you'll likely come across in web application development. Authenticating with JWT was straightforward and the packages offer a lot of extensibility in addition to Elm's core.
+We made a simple app but covered a lot of ground with Elm's architecture, syntax, and implementation of features you'll likely come across in web application development. Authenticating with JWT was straightforward and packages and JS interop offer a lot of extensibility.
 
-Elm began in 2012 as [Evan Czaplicki's Harvard senior thesis](http://elm-lang.org/papers/concurrent-frp.pdf) and it's still a newcomer in the landscape of front-end languages. That isn't stopping production use though; [NoRedInk](https://www.noredink.com) has been compiling Elm to production for almost a year ([Introduction to Elm - Richard Feldman](https://www.youtube.com/watch?v=zBHB9i8e3Kc)) with no runtime exceptions and Evan Czaplicki is deploying Elm to production at [Prezi](https://prezi.com). Elm's compiler offers a lot of test coverage "free of charge" by thoroughly checking all logic and branches. In addition, the Elm Architecture of model-view-update [inspired Redux](http://redux.js.org/docs/introduction/PriorArt.html). 
+Elm began in 2012 as [Evan Czaplicki's Harvard senior thesis](http://elm-lang.org/papers/concurrent-frp.pdf) and it's still a newcomer in the landscape of front-end languages. That isn't stopping production use though: [NoRedInk](https://www.noredink.com) has been compiling Elm to production for almost a year ([Introduction to Elm - Richard Feldman](https://www.youtube.com/watch?v=zBHB9i8e3Kc)) with no runtime exceptions and Evan Czaplicki is deploying Elm to production at [Prezi](https://prezi.com). Elm's compiler offers a lot of test coverage "free of charge" by thoroughly checking all logic and branches. In addition, the Elm Architecture of model-view-update [inspired Redux](http://redux.js.org/docs/introduction/PriorArt.html). 
 
 Elm also has an [active community](http://elm-lang.org/community). I particularly found the [elmlang Slack](http://elmlang.herokuapp.com) to be a great place to learn about Elm and chat with knowledgeable developers who are happy to help with any questions.
 
