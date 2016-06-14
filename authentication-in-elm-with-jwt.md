@@ -473,7 +473,7 @@ import Http
 import Task exposing (Task)
 ```
 
-[Http](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http) is self-explanatory. We also need [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task). A [task](http://guide.elm-lang.org/error_handling/task.html) in Elm is similar to a promise in JS: tasks describe asynchronous operations that can succeed or fail.
+We'll need [Http](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http) and [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task). A [task](http://guide.elm-lang.org/error_handling/task.html) in Elm is similar to a promise in JS: tasks describe asynchronous operations that can succeed or fail.
 
 Next we'll update our `init` function:
 
