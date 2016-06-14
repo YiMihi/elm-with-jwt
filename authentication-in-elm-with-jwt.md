@@ -515,15 +515,15 @@ That was a lot of detail, but now we're set on basic syntax and structure. We'll
 
 ### Calling the API
 
-Now we're ready to start filling in some of the blanks we left earlier. In several places we claimed in our type annotations that a command `Cmd` should be returned, but we returned `Cmd.none` instead. Now we'll replace those with the missing command. 
+Now we're ready to fill in some of the blanks we left earlier. In several places we claimed in our type annotations that a command `Cmd` should be returned, but we returned `Cmd.none` instead. Now we'll replace those with the missing command. 
 
 When this step is done, our application should look like this:
 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step2.jpg)
 
-Clicking the button will call the API and get random Chuck Norris quotes and update the view to display them. Make sure you have [the API](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) running at [http://localhost:3001](http://localhost:3001) so it is accessible to our app.
+Clicking the button will call the API to get and display random Chuck Norris quotes. Make sure you have [the API](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) running at [http://localhost:3001](http://localhost:3001) so it's accessible to our app.
 
-Once we're successfully `GET`ting quotes from the API, our `Main.elm` file will be:
+Once we're successfully getting quotes, our `Main.elm` file will be:
 
 ```js
 module Main exposing (..)
@@ -635,7 +635,7 @@ import Http
 import Task exposing (Task)
 ```
 
-[Http](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http) is self-explanatory: we need this package to make HTTP requests. We also need [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task). A [task](http://guide.elm-lang.org/error_handling/task.html) in Elm is similar to a promise in JavaScript. Tasks describe asynchronous operations that can succeed or fail.
+[Http](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http) is self-explanatory. We also need [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task). A [task](http://guide.elm-lang.org/error_handling/task.html) in Elm is similar to a promise in JS: tasks describe asynchronous operations that can succeed or fail.
 
 Next we'll update our `init` function:
 
@@ -645,7 +645,7 @@ init =
     ( Model "", fetchRandomQuoteCmd )
 ```
 
-Now instead of `Cmd.none` in the second element of the tuple, we have a command called `fetchRandomQuoteCmd`. A [command](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Platform-Cmd#Cmd) is a way to tell Elm to go do some effect (like HTTP). Our `init` now commands the application to fetch a random quote from the API on initialization. We'll define the `fetchRandomQuoteCmd` function shortly.
+Now instead of `Cmd.none` we have a command called `fetchRandomQuoteCmd`. A [command](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Platform-Cmd#Cmd) is a way to tell Elm to do some effect (like HTTP). We're commanding the application to fetch a random quote from the API on initialization. We'll define the `fetchRandomQuoteCmd` function shortly.
 
 ```js
 {-
@@ -677,13 +677,13 @@ fetchRandomQuoteCmd =
     Task.perform HttpError FetchQuoteSuccess fetchRandomQuote
 ``` 
 
-We've added some code to our `Update` section. The first thing we'll do is store the API routes for repeated use. We define `api` and `randomQuoteUrl` as strings and then declare their values. 
+We've added some code to our update section. First we'll store the API routes. 
 
-The Chuck Norris API returns unauthenticated random quotes as strings, not JSON. Let's create a function called `fetchRandomQuote`. The type annotation declares that this function is a task that either fails with an error or succeeds with a `String`. We can use the [`Http.getString`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#getString) method to make the HTTP request, we just need to send the necessary API route as an argument.
+The Chuck Norris API returns unauthenticated random quotes as strings, not JSON. Let's create a function called `fetchRandomQuote`. The type annotation declares that this function is a task that either fails with an error or succeeds with a string. We can use the [`Http.getString`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#getString) method to make the HTTP request with the API route as an argument.
 
-Now recall that this is an effect: HTTP is something that happens outside of Elm. A command is needed to request the effect and a message is needed to notify the update that the effect was completed and to deliver its results.
+HTTP is something that happens outside of Elm. A command is needed to request the effect and a message is needed to notify the update that the effect was completed and to deliver its results.
 
-We'll do this by defining `fetchRandomQuoteCmd`. This function's type annotation declares that it returns a command with a message. [`Task.perform`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task#perform) is a command that tells the runtime to execute a task. As mentioned earlier, tasks can fail or succeed so we need to pass three arguments to `Task.perform`: a message for failure (`HttpError`), a message for success (`FetchQuoteSuccess`), and what task to perform (`fetchRandomQuote`: the `GET` request to the API). 
+We'll do this in `fetchRandomQuoteCmd`. This function's type annotation declares that it returns a command with a message. [`Task.perform`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Task#perform) is a command that tells the runtime to execute a task. Tasks can fail or succeed so we need to pass three arguments to `Task.perform`: a message for failure (`HttpError`), a message for success (`FetchQuoteSuccess`), and what task to perform (`fetchRandomQuote`). 
 
 `HttpError` and `FetchQuoteSuccess` are messages that don't exist yet, so let's create them:
 
@@ -712,17 +712,17 @@ update msg model =
 
 We add these two new messages to the `Msg` union type and annotate the types of their arguments. `FetchQuoteSuccess` accepts a string that contains the new Chuck Norris quote from the API and `HttpError` accepts an [`Http.Error`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Error). These are the possible success / fail results of the task.
 
-Next we add these cases to the `update` function and declare what we want returned in the `(Model, Cmd Msg)` tuple. We also need to update the `GetQuote` tuple to fetch a quote from the API instead of appending to a string with no command. We'll change `GetQuote` to return the current model and issue the command to fetch a random quote, `fetchRandomQuoteCmd`.
+Next we add these cases to the `update` function and declare what we want returned in the `(Model, Cmd Msg)` tuple. We also need to update the `GetQuote` tuple to fetch a quote from the API. We'll change `GetQuote` to return the current model and issue the command to fetch a random quote, `fetchRandomQuoteCmd`.
 
 `FetchQuoteSuccess`'s argument is the new quote string. We want to update the model with this. There are no commands to execute here, so we will declare the second element of the tuple `Cmd.none`.
 
-`HttpError`'s argument is `Http.Error`, but we aren't going to do anything special with this. For the sake of brevity, we'll handle API errors when we get to authentication but not for getting unauthenticated quotes. Since we're discarding this argument, we can pass `_` to `HttpError`. This will return a tuple that sends the model in its current state and no command. You may want to handle errors here on your own after completing the provided code.
+`HttpError`'s argument is `Http.Error` but we aren't going to do anything special with this. For the sake of brevity, we'll handle API errors when we get to authentication but not for getting unauthenticated quotes. Since we're discarding this argument, we can pass `_` to `HttpError`. This will return a tuple that sends the model in its current state and no command. You may want to handle errors here on your own after completing the provided code.
 
 It's important to remember that the `update` function's type is `Msg -> Model -> (Model, Cmd Msg)`. This means that all branches of the `case` statement _must_ return the same type. If any branch does not return a tuple with a model and a command, a compiler error will occur.
 
 Nothing changes in the `view`. We altered the `GetQuote` onClick function logic, but everything that we've written in the HTML works fine with our updated code. Try it out!
 
-#### Sidenote: Reading Compiler Type Errors
+#### Aside: Reading Compiler Type Errors
 
 If you've been following along and writing your own code, you may have encountered Elm's compiler errors. Though they are very readable, type mismatch messages can sometimes seem ambiguous.
 
@@ -734,17 +734,17 @@ String -> a
 
 A lowercase variable `a` means "anything could go here". The above means "takes a string as an argument and returns anything".
 
-`[1, 2, 3]` has a type of `List number`, a list that only contains numbers. `[]` is type `List a`: Elm infers that this is a list that could contain anything.
+`[1, 2, 3]` has a type of `List number`: a list that only contains numbers. `[]` is type `List a`: Elm infers that this is a list that could contain anything.
 
-Elm always infers types. If we have set type definitions, it checks its inferences against our definitions. We're defining types upfront in most places in our app. It's best practice to define the types at the top-level at a minimum. If Elm finds a type mismatch, it will tell us what type it has inferred. Resolving type mismatches can be one of the larger challenges to developers coming strictly from a loosely typed language, so it's worth spending some extra time getting comfortable with this. 
+Elm always infers types. If we've declared type definitions, Elm checks its inferences against our definitions. We're defining types upfront in most places in our app. It's best practice to define the types at the top-level at a minimum. If Elm finds a type mismatch, it will tell us what type it has inferred. Resolving type mismatches can be one of the larger challenges to developers coming from a loosely typed language like JS (without Typescript), so it's worth spending time getting comfortable with this. 
 
 ### Register a User
 
-We are now getting quotes from the API. We also need user registration so that our users can be issued [JSON Web Tokens](https://auth0.com/learn/json-web-tokens) with which to access protected quotes. We'll create a form that submits a `POST` request to the API to create a new user and return a token.
+We're now getting quotes from the API. We also need registration so users can be issued [JSON Web Tokens](https://auth0.com/learn/json-web-tokens) with which to access protected quotes. We'll create a form that submits a `POST` request to the API to create a new user and return a token.
 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3a.jpg)
 
-After the user has registered, we'll display a welcome message confirming successful authentication:
+After the user has registered, we'll display a welcome message:
 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3b.jpg)
 
@@ -980,7 +980,7 @@ import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode exposing (..)
 ```
 
-We'll be sending objects and receiving JSON now instead of just working with a string API response, so we need to be able to translate objects and JSON to and from Elm records.
+We'll be sending objects and receiving JSON now instead of just working with a string API response, so we need to be able to translate these from and to Elm records.
 
 ```js
 {- 
@@ -1003,7 +1003,7 @@ init =
     ( Model "" "" "" "" "", fetchRandomQuoteCmd )
 ```
 
-Our model needs to hold more data than just a quote string now. We've added `username`, `password`, `token`, and `errorMsg` (to display any API errors from authentication).
+Our model needs to hold more data than just a quote now. We've added `username`, `password`, `token`, and `errorMsg` (to display any API errors from authentication).
 
 We'll initialize our application with empty strings for all of the above.
 
@@ -1024,11 +1024,7 @@ We'll initialize our application with empty strings for all of the above.
     
 registerUrl : String
 registerUrl =
-    api ++ "users"       
-
--- GET a random quote (unauthenticated)
-    
-... 
+    api ++ "users"
 ```
 
 The API route for `POST`ing new users is [http://localhost:3001/users](http://localhost:3001/users) so we'll create `registerUrl` to store this.
@@ -1044,9 +1040,9 @@ userEncoder model =
         ]          
 ```
 
-The API expects a request body for the registration and login as a JavaScript object in string format that looks like this: `{ username: "string", password: "string" }`
+The API expects the request body for registration and login to be a JavaScript object in string format that looks like this: `{ username: "string", password: "string" }`
 
-An Elm record is not the same as a JavaScript object so we need to [encode](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) the applicable properties of our model before we can send them with the HTTP request. The `userEncoder` function utilizes [`Json.Encode.object`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#object) to take the model and return an encoded value.
+An Elm record is not the same as a JavaScript object so we need to [encode](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) the applicable properties of our model before we can send them with the HTTP request. The `userEncoder` function utilizes [`Json.Encode.object`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#object) to take the model and return the encoded value.
 
 ```js
 -- POST register / login request
@@ -1062,11 +1058,11 @@ authUser model apiUrl =
     |> Http.fromJson tokenDecoder 
 ```    
 
-We're using a [fully specified HTTP request](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Request) this time as opposed to the simple `getString` used for the quote in the previous step. The same settings can be used for both register and login, with the exception of the API route which we'll pass in as an argument.
+We'll use a [fully specified HTTP request](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Request) this time as opposed to the simple `getString` used for the quote in the previous step. The same settings can be used for both register and login with the exception of the API route which we'll pass in an argument.
 
-We're calling this effect function `authUser` because it authenticates a user as either registering or logging in. The type is "`authUser` takes model as an argument and a string as an argument and returns a task that fails with an error or succeeds with a string".
+We'll call this effect function `authUser` (for "authenticate a user"). The type says "`authUser` takes model as an argument and a string as an argument and returns a task that fails with an error or succeeds with a string".
 
-Now let's take a closer look at these lines:
+Let's take a closer look at these lines:
 
 ```js
 ...
@@ -1076,15 +1072,15 @@ Now let's take a closer look at these lines:
     |> Http.fromJson tokenDecoder
 ```
 
-`<|` and `|>` are aliases for function application in order to reduce parentheses. [`<|` is backward function application](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#%3C|). 
+`<|` and `|>` are aliases for function application to reduce parentheses. [`<|` is backward function application](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#%3C|). 
 
-`body = Http.string <| Encode.encode 0 <| userEncoder model` says to take the results of the last function and pass it as the last argument to the function to its left. Written with parentheses, the equivalent would be: `body = Http.string (Encode.encode 0 (userEncoder model))`
+`body = Http.string <| Encode.encode 0 <| userEncoder model` takes the results of the last function and passes it as the last argument to the function on its left. Written with parentheses, the equivalent would be: `body = Http.string (Encode.encode 0 (userEncoder model))`
 
-We're running the `userEncoder` function to encode the request body. Then [`Json.Encode.encode`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) converts the resulting value to a prettified string with no (`0`) indentation. Finally, we provide the resulting string as the request body with [`Http.String`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#string).
+We'll run the `userEncoder` function to encode the request body. Then [`Json.Encode.encode`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) converts the resulting value to a prettified string with no (`0`) indentation. Finally, we provide the resulting string as the request body with [`Http.String`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#string).
 
 Next we have [forward function application performed with `|>`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Basics#|%3E) to send the HTTP request with default settings and then take the JSON result and decode it with a `tokenDecoder` function that we'll create in a moment.
 
-We now have our `authUser` effect so we need to create an `authUserCmd` command. This should look familiar from fetching quotes earlier but we're also passing the API route as an argument. We'll create the `AuthError` and `GetTokenSuccess` messages shortly.
+We now have our `authUser` effect so we need to create an `authUserCmd` command. This should look familiar from fetching quotes earlier. We're also passing the API route as an argument. We'll create the `AuthError` and `GetTokenSuccess` messages shortly.
 
 ```js
 authUserCmd : Model -> String -> Cmd Msg    
@@ -1112,15 +1108,15 @@ When registering or logging in a user, the response from the API is JSON shaped 
 }
 ```
 
-Recall that `:` means "has type" in Elm. We're taking the `id_token` and extracting its contents as a string. This string is what will be returned on success.   
+Recall that `:` means "has type" in Elm. We're taking the `id_token` and extracting its contents as a string that will be returned on success.   
 
-Now we will do something with that result and also set up a way for our UI to interact with the model:
+Now we will do something with the result and set up a way for our UI to interact with the model:
 
 ```js
 -- Messages
 
 type Msg 
-    = ...
+    ...
     | AuthError Http.Error
     | SetUsername String
     | SetPassword String
@@ -1150,11 +1146,11 @@ update msg model =
             ( { model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none )
 ```  
 
-We want to display authentication errors to the user. Unlike the `HttpError` message we implemented earlier, `AuthError` won't discard its argument. The type of the `error` argument is [`Http.Error`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Error). As you can see from the docs, this is a union type that could be a few different errors. For the sake of simplicity, we're just going to convert the error to a string and update the model's `errorMsg` with that string. A good exercise later would be to translate the different errors to user-friendly messaging.
+We want to display authentication errors to the user. Unlike the `HttpError` message we implemented earlier, `AuthError` won't discard its argument. The type of the `error` argument is [`Http.Error`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Error). As you can see from the docs, this is a union type that could be a few different errors. For the sake of simplicity, we're going to convert the error to a string and update the model's `errorMsg` with that string. A good exercise later would be to translate the different errors to more user-friendly messaging.
 
 The `SetUsername` and `SetPassword` messages are for sending form field values to update the model. `ClickRegisterUser` is the `onClick` for our "Register" button. It runs the `authUserCmd` command we just created and passes the model and the API route for new user creation. 
 
-`GetTokenSuccess` is the success function for the `authUser` task. Its argument is the token string. We need to update our model with the token so we can use it to request protected quotes later. This is a good place to verify that everything is working as expected, so let's log the updated model to the browser console using the `|>` forward function application alias and a [`Debug.log`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Debug#log): `{ model | token = newToken, errorMsg = "" } |> Debug.log "got new token"`.
+`GetTokenSuccess` is the success function for the `authUser` task. Its argument is the token string. We'll update our model with the token so we can use it to request protected quotes later. This is a good place to verify that everything is working as expected, so let's log the updated model to the browser console using the `|>` forward function application alias and a [`Debug.log`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Debug#log): `{ model | token = newToken, errorMsg = "" } |> Debug.log "got new token"`.
 
 ```js
 {-
@@ -1232,17 +1228,17 @@ view model =
         ]
 ```
 
-There's a lot of new stuff in the view but it's mostly form HTML. However, we'll start with some logic to hide the form once the user is authenticated; we want to show a greeting in this case instead.
+There's a lot of new stuff in the view but it's mostly form HTML. We'll start with some logic to hide the form once the user is authenticated; we want to show a greeting in this case.
 
 Remember that `view` is a function. This means we can do things like create scoped variables with [`let` expressions](http://elm-lang.org/docs/syntax#let-expressions) to conditionally render parts of the view.
 
-For the sake of simplicity, we'll check if the model's token string has a length to determine if the user is logged in. In a real-world application, token verification would be performed in something like a route callback to ensure proper UI access. For our Chuck Norris Quoter, the token is needed to get protected quotes so all the `loggedIn` variable does is show the form vs. a simple greeting.
+For the sake of simplicity, we'll check if the model's token string has a length to determine if the user is logged in. In a real-world application, token verification might be performed in a route callback to ensure proper UI access. For our Chuck Norris Quoter, the token is needed to get protected quotes so all the `loggedIn` variable does is show the form vs. a simple greeting.
 
 We'll then create the `authBoxView`. This contains the form and greeting and executes either depending on the value of `loggedIn`. We'll also display the authentication error if there is one.
 
 If the user is logged in, we'll greet them by their username and inform them that they have super-secret access to protected quotes.
 
-If the user is not logged in, we'll display a Log In / Register form. We can use the same form to do both because they share the same request body. Right now though, we only have the functionality for Register prepared. 
+If the user is not logged in, we'll display the Log In / Register form. We can use the same form to do both because they share the same request body. Right now though, we only have the functionality for Register prepared. 
 
 After the heading, instructional copy, and conditional error alert, we need the `username` and `password` [form fields](http://guide.elm-lang.org/architecture/user_input/forms.html). We can supply various attributes:
 
@@ -1252,21 +1248,21 @@ input [ id "username", type' "text", class "form-control", Html.Attributes.value
 input [ id "password", type' "password", class "form-control", Html.Attributes.value model.password, onInput SetPassword ] []
 ```
 
-There are a few things that may stand out here: `type'` has a single quote after it because `type` is a reserved keyword in Elm. Appending the quote to create a new variable name has origins in the usage of the [prime symbol in mathematics](https://en.wikipedia.org/wiki/Prime_(symbol)#Use_in_mathematics.2C_statistics.2C_and_science). `Html.Attributes.value` is fully qualified because `value` alone is ambiguous in context because the compiler could confuse it with `Json.Decode.value`. `onInput` is a [custom event handler](http://package.elm-lang.org/packages/evancz/elm-html/4.0.2/Html-Events#targetValue) that gets values from triggered events, in this case, form field input. When this event is fired we want to set the username or password to update the model.
+There are a few things that may stand out here: `type'` has a single quote after it because `type` is a reserved keyword. Appending the quote has origins in the usage of the [prime symbol in mathematics](https://en.wikipedia.org/wiki/Prime_(symbol)#Use_in_mathematics.2C_statistics.2C_and_science). `Html.Attributes.value` is fully qualified because `value` alone is ambiguous in context because the compiler could confuse it with `Json.Decode.value`. `onInput` is a [custom event handler](http://package.elm-lang.org/packages/evancz/elm-html/4.0.2/Html-Events#targetValue) that gets values from triggered events. When these events are fired we want to update the username or password in the model.
 
-After our form fields, we'll include a "Register" button with an `onClick ClickRegisterUser`. We'll use Bootstrap's CSS to style this button like a link since it will live next to a Log In button in the next step.
+After our form fields, we'll include a "Register" button with `onClick ClickRegisterUser`. We'll use Bootstrap's CSS to style this button like a link since it will live next to a Log In button later.
 
 Finally, we'll use our `authBoxView` variable in the main view. We'll place it below our Chuck Norris quote in a jumbotron.
 
-Now we can register new users in our app. When successfully registered, the user will receive a token and be authenticated. The view should update to show the greeting message. Try it out in the browser. You should also try to trigger an error message!
+Now we can register new users in our app. When successfully registered, the user will receive a token and be authenticated. The view will then update to show the greeting message. Try it out in the browser. You should also try to trigger an error message!
 
 ### Log In and Log Out
 
-Now that users can register, they also need to be able to log in with existing accounts.
+Now that users can register, they need to be able to log in with existing accounts.
 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4a.jpg) 
 
-We also want them to be able to log out.
+We also need the ability to log out.
 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step4b.jpg)
 
@@ -1512,7 +1508,7 @@ view model =
         ]
 ```
 
-Login works similarly to Register (and even uses the same request body), so creating its functionality should be straightforward and familiar. 
+Login works like Register (and uses the same request body), so creating its functionality should be straightforward. 
 
 ```js
 -- API request URLs
@@ -1526,7 +1522,7 @@ loginUrl =
 
 We'll add the login API route, which is [http://localhost:3001/sessions/create](http://localhost:3001/sessions/create).
 
-We already have the `authUser` effect and `authUserCmd` command, so now all we need to do is create a way for login to interact with the UI. We'll also create a logout.
+We already have the `authUser` effect and `authUserCmd` command, so all we need to do is create a way for login to interact with the UI. We'll also create a logout.
 
 ```js
 -- Messages
@@ -1553,7 +1549,7 @@ update msg model =
             ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, Cmd.none )
 ```
 
-`ClickLogIn` returns the model and runs the `authUserCmd` command passing in the model and the login API URL. `LogOut` resets any authentication-related data in the model record to empty strings.
+`ClickLogIn` runs the `authUserCmd` command with the appropriate arguments. `LogOut` resets authentication-related data in the model record to empty strings.
 
 ```js
 ...
@@ -1578,11 +1574,11 @@ if loggedIn then
 
 ```
 
-There are only minimal updates to the view. We'll add a paragraph in the `authBoxView` in the greeting message that contains our logout button. Then in the form we'll insert the login button before the register button.
+There are minimal updates to the view. We'll add a logout button in the greeting message in `authBoxView`. Then in the form we'll insert the login button before the register button.
 
-Users can now register as well as log in. Our application is really coming together!
+Registered users can now log in and log out. Our application is really coming together!
 
-_Note: A nice future enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?_
+_Note: A nice enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?_
 
 ### Get Protected Quotes
 
