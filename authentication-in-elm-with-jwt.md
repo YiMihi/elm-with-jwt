@@ -280,9 +280,7 @@ package.json
 
 ### Introduction to Elm with Main.elm
 
-Now we're ready to start writing Elm. If we start the `gulp` task, our files will be compiled and watched and the local server will be accessible at [http://localhost:3000](http://localhost:3000). We can view our progress there.
-
-Create a file in the `/src` folder called `Main.elm`. This is what we'll be building for the first step:
+We're ready to start writing Elm. Create a file in the `/src` folder called `Main.elm`. This is what we'll be building for the first step:
 
 ```js
 -- Main.elm
@@ -347,9 +345,7 @@ view model =
     ]            
 ```
 
-Let's go through this code in more detail. 
-
-**If you're already familiar with Elm, you can likely skip ahead to the next step. If Elm is brand new to you, keep reading: we'll run through an introduction to The Elm Architecture and Elm's language syntax by thoroughly breaking down this code.** Make sure you have a good grasp of this section before moving on; the next sections will assume an understanding of the following syntax and concepts.
+**If you're already familiar with Elm, you can skip ahead. If Elm is brand new to you, keep reading: we'll introduce The Elm Architecture and Elm's language syntax by thoroughly breaking down this code.** Make sure you have a good grasp of this section before moving on; the next sections will assume an understanding of the syntax and concepts.
 
 ```js
 import Html exposing (..)
@@ -358,9 +354,9 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 ```
 
-At the top of our app file, we need to import dependencies. We expose the `Html` package to the application for use and then declare `Html.App` as `Html` for brevity when referencing it. Because we'll be writing a view function, we will expose `Html.Events` (for click events) and `Html.Attributes` to use IDs, types, classes, and other HTML element attributes.
+At the top of our app file, we need to import dependencies. We expose the `Html` package to the application for use and then declare `Html.App` as `Html`. Because we'll be writing a view function, we will expose `Html.Events` and `Html.Attributes` to use click and input events, IDs, classes, and other element attributes.
 
-Everything we're going to write next falls into **The Elm Architecture**. In brief, this refers to the basic pattern of Elm application logic. It consists of `Model` (application state), `Update` (way to update the application state), and `View` (render the application state as HTML). You can read more about [The Elm Architecture in Elm's guide](http://guide.elm-lang.org/architecture).
+Everything we're going to write is part of **The Elm Architecture**. In brief, this refers to the basic pattern of Elm application logic. It consists of `Model` (application state), `Update` (way to update the application state), and `View` (render the application state as HTML). You can read more about [The Elm Architecture in Elm's guide](http://guide.elm-lang.org/architecture).
 
 ```js
 main : Program Never
@@ -373,24 +369,24 @@ main =
         }
 ```
 
-`main : Program Never` is a [type annotation](https://github.com/elm-guides/elm-for-js/blob/master/How%20to%20Read%20a%20Type%20Annotation.md). This annotation says "`main` has type `Program` and should `Never` expect a flags argument". If this doesn't make a ton of sense yet, hang tight--we'll be covering more type annotations throughout the development of our app.
+`main : Program Never` is a [type annotation](https://github.com/elm-guides/elm-for-js/blob/master/How%20to%20Read%20a%20Type%20Annotation.md). This annotation says "`main` has type `Program` and should `Never` expect a flags argument". If this doesn't make a ton of sense yet, hang tight--we'll be covering more type annotations throughout our app.
 
 Every Elm project defines `main` as a program. There are a few program candidates, including `beginnerProgram`, `program`, and `programWithFlags`. Initially, we'll use `main = Html.program`.
 
-The next thing we'll do is start our app with a record that references an `init` function, an `update` function, and a `view` function. We'll create these functions shortly.
+Next we'll start our app with a record that references an `init` function, an `update` function, and a `view` function. We'll create these functions shortly.
 
-`subscriptions` might look a little strange at first. [Subscriptions](http://www.elm-tutorial.org/en/03-subs-cmds/01-subs.html) listen for external input and we won't be using any in the Chuck Norris Quoter so we don't really need a named function here. Elm does not have a concept of `null` or `undefined` and it is expecting functions as values for all items in this particular record. Therefore, this is an anonymous function that simply declares there are no subscriptions. 
+`subscriptions` may look strange at first. [Subscriptions](http://www.elm-tutorial.org/en/03-subs-cmds/01-subs.html) listen for external input and we won't be using any in the Chuck Norris Quoter so we don't need a named function here. Elm does not have a concept of `null` or `undefined` and it's expecting functions as values in this record. This is an anonymous function that declares there are no subscriptions. 
 
-Here's a breakdown of the syntax. `\` begins an anonymous function. `_` represents an argument that is discarded, so `\_` is stating "this is an unnamed function that doesn't use arguments". `->` signifies the body of the function. `subscriptions = \_ -> ...` in JavaScript would look like this:
+Here's a breakdown of the syntax. `\` begins an anonymous function. A backslash is used [because it resembles a lambda (λ)](https://en.wikipedia.org/wiki/Anonymous_function). `_` represents an argument that is discarded, so `\_` is an anonymous function that doesn't have arguments. `->` signifies the body of the function. `subscriptions = \_ -> ...` in JS would look like this:
 
 ```js
 // JS
 subscriptions = function() { ... }
 ```
 
-(Keeping this in mind, what would an anonymous function _with_ an argument look like? Answer: `\x -> ...`) 
+(What would an anonymous function _with_ an argument look like? Answer: `\x -> ...`) 
 
-Next up are the model and the `init` function:
+Next up are the model type alias and the `init` function:
 
 ```js
 {- 
@@ -408,19 +404,13 @@ init =
     ( Model "", Cmd.none )
 ```
 
-The first block is just a multi-line comment. Comments in Elm are represented like this:
+The first block is a multi-line comment. A single-line comment is represented like this:
 
 ```js
-{-
-	This is a
-	multi-line
-	comment
--}
-
--- Single line comment
+-- Single-line comment
 ```
 
-Now we'll create a `type alias` called `Model`. 
+Let's create a `type alias` called `Model`: 
 
 ```js
 type alias Model =
@@ -428,25 +418,9 @@ type alias Model =
     }
 ```
 
-A [type alias](http://guide.elm-lang.org/types/type_aliases.html) is a definition for use in type annotations. Consider the following example:
+A [type alias](http://guide.elm-lang.org/types/type_aliases.html) is a definition for use in type annotations. In future type annotations, we can now say `Something : Model` and `Model` would be replaced by the contents of the type alias.
 
-```js
-someRecord : Bool -> { somestr : String, someint : Int, somebool : Bool }
-
-...
-
-type alias RecordModel =
-	{ somestr : String
-	, someint : Int
-	, somebool : Bool
-	}
-	
-someRecord : Bool -> RecordModel
-``` 
-
-The first and second examples of `someRecord` are synonymous. The first one has the type defined long-hand, and the second is referencing the type alias to define `someRecord`'s type. The advantage of this is clear when you need longer types that can become unwieldy to read in sequence, particularly if they're used in multiple places.
-
-Moving on, we now have a `type alias` for `Model`. We expect a record with a property of `quote` that has `String` value. We've mentioned [records](http://elm-lang.org/docs/records) a few times now, so we'll expand on them briefly: records look similar to objects in JavaScript. However, records in Elm are immutable: they hold labeled data but do not have inheritance or methods. Elm's functional paradigm uses persistent data structures so "updating the model" returns a new model with only the changed data copied. This doesn't manipulate the original model. If you're coming from a JavaScript background but haven't used something like React/Redux, you're probably still familiar with libraries like [lodash](http://lodash.com) that use functional JS. If you think about how lodash is used, this should seem familiar.
+We expect a record with a property of `quote` that has `String` value. We've mentioned [records](http://elm-lang.org/docs/records) a few times, so we'll expand on them briefly: records look similar to objects in JavaScript. However, records in Elm are immutable: they hold labeled data but do not have inheritance or methods. Elm's functional paradigm uses persistent data structures so "updating the model" returns a new model with only the changed data copied.
 
 Now we've come to the `init` function that we referenced in our `main` program:
 
@@ -456,11 +430,11 @@ init =
     ( Model "", Cmd.none )
 ```
 
-The type annotation for `init` basically means "`init` has type tuple containing record defined in Model type alias, and a command for an effect with an update message". That's a mouthful--and we'll be encountering additional type annotations that look similar but have more context, so they'll be easier to understand. What we should take away from this type annotation is that we're returning a [tuple](http://guide.elm-lang.org/core_language.html#tuples) (an ordered list of values of potentially varying types). So for now, let's concentrate on the `init` function.
+The type annotation for `init` means "`init` returns a tuple containing record defined in Model type alias and a command for an effect with an update message". That's a mouthful--and we'll be encountering additional type annotations that look similar but have more context, so they'll be easier to understand. What we should take away from this type annotation is that we're returning a [tuple](http://guide.elm-lang.org/core_language.html#tuples) (an ordered list of values of potentially varying types). So for now, let's concentrate on the `init` function.
 
-Functions in Elm are defined with a name followed by a space and any arguments (separated by spaces), an `=`, and the body of the function indented on a newline. There are no parentheses, braces, `function` or `return` keywords. This might feel sparse at first, but the clean syntax speeds development. This is most noticeable when switching to another language after Elm--I start to realize how much _time_ I spend writing syntax.
+Functions in Elm are defined with a name followed by a space and any arguments (separated by spaces), an `=`, and the body of the function indented on a newline. There are no parentheses, braces, `function` or `return` keywords. This might feel sparse at first but hopefully you'll find the clean syntax speeds development.
 
-Returning a tuple is the easiest way to get multiple results from a function. The first element in the tuple declares the initial values of the Model record. Strings are denoted with double quotes, so we are defining `{ quote = "" }` on initialization. The second element is `Cmd.none` because we're not sending a command (yet!). 
+Returning a tuple is the easiest way to get multiple results from a function. The first element in the tuple declares the initial values of the Model record. Strings are denoted with double quotes, so we're defining `{ quote = "" }` on initialization. The second element is `Cmd.none` because we're not sending a command (yet!). 
 
 ```js
 {-
@@ -478,17 +452,17 @@ update msg model =
             ( { model | quote = model.quote ++ "A quote! " }, Cmd.none )
 ```
 
-The next vital piece of the Elm Architecture (we've covered model already) is update. There are a few new things here.
+The next vital piece of the Elm Architecture is update. There are a few new things here.
 
-First we have `type Msg = GetQuote`. This is a union type. [Union types](https://dennisreimann.de/articles/elm-data-structures-union-type.html) provide a way to represent types that have structures other than the "usual", like `String`, `Bool`, etc. This says `type Msg` could be any of the following values, with the possibilities separated by pipes `|`. Right now we only have `GetQuote`, but we'll add more later.
+First we have `type Msg = GetQuote`: this is a union type. [Union types](https://dennisreimann.de/articles/elm-data-structures-union-type.html) provide a way to represent types that have unusual structures (they aren't `String`, `Bool`, `Int`, etc). This says `type Msg` could be any of the following values. Right now we only have `GetQuote` but we'll add more later.
 
-Now that we have a union type definition, we need a function that will handle the union type using a `case` expression. We are calling this function `update`, because its purpose is to update the model, representing the current application state.
+Now that we have a union type definition, we need a function that will handle this using a `case` expression. We're calling this function `update` because its purpose is to update the application state via the model.
 
 The `update` function has a type annotation that says "`update` takes a message as an argument and a model argument and returns a tuple containing a model and a command for an effect with an update message". 
 
-This is the first time we've seen `->` in a type annotation, so let's take a moment to look at that. A series of items separated by `->` in a type annotation represent argument types until the last one, which is the return type. The reason that we don't use a different notation to indicate the return has to do with currying. In a nutshell, _currying_ means that if you don't pass all the arguments to a function, another function will be returned that accepts whatever arguments are still needed. You can [learn more](http://www.lambdacat.com/road-to-elm-currying-the-unknown/) [about currying](https://en.wikipedia.org/wiki/Currying) [elsewhere](http://veryfancy.net/blog/curried-form-in-elm-functions).
+This is the first time we've seen `->` in a type annotation. A series of items separated by `->` represent argument types until the last one, which is the return type. The reason we don't use a different notation to indicate the return has to do with currying. In a nutshell, _currying_ means if you don't pass all the arguments to a function, another function will be returned that accepts whatever arguments are still needed. You can [learn more](http://www.lambdacat.com/road-to-elm-currying-the-unknown/) [about currying](https://en.wikipedia.org/wiki/Currying) [elsewhere](http://veryfancy.net/blog/curried-form-in-elm-functions).
 
-As just discussed above in our assessment of the type annotation, the `update` function accepts two arguments: a message and a model. If the `msg` is `GetQuote`, we'll return a tuple that updates the `quote` to append `"A quote! "` to the existing string value. String concatenation in Elm is performed with `++`. The second element in the tuple is currently `Cmd.none`. Later, we will change this to execute the command to get a random quote from the API. The case expression models possible user interactions.
+The `update` function accepts two arguments: a message and a model. If the `msg` is `GetQuote`, we'll return a tuple that updates the `quote` to append `"A quote! "` to the existing value. The second element in the tuple is currently `Cmd.none`. Later, we'll change this to execute the command to get a random quote from the API. The case expression models possible user interactions.
 
 The syntax for updating properties of a record is:
 
@@ -496,9 +470,9 @@ The syntax for updating properties of a record is:
 { recordName | property = updatedValue, property2 = updatedValue2 }
 ```
 
-We use `=` in Elm to set values. Colons `:` are reserved for type definitions. A `:` means "has type" so if we were to use them here, we would get a compiler error.
+Elm uses `=` to set values. Colons `:` are reserved for type definitions. A `:` means "has type" so if we were to use them here, we would get a compiler error.
 
-We now have the logic in place for our application. How will we display the UI? We need to render a view.
+We now have the logic in place for our application. How will we display the UI? We need to render a view:
 
 ```js
 {-
@@ -519,25 +493,25 @@ view model =
     ]
 ``` 
 
-The type annotation for the `view` function reads, "`view` accepts model as an argument and returns HTML with a message". We've seen `Msg` a few places before and now we've defined its union type. If you recall, a command `Cmd` is a request for an effect to take place outside of Elm. A message `Msg` is a function that notifies the `update` method that a command was completed. The view needs to return HTML with this message outcome to display the updated UI.
+The type annotation for the `view` function reads, "`view` accepts model as an argument and returns HTML with a message". We've seen `Msg` a few places and now we've defined its union type. A command `Cmd` is a request for an effect to take place outside of Elm. A message `Msg` is a function that notifies the `update` method that a command was completed. The view needs to return HTML with the message outcome to display the updated UI.
 
-The `view` function describes the rendered view based on the application state, which is represented by the model. The code for `view` resembles `HTML` but it's actually composed of functions that correspond to virtual DOM nodes and pass lists as parameters. When the model is updated, the view function executes again. The previous virtual DOM is diffed against the next and the minimal set of updates necessary are run.
+The `view` function describes the rendered view based on the model. The code for `view` resembles HTML but is actually composed of functions that correspond to virtual DOM nodes and pass lists as arguments. When the model is updated, the view function executes again. The previous virtual DOM is diffed against the next and the minimal set of updates necessary are run.
 
-The structure of the HTML functions does somewhat resemble HTML, so it's fairly intuitive to write. The first list argument passed to each node function are the attribute functions with values passed as arguments. The second list contains the contents of the element. For example:
+The structure of the functions somewhat resembles HTML, so it's pretty intuitive to write. The first list argument passed to each node function contains attribute functions with arguments. The second list contains the contents of the element. For example:
 
 ```js
 button [ class "btn btn-success", onClick GetQuote ] [ text "Grab a quote!" ]
 ```
 
-This `button` function's first argument is a list. The first item in that list is the `class` function accepting the string of classes we want to display. The second item in the list is an `onClick` function: `GetQuote`. We set this up earlier to update the model and append "A quote!" each time it's executed. The next list argument is the contents of the button. We'll give the `text` function an argument of "Grab a quote!".
+This `button`'s first argument is the attribute list. The first item in that list is the `class` function accepting the string of classes. The second item is an `onClick` function with `GetQuote`. The next list argument is the contents of the button. We'll give the `text` function an argument of "Grab a quote!".
 
-Last, we want to display the quote text. We'll do this with a `blockquote` with a `p` inside it, passing the `model.quote` to the paragraph's `text` function.
+Last, we want to display the quote text. We'll do this with a `blockquote` and `p`, passing `model.quote` to the paragraph's `text` function.
 
-We now have all the pieces in place for the first phase of our app! If we've done everything correctly, the app should compile and we can view it at [http://localhost:3000](http://localhost:3000). Try clicking the "Grab a quote!" button a few times.
+We now have all the pieces in place for the first phase of our app! We can view it at [http://localhost:3000](http://localhost:3000). Try clicking the "Grab a quote!" button a few times.
 
-_Note: If the app didn't compile, Elm provides [compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) in the console where you've been running the compile commands (in our case, Gulp) or also in your editor if you're using one of the Elm syntax highlighting plugins. Elm will not compile if there are errors! This is to avoid errors at runtime (RTE)._
+_Note: If the app didn't compile, Elm provides [compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) in the console and in your editor if you're using an Elm plugin. Elm will not compile if there are errors! This is to avoid runtime exceptions._
 
-That was a lot of detail, but we're now set on the syntax and basic structure of an Elm app. We'll be moving faster from here on to build the rest of the features of our Chuck Norris Quoter application. 
+That was a lot of detail, but now we're set on basic syntax and structure. We'll move on to build the features of our Chuck Norris Quoter app. 
 
 ### Calling the API
 
