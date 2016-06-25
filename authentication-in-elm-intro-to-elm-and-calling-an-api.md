@@ -17,7 +17,7 @@ tags:
 
 ---
 
-**TL;DR:** We can write statically typed, functional, reactive SPAs on the front end with [Elm](http://www.elm-lang.org). Elm's compiler prevents runtime errors and compiles to JavaScript, making it an excellent choice for clean, speedy development. In part one of this tutorial will show you how to write your first Elm app and request data from an API. In part two, learn how to add authentication using JSON Web Tokens. The full code is available at [this GitHub repository](https://github.com/YiMihi/elm-app-jwt-api).
+**TL;DR:** We can write statically typed, functional, reactive SPAs on the front end with [Elm](http://www.elm-lang.org). Elm's compiler prevents runtime errors and compiles to JavaScript, making it an excellent choice for clean, speedy development. In part one of this tutorial, learn how to write your first Elm app and request data from an API. In part two, we'll add authentication using JSON Web Tokens. The full code is available at [this GitHub repository](https://github.com/YiMihi/elm-app-jwt-api).
 
 ---
 
