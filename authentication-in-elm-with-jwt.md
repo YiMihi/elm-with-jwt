@@ -55,7 +55,7 @@ To install Elm globally, run the following command:
 npm install -g elm
 ```
 
-Once Elm is successfully installed, we need to set up our project's configuration. This is done with an `elm-package.json`:
+Once Elm is successfully installed, we need to set up our project's configuration. This is done with an `elm-package.json` file:
 
 ```js
 // elm-package.json
@@ -88,11 +88,11 @@ Now that we've declared our Elm dependencies, we can install them:
 elm package install
 ```
 
-Once everything has installed, an `/elm-stuff` folder will live at the root of your project. This folder contains all of the Elm dependencies we specified in our `elm-package.json`.
+Once everything has installed, an `/elm-stuff` folder will live at the root of your project. This folder contains all of the Elm dependencies we specified in our `elm-package.json` file.
 
 ### Build Tools
 
-Now we have Node, Gulp, Elm, and the API installed. Let's set up our build configuration. Create and populate a `package.json`, which should live at our project's root:
+Now we have Node, Gulp, Elm, and the API installed. Let's set up our build configuration. Create and populate a `package.json` file, which should live at our project's root:
 
 ```js
 // package.json
@@ -117,7 +117,7 @@ Once the `package.json` file is in place, install the Node dependencies:
 npm install
 ```
 
-Next, create a `gulpfile.js`:
+Next, create a `gulpfile.js` file:
 
 ```js
 // gulpfile.js
@@ -176,7 +176,7 @@ The default `gulp` task will compile Elm, watch and copy files to a `/dist` fold
 
 Our development files should be located in a `/src` folder. Please create the `/dist` and `/src` folders at the root of the project. Our file structure now looks like this:
 
-![file structure](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/file-structure.png)
+![file structure](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/file-structure1.jpg)
 
 ### Syntax Highlighting
 
@@ -200,7 +200,7 @@ _Note: Since Gulp is compiling Elm for us, if we have compile errors they will s
 
 ### HTML
 
-We'll start by creating a basic `index.html`:
+We'll start by creating a basic `index.html` file:
 
 ```html
 <!-- index.html -->
@@ -256,25 +256,15 @@ blockquote {
 }
 ```
 
-Our file structure should now look like this:
-
-```
-/dist
-/elm-stuff
-/node_modules
-/src
-  |-- index.html
-  |-- styles.css
-elm-package.json  
-gulpfile.js
-package.json
-```
-
 ### Introduction to Elm
 
 We're ready to start writing Elm. Create a file in the `/src` folder called `Main.elm`. The full code for this step is available in the source repository on GitHub:
 
  **[Main.elm - Introduction to Elm](https://github.com/YiMihi/elm-app-jwt-api/blob/20dc6e6e8c049f68dbf47492933659b9d19103c1/src/Main.elm)**
+ 
+Our file structure should now look like this:
+
+![file structure 2](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/file-structure2.jpg)
 
 If you're already familiar with Elm you can skip ahead. If Elm is brand new to you, keep reading: we'll introduce The Elm Architecture and Elm's language syntax by thoroughly breaking down this code. Make sure you have a good grasp of this section before moving on; the next sections will assume an understanding of the syntax and concepts.
 
