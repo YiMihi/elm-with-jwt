@@ -23,7 +23,7 @@ tags:
 
 All JavaScript app developers are likely familiar with this scenario: we implement logic, deploy our code, and then in QA (or worse, production) we encounter a runtime error! Maybe it was something we forgot to write a test for, or it's an obscure edge case we didn't foresee. Either way, when it comes to business logic in production code, we often spend post-launch with the vague threat of errors hanging over our heads.
 
-Enter [Elm](http://www.elm-lang.org): a [functional](https://www.smashingmagazine.com/2014/07/dont-be-scared-of-functional-programming/), [reactive](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754) front-end programming language that compiles to JavaScript, making it great for web applications that run in the browser. Elm's compiler presents us with friendly error messages _before_ runtime, thereby eliminating RTEs.
+Enter [Elm](http://www.elm-lang.org): a [functional](https://www.smashingmagazine.com/2014/07/dont-be-scared-of-functional-programming/), [reactive](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754) front-end programming language that compiles to JavaScript, making it great for web applications that run in the browser. Elm's compiler presents us with friendly error messages _before_ runtime, thereby eliminating runtime errors.
 
 ## Why Elm?
 
