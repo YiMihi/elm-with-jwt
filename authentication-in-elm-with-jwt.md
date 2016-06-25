@@ -43,7 +43,7 @@ The full source code for our finished app can be [cloned on GitHub here](https:/
 
 We're going to use [Gulp](http://gulpjs.com) to build and serve our application locally and [NodeJS](https://nodejs.org/en) to serve our API and install dependencies through the Node Package Manager (npm). If you don't already have Node and Gulp installed, please visit their respective websites and follow instructions for download and installation. 
 
-_Note: Webpack is an alternative to Gulp. If you're interested in trying a customizable webpack build in the future for larger Elm projects, check out [elm-webpack-loader](https://github.com/rtfeldman/elm-webpack-loader)._
+>Note: Webpack is an alternative to Gulp. If you're interested in trying a customizable webpack build in the future for larger Elm projects, check out [elm-webpack-loader](https://github.com/rtfeldman/elm-webpack-loader).
 
 We also need the API. Clone the [NodeJS JWT Authentication sample API](https://github.com/auth0-blog/nodejs-jwt-authentication-sample) repository and follow the README to get it running.
 
@@ -196,7 +196,7 @@ Let's fire up our Gulp task. This will start a local server and begin watching f
 gulp
 ```
 
-_Note: Since Gulp is compiling Elm for us, if we have compile errors they will show up in the command prompt / terminal window. If you have one of the Elm plugins installed in your editor, they should also show up inline in your code._
+>Note: Since Gulp is compiling Elm for us, if we have compile errors they will show up in the command prompt / terminal window. If you have one of the Elm plugins installed in your editor, they should also show up inline in your code.
 
 ### HTML
 
@@ -430,7 +430,7 @@ Last, we want to display the quote text. We'll do this with a `blockquote` and `
 
 We now have all the pieces in place for the first phase of our app! We can view it at [http://localhost:3000](http://localhost:3000). Try clicking the "Grab a quote!" button a few times.
 
-_Note: If the app didn't compile, Elm provides [compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) in the console and in your editor if you're using an Elm plugin. Elm will not compile if there are errors! This is to avoid runtime exceptions._
+>Note: If the app didn't compile, Elm provides [compiler errors for humans](http://elm-lang.org/blog/compiler-errors-for-humans) in the console and in your editor if you're using an Elm plugin. Elm will not compile if there are errors! This is to avoid runtime exceptions.
 
 That was a lot of detail, but now we're set on basic syntax and structure. We'll move on to build the features of our Chuck Norris Quoter app. 
 
@@ -939,7 +939,7 @@ There are minimal updates to the view. We'll add a logout button in the greeting
 
 Registered users can now log in and log out. Our application is really coming together!
 
-_Note: A nice enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?_
+>Note: A nice enhancement might be to show different forms for logging in and registering. Maybe the user should be asked to confirm their password when registering?
 
 ### Getting Protected Quotes
 
