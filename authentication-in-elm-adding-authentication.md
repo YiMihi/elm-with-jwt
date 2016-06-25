@@ -17,17 +17,15 @@ tags:
 
 ---
 
-**TL;DR:** We can write statically typed, functional, reactive SPAs on the front end with [Elm](http://www.elm-lang.org). Elm's compiler prevents runtime errors and compiles to JavaScript, making it an excellent choice for clean, speedy development. Learn how to write your first Elm app that calls an API and implements authentication with JSON Web Tokens. The full code is available in [this GitHub repository](https://github.com/YiMihi/elm-app-jwt-api).
+**TL;DR:** In the first part of this tutorial, we introduced the Elm language by building a [simple app that called an API](https://github.com/YiMihi/elm-with-jwt/blob/master/authentication-in-elm-intro-to-elm-and-calling-an-api.md). Now we'll authenticate with JSON Web Tokens to make protected API requests. The full code is available in [this GitHub repository](https://github.com/YiMihi/elm-app-jwt-api).
 
 ---
 
-## Intro
-
-TBD
+Elm is a strongly typed reactive language that compiles to JavaScript. In the first part of this Elm tutorial, we built a small web app to introduce the language and its syntax. Now we'll continue to build out our Chuck Norris Quoter app to add user registration, login, and make authenticated API requests with JSON Web Tokens. We'll also use JavaScript interop to store and retrieve data with local storage.
 
 ## Authenticating the Chuck Norris Quoter App
 
-TBD
+TBD 
 
 ### Registering a User
 
