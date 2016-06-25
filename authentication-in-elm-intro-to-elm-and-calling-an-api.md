@@ -17,7 +17,7 @@ tags:
 
 ---
 
-**TL;DR:** We can write statically typed, functional, reactive SPAs on the front end with [Elm](http://www.elm-lang.org). Elm's compiler prevents runtime errors and compiles to JavaScript, making it an excellent choice for clean, speedy development. Learn how to write your first Elm app that calls an API and implements authentication with JSON Web Tokens. The full code is available in [this GitHub repository](https://github.com/YiMihi/elm-app-jwt-api).
+**TL;DR:** We can write statically typed, functional, reactive SPAs on the front end with [Elm](http://www.elm-lang.org). Elm's compiler prevents runtime errors and compiles to JavaScript, making it an excellent choice for clean, speedy development. In part one of this tutorial will show you how to write your first Elm app and request data from an API. In part two, learn how to add authentication using JSON Web Tokens. The full code is available at [this GitHub repository](https://github.com/YiMihi/elm-app-jwt-api).
 
 ---
 
@@ -33,7 +33,7 @@ If we head over to the [Elm site](http://www.elm-lang.org), we're greeted with a
 
 ## Building an Elm Web App
 
-We're going to build a small Elm application that will call an API to retrieve random Chuck Norris quotes. We'll also be able to register, log in, and access protected quotes with JSON Web Tokens. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In addition, we'll cover common real-world requirements like implementing HTTP and using JavaScript interop to store data in local storage.
+In the first half of this two-part tutorial, we're going to build a small Elm application that will call an API to retrieve random Chuck Norris quotes. In doing so, we'll learn Elm basics like how to compose an app with a view and a model and how to update application state. In part two of the tutorial, we'll add the ability to register, log in, and access protected quotes with JSON Web Tokens. We'll also cover common real-world requirements like implementing HTTP and using JavaScript interop to store data in local storage.
 
 If you're [familiar with JavaScript but new to Elm](http://elm-lang.org/docs/from-javascript) the language might look a little strange at first--but once we start building, we'll learn how the [Elm Architecture](http://guide.elm-lang.org/architecture/index.html), [types](http://guide.elm-lang.org/types), and [clean syntax](http://elm-lang.org/docs/syntax) can really streamline development. This tutorial is structured to help JavaScript developers get started with Elm without assuming previous experience with other functional or strongly typed languages. 
 
@@ -184,7 +184,7 @@ There's one more thing we should do before we start writing Elm, and that is to 
 
 ## Chuck Norris Quoter App
 
-We're going to build an app that does more than echo "Hello world". We're going to connect to an API, register, log in, and make authenticated requests--but we'll start simple. First we'll display a button that appends a string to our model each time it's clicked.
+We're going to build an app that does more than echo "Hello world". We're going to connect to an API to request and display data and [in part two](https://github.com/YiMihi/elm-with-jwt/blob/master/authentication-in-elm-adding-authentication.md), we'll add registration, login, and make authenticated requests--but we'll start simple. First we'll display a button that appends a string to our model each time it's clicked.
 
 Once we've got things running, our app should look like this:
 
@@ -540,7 +540,7 @@ Next we add these cases to the `update` function and declare what we want return
 
 It's important to remember that the `update` function's type is `Msg -> Model -> (Model, Cmd Msg)`. This means that all branches of the `case` statement _must_ return the same type. If any branch does not return a tuple with a model and a command, a compiler error will occur.
 
-Nothing changes in the `view`. We altered the `GetQuote` onClick function logic, but everything that we've written in the HTML works fine with our updated code. Try it out!
+Nothing changes in the `view`. We altered the `GetQuote` onClick function logic, but everything that we've written in the HTML works fine with our updated code. This concludes our basic API integration for the first half of this tutorial. Try it out! In part two, we'll tackle adding users and authentication.
 
 #### Aside: Reading Compiler Type Errors
 
@@ -558,6 +558,6 @@ A lowercase variable `a` means "anything could go here". The above means "takes 
 
 Elm always infers types. If we've declared type definitions, Elm checks its inferences against our definitions. We'll define types upfront in most places in our app. It's best practice to define the types at the top-level at a minimum. If Elm finds a type mismatch, it will tell us what type it has inferred. Resolving type mismatches can be one of the larger challenges to developers coming from a loosely typed language like JS (without Typescript), so it's worth spending time getting comfortable with this. 
 
-## Conclusion
+## Recap and Next Steps
 
-TBD
+We've covered installing and using the Elm language and learned how to create our first app. We've also integrated with an external API through HTTP. You should now be familiar with Elm's basic syntax, type annotation, and compiler errors. If you'd like, take a little more time to familiarize with [Elm's documentation](http://elm-lang.org/docs). The [Elm FAQ](http://elm-community.github.io/elm-faq/) is another great resource from the Elm developer community. In the second half of this tutorial, we'll take a deeper dive into [authenticating our Chuck Norris Quoter app using JSON Web Tokens](https://github.com/YiMihi/elm-with-jwt/blob/master/authentication-in-elm-adding-authentication.md).
