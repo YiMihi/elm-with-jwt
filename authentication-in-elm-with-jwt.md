@@ -176,15 +176,7 @@ The default `gulp` task will compile Elm, watch and copy files to a `/dist` fold
 
 Our development files should be located in a `/src` folder. Please create the `/dist` and `/src` folders at the root of the project. Our file structure now looks like this:
 
-```
-/dist
-/elm-stuff
-/node_modules
-/src
-elm-package.json
-gulpfile.js
-package.json
-```
+![file structure](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/file-structure.png)
 
 ### Syntax Highlighting
 
