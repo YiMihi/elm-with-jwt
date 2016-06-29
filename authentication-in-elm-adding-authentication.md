@@ -21,15 +21,15 @@ tags:
 
 ---
 
-Elm is a strongly typed reactive language that compiles to JavaScript. In the first part of this Elm tutorial, we built a small web app to introduce the language and its syntax. Now we'll continue to build out our Chuck Norris Quoter app to add user registration, login, and make authenticated API requests with JSON Web Tokens. We'll also use JavaScript interop to store and retrieve data with local storage.
+Elm is a reactive language that compiles to JavaScript. Its robust compiler and static typing make it a nice option for developing applications for the browser that are free of runtime errors. In the first part of this Elm tutorial, we built a small web app to introduce the language and its syntax. 
 
 ## Authenticating the Chuck Norris Quoter App
 
-TBD 
+Now we'll continue to build out our Chuck Norris Quoter app to add user registration, login, and make authenticated API requests with JSON Web Tokens. We'll also use JavaScript interop to persist user sessions with local storage.
 
 ### Registering a User
 
-We're now getting quotes from the API. We also need registration so users can be issued [JSON Web Tokens](https://auth0.com/learn/json-web-tokens) with which to access protected quotes. We'll create a form that submits a `POST` request to the API to create a new user and return a token.
+Last time, we finished up by retrieving Chuck Norris quotes from the API. We also need registration so users can be issued [JSON Web Tokens](https://auth0.com/learn/json-web-tokens) with which to access protected quotes. We'll create a form that submits a `POST` request to the API to create a new user and return a token.
 
 ![elm quote](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/step3a.jpg)
 
