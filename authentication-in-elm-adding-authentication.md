@@ -773,7 +773,7 @@ Then we'll instantiate a lock instance:
 var lock = new Auth0Lock(<YOUR_CLIENT_ID>, <YOUR_CLIENT_DOMAIN>);
 ```
 
-Next we need to set up the JS necessary to instantiate the Elm application with flags and ports to interoperate with the lock widget and `localStorage`. We'll request a stored profile and token and use those to recreate an object that matches the record we'll use in the `Auth0.elm` module for a `LoggedInUser`. We then create ports to show the lock widget and log out, adding and removing items from local storage accordingly.
+Next we'll set up the JS to instantiate the Elm application with flags and ports to interoperate with the lock widget and `localStorage`. We'll request a stored profile and token and if available, we'll recreate an object that matches the record we'll use in the `Auth0.elm` module for a `LoggedInUser`. Then we'll create ports to show the lock widget and perform logout, adding and removing items from local storage accordingly.
 
 ### Auth0 Module
 
@@ -961,7 +961,7 @@ isLoggedIn model =
             False
 ```
 
-We need to import the `Auth0` module so we can reference it. The model provides a way for our `Main` Elm module to send data into the `Authentication` module. We'll do this by passing arguments to `Authentication`'s `init` function from the `Main` module. We'll establish a `Msg` union type and then in our `update` function, handle authentication results, showing the lock widget, and logging out. 
+We need to import the `Auth0` module so we can reference it. The model provides a way for our `Main` Elm module to send data into the `Authentication` module. We'll do this by passing arguments to `Authentication`'s `init` function from the `Main` module. We'll establish a `Msg` union type and then in our `update` function, we can handle authentication results, show the lock widget, and log out. 
 
 ### Implementing Auth0 in Main.elm
 
@@ -1078,7 +1078,7 @@ view model =
 
 We'll use `programWithFlags` because we want to check for an existing user and token in local storage upon initialization. The model contains the `Authentication` model record we set up earlier. 
 
-In the `init` function, we will `init` `Authentication` and pass in arguments for the port that shows the lock, logs out, and the initial user from local storage if available (recall that we set this up in `index.html` to mirror the `LoggedInUser` type from the `Auth0` module).
+In the `init` function, we will `init` `Authentication` and pass in arguments for the ports that show the lock and log out. We'll also pass the initial user from local storage if available (recall that we set this up in `index.html` to mirror the `LoggedInUser` type from the `Auth0` module).
 
 We need to subscribe to the `auth0authResult` port to listen for external input from Auth0 lock logins.
 
