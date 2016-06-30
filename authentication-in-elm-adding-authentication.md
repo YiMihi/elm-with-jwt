@@ -687,6 +687,405 @@ Now when we authenticate, local storage will keep our data so when we refresh or
 
 If everything compiles and works as expected, we're done with our basic Chuck Norris Quoter application!
 
+## Aside: Using Auth0 with Elm
+
+Auth0 provides registration, login, and authentication with JSON Web Tokens. We can add Auth0 authentication to an Elm app by setting up a couple of additional Elm modules and importing them for use in an app's `Main.elm` file. [Marcus Griep](http://twitter.com/neoeinstein) has a great [Elm Workshop with 0.17 available on GitHub](https://github.com/Cimpress-MSWLSC/elm-workshop/blob/master/elm-workshop.md) that includes an [Auth0.elm module](https://github.com/Cimpress-MSWLSC/elm-workshop/blob/master/src/Auth0.elm) and an [Authentication.elm module](https://github.com/Cimpress-MSWLSC/elm-workshop/blob/master/src/Authentication.elm).
+
+These modules are great resources to help you implement Auth0 with Elm. We will introduce and build on them in a new app to demonstrate how to use Auth0's lock widget with JSON Web Tokens. The modules will be imported into our `Main.elm` file and we'll use JS interop to interface with [Auth0's lock component](https://auth0.com/docs/libraries/lock).
+
+![elm with Auth0](https://raw.githubusercontent.com/YiMihi/elm-with-jwt/master/article-assets/aside-auth0.jpg)
+
+### Auth0 Lock Interop and Local Storage
+
+In our `index.html` file, we'll use JavaScript to implement ports that instantiate the Auth0 lock and log out:
+
+```html
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>Elm with Auth0</title>
+        <script src="Main.js"></script>
+        <script src="Auth0.js"></script>
+        <script src="Authentication.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    </head>
+    
+    <body>
+    </body>
+    
+    <script src="//cdn.auth0.com/js/lock-9.1.min.js"></script>
+    <script>
+        var lock = new Auth0Lock(<YOUR_CLIENT_ID>, <YOUR_CLIENT_DOMAIN>);
+        var storedProfile = localStorage.getItem('profile');
+        var storedToken = localStorage.getItem('token');
+        var authData = storedProfile && storedToken ? { profile: JSON.parse(storedProfile), token: storedToken } : null;
+        var elmApp = Elm.Main.fullscreen(authData);
+
+        elmApp.ports.auth0showLock.subscribe(function(opts) {
+            opts.connections = ['Username-Password-Authentication'];
+
+            lock.show(opts, function(err, profile, token) {
+                var result = { err: null, ok: null };
+
+                if (!err) {
+                    result.ok = { profile: profile, token: token };
+                    localStorage.setItem('profile', JSON.stringify(profile));
+                    localStorage.setItem('token', token);
+                } else {
+                    result.err = err.details;
+
+                    // Ensure that optional fields are on the object
+                    result.err.name = result.err.name ? result.err.name : null;
+                    result.err.code = result.err.code ? result.err.code : null;
+                    result.err.statusCode = result.err.statusCode ? result.err.statusCode : null;
+                }
+                elmApp.ports.auth0authResult.send(result);
+            });
+        });
+
+        elmApp.ports.auth0logout.subscribe(function(opts) {
+            localStorage.removeItem('profile');
+            localStorage.removeItem('token');
+        });
+    </script>
+</html>    
+```
+
+First we need to add our compiled Elm files as well as the Auth0 lock widget JavaScript file:
+
+```html
+<script src="Main.js"></script>
+<script src="Auth0.js"></script>
+<script src="Authentication.js"></script>
+
+...
+
+<script src="//cdn.auth0.com/js/lock-9.1.min.js"></script>
+```
+
+Then we'll instantiate a lock instance:
+
+```js
+var lock = new Auth0Lock(<YOUR_CLIENT_ID>, <YOUR_CLIENT_DOMAIN>);
+```
+
+Next we need to set up the JS necessary to instantiate the Elm application with flags and ports to interoperate with the lock widget and `localStorage`. We'll request a stored profile and token and use those to recreate an object that matches the record we'll use in the `Auth0.elm` module for a `LoggedInUser`. We then create ports to show the lock widget and log out, adding and removing items from local storage accordingly.
+
+### Auth0 Module
+
+Next we'll build our `Auth0.elm` module:
+
+```js
+-- Auth0.elm
+
+module Auth0
+    exposing
+        ( AuthenticationState(..)
+        , AuthenticationError
+        , AuthenticationResult
+        , RawAuthenticationResult
+        , Options
+        , defaultOpts
+        , LoggedInUser
+        , UserProfile
+        , Token
+        , mapResult
+        )
+
+
+type alias LoggedInUser =
+    { profile : UserProfile
+    , token : Token
+    }
+
+
+type AuthenticationState
+    = LoggedOut
+    | LoggedIn LoggedInUser
+
+
+type alias Options =
+    {}
+
+
+type alias UserProfile =
+    { email : String
+    , email_verified : Bool
+    , name : String
+    , nickname : String
+    , picture : String
+    , user_id : String
+    }
+
+
+type alias Token =
+    String
+
+
+type alias AuthenticationError =
+    { name : Maybe String
+    , code : Maybe String
+    , description : String
+    , statusCode : Maybe Int
+    }
+
+
+type alias AuthenticationResult =
+    Result AuthenticationError LoggedInUser
+
+
+type alias RawAuthenticationResult =
+    { err : Maybe AuthenticationError
+    , ok : Maybe LoggedInUser
+    }
+
+
+mapResult : RawAuthenticationResult -> AuthenticationResult
+mapResult result =
+    case ( result.err, result.ok ) of
+        ( Just msg, _ ) ->
+            Err msg
+
+        ( Nothing, Nothing ) ->
+            Err { name = Nothing, code = Nothing, statusCode = Nothing, description = "No information was received from the authentication provider" }
+
+        ( Nothing, Just user ) ->
+            Ok user
+            
+            
+defaultOpts : Options
+defaultOpts =
+    {}
+```
+
+This module handles responses from Auth0 authentication requests. It defines authentication state and types for the user's profile, JWT, authentication errors, and results. 
+
+### Authentication Module
+
+Now we need a way for the Auth0 module to interface with the authentication logic for our Elm app. We'll set this up in an `Authentication.elm` file:
+
+```js
+-- Authentication.elm
+
+module Authentication
+    exposing
+        ( Msg(..)
+        , Model
+        , init
+        , update
+        , handleAuthResult
+        , tryGetUserProfile
+        , isLoggedIn
+        )
+
+import Auth0
+
+
+type alias Model =
+    { state : Auth0.AuthenticationState
+    , lastError : Maybe Auth0.AuthenticationError
+    , showLock : Auth0.Options -> Cmd Msg
+    , logOut : () -> Cmd Msg
+    }
+
+
+init : (Auth0.Options -> Cmd Msg) -> (() -> Cmd Msg) -> Maybe Auth0.LoggedInUser -> Model
+init showLock logOut initialData =
+    { state =
+        case initialData of
+            Just user ->
+                Auth0.LoggedIn user
+
+            Nothing ->
+                Auth0.LoggedOut
+    , lastError = Nothing
+    , showLock = showLock
+    , logOut = logOut
+    }
+
+
+type Msg
+    = AuthenticationResult Auth0.AuthenticationResult
+    | ShowLogIn
+    | LogOut
+    
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        AuthenticationResult result ->
+            let
+                ( newState, error ) =
+                    case result of
+                        Ok user ->
+                            ( Auth0.LoggedIn user, Nothing )
+
+                        Err err ->
+                            ( model.state, Just err )
+            in
+                ( { model | state = newState, lastError = error }, Cmd.none )
+
+        ShowLogIn ->
+            ( model, model.showLock Auth0.defaultOpts )
+
+        LogOut ->
+            ( { model | state = Auth0.LoggedOut }, model.logOut () )
+
+
+handleAuthResult : Auth0.RawAuthenticationResult -> Msg
+handleAuthResult =
+    Auth0.mapResult >> AuthenticationResult
+
+
+tryGetUserProfile : Model -> Maybe Auth0.UserProfile
+tryGetUserProfile model =
+    case model.state of
+        Auth0.LoggedIn user ->
+            Just user.profile
+
+        Auth0.LoggedOut ->
+            Nothing
+
+
+isLoggedIn : Model -> Bool
+isLoggedIn model =
+    case model.state of
+        Auth0.LoggedIn _ ->
+            True
+
+        Auth0.LoggedOut ->
+            False
+```
+
+We need to import the `Auth0` module so we can reference it. The model provides a way for our `Main` Elm module to send data into the `Authentication` module. We'll do this by passing arguments to `Authentication`'s `init` function from the `Main` module. We'll establish a `Msg` union type and then in our `update` function, handle authentication results, showing the lock widget, and logging out. 
+
+### Implementing Auth0 in Main.elm
+
+Our modules are ready to use. We'll import them in our `Main.elm` program file and create our `model`, `update`, and `view`:
+
+```js
+-- Main.elm
+
+port module Main exposing (..)
+
+import Html exposing (..)
+import Html.App as Html
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
+import Auth0
+import Authentication
+
+
+main : Program (Maybe Auth0.LoggedInUser)
+main =
+    Html.programWithFlags
+        { init = init
+        , update = update
+        , subscriptions = subscriptions
+        , view = view
+        }
+
+
+type alias Model =
+    { authModel : Authentication.Model
+    }
+
+
+-- Init
+
+init : Maybe Auth0.LoggedInUser -> ( Model, Cmd Msg )
+init initialUser =
+    ( Model (Authentication.init auth0showLock auth0logout initialUser), Cmd.none )
+
+
+-- Messages
+
+type Msg
+    = AuthenticationMsg Authentication.Msg
+
+
+-- Ports
+
+port auth0showLock : Auth0.Options -> Cmd msg
+port auth0authResult : (Auth0.RawAuthenticationResult -> msg) -> Sub msg
+port auth0logout : () -> Cmd msg
+
+
+-- Update
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        AuthenticationMsg authMsg ->
+            let
+                ( authModel, cmd ) =
+                    Authentication.update authMsg model.authModel
+            in
+                ( { model | authModel = authModel }, Cmd.map AuthenticationMsg cmd )
+
+
+
+-- Subscriptions
+
+subscriptions : a -> Sub Msg
+subscriptions model =
+    auth0authResult (Authentication.handleAuthResult >> AuthenticationMsg)
+
+
+-- View
+
+view : Model -> Html Msg
+view model =
+    div [ class "container" ]
+        [ div [ class "jumbotron text-center" ]
+            [ div []
+                (case Authentication.tryGetUserProfile model.authModel of
+                    Nothing ->
+                        [ p [] [ text "Please log in" ] ]
+
+                    Just user ->
+                        [ p [] [ img [ src user.picture ] [] ]
+                        , p [] [ text ("Hello, " ++ user.name ++ "!") ]
+                        ]
+                )
+            , p []
+                [ button
+                    [ class "btn btn-primary"
+                    , onClick
+                        (AuthenticationMsg
+                            (if Authentication.isLoggedIn model.authModel then
+                                Authentication.LogOut
+                                else
+                                Authentication.ShowLogIn
+                            )
+                        )
+                    ]
+                    [ text
+                        (if Authentication.isLoggedIn model.authModel then
+                            "Logout"
+                            else
+                            "Login"
+                        )
+                    ]
+                ]
+            ]
+        ]
+```
+
+We'll use `programWithFlags` because we want to check for an existing user and token in local storage upon initialization. The model contains the `Authentication` model record we set up earlier. 
+
+In the `init` function, we will `init` `Authentication` and pass in arguments for the port that shows the lock, logs out, and the initial user from local storage if available (recall that we set this up in `index.html` to mirror the `LoggedInUser` type from the `Auth0` module).
+
+We need to subscribe to the `auth0authResult` port to listen for external input from Auth0 lock logins.
+
+> Aside: `>>` represents function chaining. 
+
+Finally, the view displays a message and button to open the lock widget if there is no authentication data in storage, and a greeting with the user's avatar along with a logout button if there is.
+
 ## Elm: Now and Future
 
 We made a simple app but covered a lot of ground with Elm's architecture, syntax, and implementation of features you'll likely come across in web application development. Authenticating with JWT was straightforward and packages and JS interop offer a lot of extensibility.
