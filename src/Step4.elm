@@ -152,10 +152,10 @@ update msg model =
             ( model, authUserCmd model loginUrl ) 
 
         GetTokenSuccess newToken ->
-            ( { model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none )  
+            ( { model | token = newToken, password = "", errorMsg = "" } |> Debug.log "got new token", Cmd.none )  
             
         LogOut ->
-            ( { model | username = "", password = "", token = "", errorMsg = "" }, Cmd.none )
+            ( { model | username = "", token = "" }, Cmd.none )
                        
 {-
     VIEW

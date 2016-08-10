@@ -187,7 +187,7 @@ update msg model =
             ( model, authUserCmd model loginUrl ) 
 
         GetTokenSuccess newToken ->
-            ( { model | token = newToken, errorMsg = "" }, Cmd.none ) 
+            ( { model | token = newToken, password = "", errorMsg = "" }, Cmd.none ) 
 
         GetProtectedQuote ->
             ( model, fetchProtectedQuoteCmd model )
@@ -196,7 +196,7 @@ update msg model =
             ( { model | protectedQuote = newPQuote }, Cmd.none )  
             
         LogOut ->
-            ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, Cmd.none )
+            ( { model | username = "", protectedQuote = "", token = "" }, Cmd.none )
                        
 {-
     VIEW

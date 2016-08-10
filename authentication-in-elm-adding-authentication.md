@@ -211,14 +211,14 @@ update msg model =
             ( model, authUserCmd model registerUrl )
 
         GetTokenSuccess newToken ->
-            ( { model | token = newToken, errorMsg = "" } |> Debug.log "got new token", Cmd.none )
+            ( { model | token = newToken, password = "", errorMsg = "" } |> Debug.log "got new token", Cmd.none )
 ```  
 
 We want to display authentication errors to the user. Unlike the `HttpError` message we implemented earlier, `AuthError` won't discard its argument. The type of the `error` argument is [`Http.Error`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Error). As you can see from the docs, this is a union type that could be a few different errors. For the sake of simplicity, we're going to convert the error to a string and update the model's `errorMsg` with that string. A good exercise later would be to translate the different errors to more user-friendly messaging.
 
 The `SetUsername` and `SetPassword` messages are for sending form field values to update the model. `ClickRegisterUser` is the `onClick` for our "Register" button. It runs the `authUserCmd` command we just created and passes the model and the API route for new user creation. 
 
-`GetTokenSuccess` is the success function for the `authUser` task. Its argument is the token string. We'll update our model with the token so we can use it to request protected quotes later. This is a good place to verify that everything is working as expected, so let's log the updated model to the browser console using the `|>` forward function application alias and a [`Debug.log`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Debug#log): `{ model | token = newToken, errorMsg = "" } |> Debug.log "got new token"`. After checking out the log and verifying, we'll remove it. We don't want our exposed model hanging around in the console!
+`GetTokenSuccess` is the success function for the `authUser` task. Its argument is the token string. We'll update our model with the token so we can use it to request protected quotes later. We've also authenticated the user now, so we can clear the password and any errors. This is a good place to verify that everything is working as expected, so let's log the updated model to the browser console using the `|>` forward function application alias and a [`Debug.log`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Debug#log): `{ model | token = newToken, password = "", errorMsg = "" } |> Debug.log "got new token"`. After verifying our expectations in the browser console, we should remove the `Debug.log`.
 
 ```js
 {-
@@ -376,10 +376,10 @@ update msg model =
         ...
             
         LogOut ->
-            ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, Cmd.none )
+            ( { model | username = "", protectedQuote = "", token = "" }, Cmd.none )
 ```
 
-`ClickLogIn` runs the `authUserCmd` command with the appropriate arguments. `LogOut` resets authentication-related data in the model record to empty strings.
+`ClickLogIn` runs the `authUserCmd` command with the appropriate arguments. `LogOut` resets authentication-related data in the model record to empty strings. We don't need to reset the `password` or `errorMsg` because we already did so when we successfully retrieved a token in `GetTokenSuccess`. 
 
 ```js
 ...
@@ -674,7 +674,7 @@ update msg model =
             setStorageHelper { model | protectedQuote = newPQuote }
             
         LogOut ->
-            ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, removeStorage model )    
+            ( { model | username = "", protectedQuote = "", token = "" }, removeStorage model )    
 ```                
 
 We need to define the type annotation for our `setStorage` and `removeStorage` ports. They'll take a model and return a command. The lowercase `msg` is significant because this is an [effect manager](http://guide.elm-lang.org/effect_managers) and its type is actually `Cmd a`. It does not send messages back to the program. Keep in mind that using `Cmd Msg` here will result in a compiler error.

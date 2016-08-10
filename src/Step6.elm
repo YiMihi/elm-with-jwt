@@ -213,7 +213,7 @@ update msg model =
             setStorageHelper { model | protectedQuote = newPQuote }
             
         LogOut ->
-            ( { model | username = "", password = "", protectedQuote = "", token = "", errorMsg = "" }, removeStorage model )
+            ( { model | username = "", protectedQuote = "", token = "" }, removeStorage model )
                        
 {-
     VIEW
