@@ -218,7 +218,7 @@ We want to display authentication errors to the user. Unlike the `HttpError` mes
 
 The `SetUsername` and `SetPassword` messages are for sending form field values to update the model. `ClickRegisterUser` is the `onClick` for our "Register" button. It runs the `authUserCmd` command we just created and passes the model and the API route for new user creation. 
 
-`GetTokenSuccess` is the success function for the `authUser` task. Its argument is the token string. We'll update our model with the token so we can use it to request protected quotes later. This is a good place to verify that everything is working as expected, so let's log the updated model to the browser console using the `|>` forward function application alias and a [`Debug.log`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Debug#log): `{ model | token = newToken, errorMsg = "" } |> Debug.log "got new token"`.
+`GetTokenSuccess` is the success function for the `authUser` task. Its argument is the token string. We'll update our model with the token so we can use it to request protected quotes later. This is a good place to verify that everything is working as expected, so let's log the updated model to the browser console using the `|>` forward function application alias and a [`Debug.log`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Debug#log): `{ model | token = newToken, errorMsg = "" } |> Debug.log "got new token"`. After checking out the log and verifying, we'll remove it. We don't want our exposed model hanging around in the console!
 
 ```js
 {-
