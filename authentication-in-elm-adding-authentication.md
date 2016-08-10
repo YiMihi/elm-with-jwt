@@ -1,23 +1,30 @@
 ---
 layout: post
-title: "Build an App in Elm with JWT Authentication and an API"
-description: "Explore building an app in the functional, reactive front-end language Elm, complete with an API and JWT authentication."
-date: 2016-06-08
+title: "Creating Your First Elm App: From Authentication to Calling an API (Part 2)"
+description: "Explore building an app in the functional, reactive front-end language Elm. This 2nd part focus on adding authentication to an Elm App."
+date: 2016-08-09 08:30
+design:
+  bg_color: "#2D2D2D"
+  image: https://cdn.auth0.com/blog/intro-to-elm/logo.png
 author:
   name: Kim Maida
   url: http://twitter.com/KimMaida
   mail: kim@kmaida.io
-  avatar: https://en.gravatar.com/userimage/20807150/4c9e5bd34750ec1dcedd71cb40b4a9ba.png   
+  avatar: https://en.gravatar.com/userimage/20807150/4c9e5bd34750ec1dcedd71cb40b4a9ba.png
 tags:
-- jwt
 - elm
+- jwt
 - javascript
 - authentication
+related:
+- 2016-08-04-creating-your-first-elm-app-part-1
+- 2016-07-14-create-an-app-in-vuejs-2
+- 2016-04-13-authentication-in-golang
 ---
 
 ---
 
-**TL;DR:** In the first part of this tutorial, we introduced the Elm language by building a [simple app that called an API](https://github.com/YiMihi/elm-with-jwt/blob/master/authentication-in-elm-intro-to-elm-and-calling-an-api.md). Now we'll authenticate with JSON Web Tokens to make protected API requests. The full code is available in [this GitHub repository](https://github.com/YiMihi/elm-app-jwt-api).
+**TL;DR:** In the first part of this tutorial, we introduced the Elm language by building a [simple Elm Application that called an API](https://auth0.com/blog/creating-your-first-elm-app-part-1/). Now we'll authenticate with JSON Web Tokens to make protected API requests. The full code is available in [this GitHub repository](https://github.com/kmaida/auth0-elm-with-jwt-api).
 
 ---
 
@@ -39,18 +46,18 @@ After the user has registered, we'll display a welcome message:
 
 Here's the complete `Main.elm` code for this step:
 
-**[Main.elm - Registering a User](https://github.com/YiMihi/elm-app-jwt-api/blob/2430b530ee437cc3c742ef12245008439108987f/src/Main.elm)**
+**[Main.elm - Registering a User](https://github.com/kmaida/auth0-elm-with-jwt-api/blob/step-3/src/Main.elm)**
 
 Starting with new imports:
 
-```js
+```elm
 import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode exposing (..)
 ```
 
 We'll be sending objects and receiving JSON now instead of just working with a string API response, so we need to be able to translate these from and to Elm records.
 
-```js
+```elm
 {- 
     MODEL
     * Model type 
@@ -75,7 +82,7 @@ Our model needs to hold more data than just a quote now. We've added `username`,
 
 We'll initialize our application with empty strings for all of the above.
 
-```js
+```elm
 {-
     UPDATE
     * API routes
@@ -97,7 +104,7 @@ registerUrl =
 
 The API route for `POST`ing new users is [http://localhost:3001/users](http://localhost:3001/users) so we'll create `registerUrl` to store this.
   
-```js
+```elm
 -- Encode user to construct POST request body (for Register and Log In)
     
 userEncoder : Model -> Encode.Value
@@ -112,7 +119,7 @@ The API expects the request body for registration and login to be a JavaScript o
 
 An Elm record is not the same as a JavaScript object so we need to [encode](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#encode) the applicable properties of our model before we can send them with the HTTP request. The `userEncoder` function utilizes [`Json.Encode.object`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Json-Encode#object) to take the model and return the encoded value.
 
-```js
+```elm
 -- POST register / login request
     
 authUser : Model -> String -> Task Http.Error String
@@ -132,9 +139,9 @@ We'll call this effect function `authUser` (for "authenticate a user"). The type
 
 Let's take a closer look at these lines:
 
-```js
+```elm
 ...
-	, body = Http.string <| Encode.encode 0 <| userEncoder model
+    , body = Http.string <| Encode.encode 0 <| userEncoder model
     }
     |> Http.send Http.defaultSettings
     |> Http.fromJson tokenDecoder
@@ -150,7 +157,7 @@ Next we have [forward function application performed with `|>`](http://package.e
 
 We now have our `authUser` effect so we need to create an `authUserCmd` command. This should look familiar from fetching quotes earlier. We're also passing the API route as an argument. We'll create the `AuthError` and `GetTokenSuccess` messages shortly.
 
-```js
+```elm
 authUserCmd : Model -> String -> Cmd Msg    
 authUserCmd model apiUrl = 
     Task.perform AuthError GetTokenSuccess <| authUser model apiUrl
@@ -160,7 +167,7 @@ Because `authUser` takes arguments, we'll use `<|` to tell the app that the `mod
 
 We'll also define the `tokenDecoder` function that ensures we can work with the response from the HTTP request:
 
-```js   
+```elm   
 -- Decode POST response to get token
     
 tokenDecoder : Decoder String
@@ -170,9 +177,9 @@ tokenDecoder =
 
 When registering or logging in a user, the response from the API is JSON shaped like this:
 
-```js
+```elm
 {
-	"id_token": "someJWTTokenString"
+    "id_token": "someJWTTokenString"
 }
 ```
 
@@ -180,7 +187,7 @@ Recall that `:` means "has type" in Elm. We'll take the `id_token` and extract i
 
 Now we will do something with the result and set up a way for our UI to interact with the model:
 
-```js
+```elm
 -- Messages
 
 type Msg 
@@ -220,7 +227,7 @@ The `SetUsername` and `SetPassword` messages are for sending form field values t
 
 `GetTokenSuccess` is the success function for the `authUser` task. Its argument is the token string. We'll update our model with the token so we can use it to request protected quotes later. We've also authenticated the user now, so we can clear the password and any errors. This is a good place to verify that everything is working as expected, so let's log the updated model to the browser console using the `|>` forward function application alias and a [`Debug.log`](http://package.elm-lang.org/packages/elm-lang/core/4.0.1/Debug#log): `{ model | token = newToken, password = "", errorMsg = "" } |> Debug.log "got new token"`. After verifying our expectations in the browser console, we should remove the `Debug.log`.
 
-```js
+```elm
 {-
     VIEW
     * Hide sections of view depending on authenticaton state of model
@@ -336,11 +343,11 @@ We also need the ability to log out.
 
 The full `Main.elm` code with login and logout implemented will look like this:
 
-**[Main.elm - Logging In and Logging Out](https://github.com/YiMihi/elm-app-jwt-api/blob/22e9860f50be48410ee38a2f4a09f2caac9e4844/src/Main.elm)**
+**[Main.elm - Logging In and Logging Out](https://github.com/kmaida/auth0-elm-with-jwt-api/blob/step-4/src/Main.elm)**
 
 Login works like Register (and uses the same request body), so creating its functionality should be straightforward. 
 
-```js
+```elm
 -- API request URLs
     
 ... 
@@ -360,7 +367,7 @@ We already have the `authUser` effect and `authUserCmd` command, so all we need 
 type Msg 
     ...
     | ClickLogIn
-	 ...
+     ...
     | LogOut
 
 -- Update
@@ -368,8 +375,8 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-    	 ...
-    	 
+         ...
+         
         ClickLogIn ->
             ( model, authUserCmd model loginUrl ) 
 
@@ -379,9 +386,9 @@ update msg model =
             ( { model | username = "", protectedQuote = "", token = "" }, Cmd.none )
 ```
 
-`ClickLogIn` runs the `authUserCmd` command with the appropriate arguments. `LogOut` resets authentication-related data in the model record to empty strings. We don't need to reset the `password` or `errorMsg` because we already did so when we successfully retrieved a token in `GetTokenSuccess`. 
+`ClickLogIn` runs the `authUserCmd` command with the appropriate arguments. `LogOut` resets authentication-related data in the model record to empty strings. We don't need to reset the `password` or `errorMsg` because we already did so when we successfully retrieved a token in `GetTokenSuccess`.
 
-```js
+```elm
 ...
 
 if loggedIn then
@@ -396,8 +403,8 @@ if loggedIn then
 ...                    
 
 , div [ class "text-center" ] [
-	button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
-	, button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
+    button [ class "btn btn-primary", onClick ClickLogIn ] [ text "Log In" ]
+    , button [ class "btn btn-link", onClick ClickRegisterUser ] [ text "Register" ]
 ]
 
 ...
@@ -422,17 +429,17 @@ If a user is logged in, they'll be able to click a button to make API requests t
 
 Here's the completed `Main.elm` code for this step:
 
-**[Main.elm - Getting Protected Quotes](https://github.com/YiMihi/elm-app-jwt-api/blob/eeedaf70d2dd5f3848dbd539077c7d69a5745d04/src/Main.elm)**
+**[Main.elm - Getting Protected Quotes](https://github.com/kmaida/auth0-elm-with-jwt-api/blob/step-5/src/Main.elm)**
 
 We're going to need a new package:
 
-```js
+```elm
 import Http.Decorators
 ```
 
 We'll go into more detail regarding why this is needed when we make the `GET` request for the protected quotes.
 
-```js
+```elm
 {- 
     MODEL
     * Model type 
@@ -468,7 +475,7 @@ protectedQuoteUrl =
 
 Add the API route for the `protectedQuoteUrl`: [http://localhost:3001/api/protected/random-quote](http://localhost:3001/api/protected/random-quote).
 
-```js
+```elm
 -- GET request for random protected quote (authenticated)
     
 fetchProtectedQuote : Model -> Task Http.Error String
@@ -493,7 +500,7 @@ Now we need to handle the response. It's a string and not JSON so we won't be de
 
 Before that, we'll define the command: 
    
-```js    
+```elm    
 fetchProtectedQuoteCmd : Model -> Cmd Msg
 fetchProtectedQuoteCmd model = 
     Task.perform HttpError FetchProtectedQuoteSuccess <| fetchProtectedQuote model 
@@ -501,7 +508,7 @@ fetchProtectedQuoteCmd model =
 
 We're quite familiar with these commands now and there are no surprises here. We'll use the same `HttpError` that we used for fetching the unprotected quote and we'll create the `FetchProtectedQuoteSuccess` message shortly.
 
-```js    
+```elm    
 -- Extract GET plain text response to get protected quote    
     
 responseText : Http.Response -> String
@@ -515,7 +522,7 @@ responseText response =
 
 Since we're not using `getString` we need to extract the plain text from the result of our HTTP request. Type annotation says, "`responseText` takes a response and returns a string" which is our new protected quote. The type of the [response](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Response) is a record that contains, among other things, a `value`. If the [response value](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#Value) is a text string we'll return the text. In any other case we'll return an empty string.
 
-```js
+```elm
 -- Messages
 
 type Msg 
@@ -542,7 +549,7 @@ update msg model =
 
 There are no new concepts in the implementation of the messages here. `GetProtectedQuote` returns the command and `FetchProtectedQuoteSuccess` updates the model. 
 
-```js
+```elm
 -- If user is logged in, show button and quote; if logged out, show a message instructing them to log in
 protectedQuoteView = 
     let
@@ -593,11 +600,11 @@ We don't want our logged-in users to lose their data if they refresh their brows
 
 When we're done, our completed `Main.elm` will look like this:
 
-**[Main.elm - Persisting Logins with Local Storage](https://github.com/YiMihi/elm-app-jwt-api/blob/ff445bd645cc4595446742ca16232887d83d770e/src/Main.elm)**
+**[Main.elm - Persisting Logins with Local Storage](https://github.com/kmaida/auth0-elm-with-jwt-api/blob/step-6/src/Main.elm)**
 
 The first things you may notice are changes to our `Main` module and program:
 
-```js
+```elm
 port module Main exposing (..)
 
 ...
@@ -638,7 +645,7 @@ Then we need to set up ports so we can use features of `localStorage` in our Elm
 
 Now we'll go back to `Main.elm`:
 
-```js
+```elm
 -- Helper to update model and set localStorage with the updated model
 
 setStorageHelper : Model -> ( Model, Cmd Msg )
@@ -648,7 +655,7 @@ setStorageHelper model =
 
 We need a helper function of a specific type to save the model to local storage in multiple places in our `update`. Because the `update` type always expects a tuple with a model and command message returned, we need our helper to take the model as an argument and return the same type of tuple. We'll understand how this fits in a little more in a moment.
 
-```js
+```elm
 -- Messages
 
 ...
@@ -681,7 +688,7 @@ We need to define the type annotation for our `setStorage` and `removeStorage` p
 
 Finally, we're going to replace some of our `update` returns with the `setStorageHelper` and use the `removeStorage` command for logging out. This helper will return the tuple that our `update` function expects from all branches so we won't have to worry about type mismatches.
 
-We will call `setStorageHelper` and pass the model updates that we want to propagate to the app and save to local storage. We're saving the model to storage when the user is successfully granted a token and when they get a protected quote. `GetTokenSuccess` will now also clear the password and error message; there is no reason to save these to storage. On logout, we'll remove the `localStorage` `model` item.
+We will call `setStorageHelper` and pass the model updates that we want to propagate to the app and save to local storage. We're saving the model to storage when the user is successfully granted a token and when they get a protected quote. On logout, we'll remove the `localStorage` `model` item.
 
 Now when we authenticate, local storage will keep our data so when we refresh or come back later, we won't lose our login state.
 
@@ -699,7 +706,7 @@ These modules are great resources to help you implement Auth0 with Elm. We will 
 
 In our `index.html` file, we'll use JavaScript to implement ports that instantiate the Auth0 lock and log out:
 
-```html
+{% highlight html %}
 <!-- index.html -->
 
 <!DOCTYPE html>
@@ -753,11 +760,11 @@ In our `index.html` file, we'll use JavaScript to implement ports that instantia
         });
     </script>
 </html>    
-```
+{% endhighlight html %}
 
 First we need to add our compiled Elm files as well as the Auth0 lock widget JavaScript file:
 
-```html
+{% highlight html %}
 <script src="Main.js"></script>
 <script src="Auth0.js"></script>
 <script src="Authentication.js"></script>
@@ -765,7 +772,7 @@ First we need to add our compiled Elm files as well as the Auth0 lock widget Jav
 ...
 
 <script src="//cdn.auth0.com/js/lock-9.1.min.js"></script>
-```
+{% endhighlight html %}
 
 Then we'll instantiate a lock instance:
 
@@ -779,7 +786,7 @@ Next we'll set up the JS to instantiate the Elm application with flags and ports
 
 Next we'll build our `Auth0.elm` module:
 
-```js
+```elm
 -- Auth0.elm
 
 module Auth0
@@ -868,7 +875,7 @@ This module handles responses from Auth0 authentication requests. It defines aut
 
 Now we need a way for the Auth0 module to interface with the authentication logic for our Elm app. We'll set this up in an `Authentication.elm` file:
 
-```js
+```elm
 -- Authentication.elm
 
 module Authentication
@@ -967,7 +974,7 @@ We need to import the `Auth0` module so we can reference it. The model provides 
 
 Our modules are ready to use. We'll import them in our `Main.elm` program file and create our `model`, `update`, and `view`:
 
-```js
+```elm
 -- Main.elm
 
 port module Main exposing (..)
